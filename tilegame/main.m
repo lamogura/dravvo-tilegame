@@ -1,8 +1,8 @@
 //
 //  main.m
-//  tutorial_TileGame
+//  tilegame
 //
-//  Created by Jeremiah Anderson on 12/10/12.
+//  Created by pyrus on 12/10/12.
 //  Copyright __MyCompanyName__ 2012. All rights reserved.
 //
 
