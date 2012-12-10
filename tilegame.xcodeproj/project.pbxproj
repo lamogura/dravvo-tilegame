@@ -148,6 +148,13 @@
 		63C2058E1675874900E533ED /* tmw_desert_spacing.png in Resources */ = {isa = PBXBuildFile; fileRef = 63C205821675874900E533ED /* tmw_desert_spacing.png */; };
 		63C20596167587A300E533ED /* GameOverScene.m in Sources */ = {isa = PBXBuildFile; fileRef = 63C20593167587A300E533ED /* GameOverScene.m */; };
 		63C20597167587A300E533ED /* GameStateChanged.m in Sources */ = {isa = PBXBuildFile; fileRef = 63C20595167587A300E533ED /* GameStateChanged.m */; };
+		63FEC20116758C8D0046932A /* enemy1-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = 63FEC1FA16758C8D0046932A /* enemy1-hd.png */; };
+		63FEC20216758C8D0046932A /* meta_tiles-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = 63FEC1FB16758C8D0046932A /* meta_tiles-hd.png */; };
+		63FEC20316758C8D0046932A /* Player-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = 63FEC1FC16758C8D0046932A /* Player-hd.png */; };
+		63FEC20416758C8D0046932A /* projectile-button-off-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = 63FEC1FD16758C8D0046932A /* projectile-button-off-hd.png */; };
+		63FEC20516758C8D0046932A /* projectile-button-on-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = 63FEC1FE16758C8D0046932A /* projectile-button-on-hd.png */; };
+		63FEC20616758C8D0046932A /* Projectile-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = 63FEC1FF16758C8D0046932A /* Projectile-hd.png */; };
+		63FEC20716758C8D0046932A /* tmw_desert_spacing-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = 63FEC20016758C8D0046932A /* tmw_desert_spacing-hd.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -431,6 +438,13 @@
 		63C20593167587A300E533ED /* GameOverScene.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GameOverScene.m; sourceTree = "<group>"; };
 		63C20594167587A300E533ED /* GameStateChanged.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GameStateChanged.h; sourceTree = "<group>"; };
 		63C20595167587A300E533ED /* GameStateChanged.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GameStateChanged.m; sourceTree = "<group>"; };
+		63FEC1FA16758C8D0046932A /* enemy1-hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "enemy1-hd.png"; sourceTree = "<group>"; };
+		63FEC1FB16758C8D0046932A /* meta_tiles-hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "meta_tiles-hd.png"; sourceTree = "<group>"; };
+		63FEC1FC16758C8D0046932A /* Player-hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Player-hd.png"; sourceTree = "<group>"; };
+		63FEC1FD16758C8D0046932A /* projectile-button-off-hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "projectile-button-off-hd.png"; sourceTree = "<group>"; };
+		63FEC1FE16758C8D0046932A /* projectile-button-on-hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "projectile-button-on-hd.png"; sourceTree = "<group>"; };
+		63FEC1FF16758C8D0046932A /* Projectile-hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Projectile-hd.png"; sourceTree = "<group>"; };
+		63FEC20016758C8D0046932A /* tmw_desert_spacing-hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "tmw_desert_spacing-hd.png"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -875,6 +889,13 @@
 		63C205901675875A00E533ED /* Assets */ = {
 			isa = PBXGroup;
 			children = (
+				63FEC1FA16758C8D0046932A /* enemy1-hd.png */,
+				63FEC1FB16758C8D0046932A /* meta_tiles-hd.png */,
+				63FEC1FC16758C8D0046932A /* Player-hd.png */,
+				63FEC1FD16758C8D0046932A /* projectile-button-off-hd.png */,
+				63FEC1FE16758C8D0046932A /* projectile-button-on-hd.png */,
+				63FEC1FF16758C8D0046932A /* Projectile-hd.png */,
+				63FEC20016758C8D0046932A /* tmw_desert_spacing-hd.png */,
 				63C205771675874800E533ED /* enemy1.png */,
 				63C205781675874800E533ED /* hit.caf */,
 				63C205791675874900E533ED /* meta_tiles.png */,
@@ -967,6 +988,13 @@
 				63C2058C1675874900E533ED /* TileMap.caf in Resources */,
 				63C2058D1675874900E533ED /* TileMap.tmx in Resources */,
 				63C2058E1675874900E533ED /* tmw_desert_spacing.png in Resources */,
+				63FEC20116758C8D0046932A /* enemy1-hd.png in Resources */,
+				63FEC20216758C8D0046932A /* meta_tiles-hd.png in Resources */,
+				63FEC20316758C8D0046932A /* Player-hd.png in Resources */,
+				63FEC20416758C8D0046932A /* projectile-button-off-hd.png in Resources */,
+				63FEC20516758C8D0046932A /* projectile-button-on-hd.png in Resources */,
+				63FEC20616758C8D0046932A /* Projectile-hd.png in Resources */,
+				63FEC20716758C8D0046932A /* tmw_desert_spacing-hd.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1186,6 +1214,7 @@
 				63C205551675848F00E533ED /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
