@@ -25,7 +25,7 @@
         self.nextTurn = [dict objectForKey:@"nextTurn"];
         
         if ([dict objectForKey:@"lastUpdate"] != [NSNull null]) {
-            int x;
+            // TODO: unfold this unto a dictionary
         }
         
         self.isGameOver  = [@"true" isEqualToString:[dict objectForKey:@"isGameOver"]] ? YES : NO;

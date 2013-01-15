@@ -26,7 +26,6 @@
 #pragma mark - API Functions
 - (void) getGameStatusAndCallBlock:(void (^)(NSError *, DVGameStatus *))block {
     NSString* gameID = [[NSUserDefaults standardUserDefaults] stringForKey:@"gameID"];
-    gameID = @"50f547f1217b77a552000002";
     
     if (gameID == nil) {
         ULog(@"No gameID found...");
