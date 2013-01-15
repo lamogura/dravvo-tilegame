@@ -7,7 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "constants.h"
+#import "DVConstants.h"
 
 @interface GameStateChanged : NSObject
 {
