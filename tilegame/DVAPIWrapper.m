@@ -25,11 +25,6 @@
 
 #pragma mark - API Functions
 - (void) getGameStatusAndCallBlock:(void (^)(NSError *, DVGameStatus *))block {
-    // TODO: get the game ID from game state
-//    ([[NSUserDefaults standardUserDefaults] stringForKey:@"username"] != nil) {
-//        usernameTextField.text = [[NSUserDefaults standardUserDefaults] stringForKey:@"username"];
-//        DLog(@"Loaded username '%@' from NSUserDefaults", usernameTextField.text);
-    
     NSString* gameID = [[NSUserDefaults standardUserDefaults] stringForKey:@"gameID"];
     gameID = @"50f547f1217b77a552000002";
     
@@ -66,11 +61,11 @@
         [downloader.connection start]; // setup to have to start manually
     }
 }
-/*
-- (void) sendMessage:(DVGameStatus *)msg AndCallBlock:(void (^)(NSError *, DVGameStatus *msg))block {
-    NSString *urlString = [NSString stringWithFormat:@"%@/message/new", kBaseURL];
+
+- (void) postCreateNewGameAndCallBlock:(void (^)(NSError *, DVGameStatus *))block {
+    NSString *urlString = [NSString stringWithFormat:@"%@/game/new", kBaseURL];
     NSURL *url = [NSURL URLWithString:urlString];
-    NSString *dataString = [NSString stringWithFormat:@"username=%@&message_text=%@", msg.username, msg.messageText];
+    NSString *dataString = [NSString stringWithFormat:@"deviceToken=%@", @"b"];
     NSString *dataLength = [NSString stringWithFormat:@"%d", [dataString length]];
     NSData *data = [dataString dataUsingEncoding:NSUTF8StringEncoding allowLossyConversion:NO];
     
@@ -98,9 +93,9 @@
                 NSError *error = [NSError errorWithDomain:@"DVAPIWrapperErrorDomain" code:0 userInfo:@{NSLocalizedDescriptionKey : NSLocalizedString(errorString, @"")}];
                 block(error, nil);
             } else {
-                DLog(@"POST message saved successfully.");
-                DVGameStatus *msg = [[DVGameStatus alloc] initWithDictionary:[resp objectForKey:@"saved_message"]];
-                block(nil, msg);
+                DLog(@"POST created new game successfully.");
+                DVGameStatus *game = [[DVGameStatus alloc] initWithDictionary:[resp objectForKey:@"game"]];
+                block(nil, game);
             }
         }
         
@@ -110,7 +105,7 @@
     [self->observers addObject:observer];
     [downloader.connection start]; // setup to have to start manually
 }
-
+/*
 - (void) deleteMessage:(DVGameStatus *)msg AndCallBlock:(void (^)(NSError *))block {
     NSString *urlString = [NSString stringWithFormat:@"%@/message/%@/delete", kBaseURL, msg.dbID];
     NSURL *url = [NSURL URLWithString:urlString];

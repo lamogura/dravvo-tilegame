@@ -114,18 +114,23 @@
         // get thy gamestatus from server
         DLog(@"Getting current game status.");
         self->apiWrapper  = [[DVAPIWrapper alloc] init];
-        [self->apiWrapper getGameStatusAndCallBlock:^(NSError *error, DVGameStatus *status) {
-            if (error != nil) {
-                DLog(@"Received error '%@'", [error localizedDescription]);
-                UIAlertView *av = [[UIAlertView alloc] initWithTitle:@"error"
-                                                             message:[error localizedDescription]
-                                                            delegate:nil
-                                                   cancelButtonTitle:@"ok"
-                                                   otherButtonTitles:nil];
-                [av show];
-            } else {
-                DLog(@"Now we have the new game state, do something.");
-            }
+        
+        [self->apiWrapper postCreateNewGameAndCallBlock:^(NSError *error, DVGameStatus *status) {
+            [[NSUserDefaults standardUserDefaults] setObject:[status gameID] forKey:@"gameID"];
+                
+            [self->apiWrapper getGameStatusAndCallBlock:^(NSError *error, DVGameStatus *status) {
+                if (error != nil) {
+                    DLog(@"Received error '%@'", [error localizedDescription]);
+                    UIAlertView *av = [[UIAlertView alloc] initWithTitle:@"error"
+                                                                 message:[error localizedDescription]
+                                                                delegate:nil
+                                                       cancelButtonTitle:@"ok"
+                                                       otherButtonTitles:nil];
+                    [av show];
+                } else {
+                    DLog(@"Now we have the new game state, do something.");
+                }
+            }];
         }];
 
         self.isTouchEnabled = YES;  // set THIS LAYER as touch enabled so user can move character around with callbacks

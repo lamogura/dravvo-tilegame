@@ -11,20 +11,24 @@
 
 @implementation DVGameStatus
 
-@synthesize dbID;
+@synthesize gameID;
 @synthesize createdAt;
 
-@synthesize deviceToken;
+@synthesize nextTurn;
 @synthesize lastUpdate;
 @synthesize isGameOver;
 
 - (id)initWithDictionary:(NSDictionary *) dict {
     self = [super init];
     if (self) {
-        self.dbID        = [dict objectForKey:@"_id"];
-        self.deviceToken = [dict objectForKey:@"deviceToken"];
-        self.lastUpdate  = [dict objectForKey:@"lastUpdate"];
-        self.isGameOver  = [@"true" isEqualToString:[dict objectForKey:@"isGameOver"]] ? TRUE : FALSE;
+        self.gameID = [dict objectForKey:@"_id"];
+        self.nextTurn = [dict objectForKey:@"nextTurn"];
+        
+        if ([dict objectForKey:@"lastUpdate"] != [NSNull null]) {
+            int x;
+        }
+        
+        self.isGameOver  = [@"true" isEqualToString:[dict objectForKey:@"isGameOver"]] ? YES : NO;
         
         NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
         formatter.dateFormat = @"yyyy-MM-dd'T'HH:mm:ss.SSS";

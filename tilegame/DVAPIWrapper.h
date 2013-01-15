@@ -15,6 +15,6 @@
 
 - (void) getGameStatusAndCallBlock:(void (^)(NSError *, DVGameStatus *))block;
 //- (void) putUpdateGameWithStatus:(DVGameStatus *)status AndCallBlock:(void (^)(NSError *))block;
-//- (void) postCreateNewGameAndCallBlock:(void (^)(NSError *, DVGameStatus *))block;
+- (void) postCreateNewGameAndCallBlock:(void (^)(NSError *, DVGameStatus *))block;
 
 @end
