@@ -10,14 +10,14 @@
 
 @interface DVGameStatus : NSObject
 
-@property NSString *username;
-@property NSString *messageText;
-@property NSDate *receivedAt;
-@property NSString *dbID;
+@property (nonatomic, copy) NSString *dbID;
+@property (nonatomic, retain) NSDate *createdAt;
 
-- (id)initWithDictionary:(NSDictionary *) dict;
+@property (nonatomic, copy) NSString *deviceToken;
+@property (nonatomic, copy) NSString *lastUpdate;
+@property (nonatomic, assign) BOOL isGameOver;
+
+- (id)initWithDictionary:(NSDictionary *)dict;
 - (id)initWithJSONString:(NSString *)jsonString;
 
-+ (NSArray *)textMessageArrayFromJSON: (NSString *)jsonString;
-    
 @end

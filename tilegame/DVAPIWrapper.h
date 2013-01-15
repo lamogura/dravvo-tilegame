@@ -13,8 +13,8 @@
 
 - (id) init;
 
-- (void) getAllMessagesAndCallBlock:(void (^)(NSError *, NSArray *))block;
-- (void) sendMessage:(DVGameStatus *)msg AndCallBlock:(void (^)(NSError *, DVGameStatus *msg))block;
-- (void) deleteMessage:(DVGameStatus *)msg AndCallBlock:(void (^)(NSError *))block;
+- (void) getGameStatusAndCallBlock:(void (^)(NSError *, DVGameStatus *))block;
+//- (void) putUpdateGameWithStatus:(DVGameStatus *)status AndCallBlock:(void (^)(NSError *))block;
+//- (void) postCreateNewGameAndCallBlock:(void (^)(NSError *, DVGameStatus *))block;
 
 @end

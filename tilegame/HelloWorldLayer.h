@@ -11,6 +11,7 @@
 
 #import <GameKit/GameKit.h>
 #import "cocos2d.h" // When you import this file, you import all the cocos2d classes
+#import "DVAPIWrapper.h"
 
 @class HelloWorldLayer;
 
@@ -44,6 +45,8 @@
     int numCollected;
     HelloWorldHud* _hud; // keep a pointer to the HUD labels/stats layer
     int _mode;  // game mode variable - shooting or moving
+    
+    DVAPIWrapper* apiWrapper;
 }
 
 @property (nonatomic, retain) CCTMXTiledMap* tileMap;

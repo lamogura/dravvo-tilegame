@@ -11,23 +11,26 @@
 
 @implementation DVGameStatus
 
-@synthesize username;
-@synthesize messageText;
-@synthesize receivedAt;
 @synthesize dbID;
+@synthesize createdAt;
+
+@synthesize deviceToken;
+@synthesize lastUpdate;
+@synthesize isGameOver;
 
 - (id)initWithDictionary:(NSDictionary *) dict {
     self = [super init];
     if (self) {
-        self.username    = [dict objectForKey:@"username"];
-        self.messageText = [dict objectForKey:@"message_text"];
         self.dbID        = [dict objectForKey:@"_id"];
+        self.deviceToken = [dict objectForKey:@"deviceToken"];
+        self.lastUpdate  = [dict objectForKey:@"lastUpdate"];
+        self.isGameOver  = [@"true" isEqualToString:[dict objectForKey:@"isGameOver"]] ? TRUE : FALSE;
         
         NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
         formatter.dateFormat = @"yyyy-MM-dd'T'HH:mm:ss.SSS";
         NSDate *date;
-        [formatter getObjectValue:&date forString:[dict objectForKey:@"received_at"] range:nil error:nil];
-        self.receivedAt = date;
+        [formatter getObjectValue:&date forString:[dict objectForKey:@"createdAt"] range:nil error:nil];
+        self.createdAt = date;
     }
     return self;
 }
@@ -36,13 +39,4 @@
     return [[DVGameStatus alloc] initWithDictionary:[jsonString JSONValue]];
 }
 
-+ (NSArray *)textMessageArrayFromJSON: (NSString *)jsonString {
-    NSArray *jsonMessages = [jsonString JSONValue];
-    NSMutableArray *messages = [[NSMutableArray alloc] initWithCapacity:[jsonMessages count]];
-    
-    for (NSDictionary *msg in jsonMessages) {
-        [messages addObject:[[DVGameStatus alloc] initWithDictionary:msg]];
-    }
-    return (NSArray *)messages; //convert back to standard array
-}
 @end

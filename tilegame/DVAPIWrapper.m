@@ -24,35 +24,49 @@
 @implementation DVAPIWrapper
 
 #pragma mark - API Functions
-- (void) getAllMessagesAndCallBlock:(void (^)(NSError *,NSArray *))block {
-    NSString *urlString = [NSString stringWithFormat:@"%@/message/all", kBaseURL];
-    NSURL *url = [NSURL URLWithString:urlString];
-    NSURLRequest *req = [NSURLRequest requestWithURL:url cachePolicy:NSURLRequestReloadIgnoringLocalCacheData timeoutInterval:30.0];
+- (void) getGameStatusAndCallBlock:(void (^)(NSError *, DVGameStatus *))block {
+    // TODO: get the game ID from game state
+//    ([[NSUserDefaults standardUserDefaults] stringForKey:@"username"] != nil) {
+//        usernameTextField.text = [[NSUserDefaults standardUserDefaults] stringForKey:@"username"];
+//        DLog(@"Loaded username '%@' from NSUserDefaults", usernameTextField.text);
     
-    DVDownloader *downloader = [[DVDownloader alloc] initWithRequest:req];
-    DLog(@"Get to '%@'", urlString);
+    NSString* gameID = [[NSUserDefaults standardUserDefaults] stringForKey:@"gameID"];
+    gameID = @"50f547f1217b77a552000002";
     
-    [self->connections addObject:downloader];
-    
-    id observer = [[NSNotificationCenter defaultCenter] addObserverForName:DVDownloaderDidFinishDownloading object:downloader queue:nil usingBlock:^(NSNotification *notification) {
-        if (notification.userInfo) {
-            NSError *err = [notification.userInfo objectForKey:@"error"];
-            block(err, nil);
-        } else {
-            NSString *jsonString = [[NSString alloc] initWithData:downloader.receivedData encoding:NSUTF8StringEncoding];
-            DLog(@"Received JSON response: %@", jsonString);
-            NSArray *messages = [DVGameStatus textMessageArrayFromJSON:jsonString];
-            DLog(@"Contained %d messages.", [messages count]);
-            block(nil, messages);
-        }
+    if (gameID == nil) {
+        ULog(@"No gameID found...");
+    }
+    else {
+        DLog(@"Fetching update for gameID: %@", gameID);
         
-        [self->connections removeObject:downloader];
-    }];
-    
-    [self->observers addObject:observer];
-    [downloader.connection start]; // setup to have to start manually
+        NSString *urlString = [NSString stringWithFormat:@"%@/game/%@", kBaseURL, gameID];
+        NSURL *url = [NSURL URLWithString:urlString];
+        NSURLRequest *req = [NSURLRequest requestWithURL:url cachePolicy:NSURLRequestReloadIgnoringLocalCacheData timeoutInterval:30.0];
+        
+        DVDownloader *downloader = [[DVDownloader alloc] initWithRequest:req];
+        DLog(@"Get to '%@'", urlString);
+        
+        [self->connections addObject:downloader];
+        
+        id observer = [[NSNotificationCenter defaultCenter] addObserverForName:DVDownloaderDidFinishDownloading object:downloader queue:nil usingBlock:^(NSNotification *notification) {
+            if (notification.userInfo) {
+                NSError *err = [notification.userInfo objectForKey:@"error"];
+                block(err, nil);
+            } else {
+                NSString *jsonString = [[NSString alloc] initWithData:downloader.receivedData encoding:NSUTF8StringEncoding];
+                DLog(@"Received JSON response: %@", jsonString);
+//                DLog(@"Contained %d messages.", [messages count]);
+//                block(nil, nil);
+            }
+            
+            [self->connections removeObject:downloader];
+        }];
+        
+        [self->observers addObject:observer];
+        [downloader.connection start]; // setup to have to start manually
+    }
 }
-
+/*
 - (void) sendMessage:(DVGameStatus *)msg AndCallBlock:(void (^)(NSError *, DVGameStatus *msg))block {
     NSString *urlString = [NSString stringWithFormat:@"%@/message/new", kBaseURL];
     NSURL *url = [NSURL URLWithString:urlString];
@@ -133,7 +147,7 @@
     [self->observers addObject:observer];
     [downloader.connection start]; // setup to have to start manually
 }
-
+*/
 #pragma mark - Lifetime
 - (id) init {
     self = [super init];
@@ -151,6 +165,8 @@
     }
     self->connections = nil;
     self->observers = nil;
+    
+    [super dealloc];
 }
 
 @end

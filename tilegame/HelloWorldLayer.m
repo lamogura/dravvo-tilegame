@@ -13,6 +13,7 @@
 // Needed to obtain the Navigation Controller
 #import "AppDelegate.h"
 #import "SimpleAudioEngine.h"
+#import "DVMacros.h"
 
 @implementation HelloWorldHud
 
@@ -109,6 +110,24 @@
 	// always call "super" init
 	// Apple recommends to re-assign "self" with the "super's" return value
 	if( (self=[super init]) ) {
+        
+        // get thy gamestatus from server
+        DLog(@"Getting current game status.");
+        self->apiWrapper  = [[DVAPIWrapper alloc] init];
+        [self->apiWrapper getGameStatusAndCallBlock:^(NSError *error, DVGameStatus *status) {
+            if (error != nil) {
+                DLog(@"Received error '%@'", [error localizedDescription]);
+                UIAlertView *av = [[UIAlertView alloc] initWithTitle:@"error"
+                                                             message:[error localizedDescription]
+                                                            delegate:nil
+                                                   cancelButtonTitle:@"ok"
+                                                   otherButtonTitles:nil];
+                [av show];
+            } else {
+                DLog(@"Now we have the new game state, do something.");
+            }
+        }];
+
         self.isTouchEnabled = YES;  // set THIS LAYER as touch enabled so user can move character around with callbacks
 		
         _mode = 0;  // default game mode = 0, move mode (mode = 1, shoot mode)
@@ -165,7 +184,8 @@
         [self setViewpointCenter:_player.position];
         
         [self addChild:_tileMap z:-1];
-	}
+        
+    }
 	return self;
 }
 
