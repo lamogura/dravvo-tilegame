@@ -18,13 +18,12 @@
     NSMutableSet *connections; // downloader connections live
     NSMutableSet *observers; // notification observers live
 }
-
 @end
 
 @implementation DVAPIWrapper
 
 #pragma mark - API Functions
-- (void) getGameStatusAndCallBlock:(void (^)(NSError *, DVGameStatus *))block {
+- (void) getGameStatusThenCallBlock:(void (^)(NSError *, DVGameStatus *))block {
     NSString* gameID = [[NSUserDefaults standardUserDefaults] stringForKey:@"gameID"];
     
     if (gameID == nil) {
@@ -61,7 +60,7 @@
     }
 }
 
-- (void) postCreateNewGameAndCallBlock:(void (^)(NSError *, DVGameStatus *))block {
+- (void) postCreateNewGameThenCallBlock:(void (^)(NSError *, DVGameStatus *))block {
     NSString *urlString = [NSString stringWithFormat:@"%@/game/new", kBaseURL];
     NSURL *url = [NSURL URLWithString:urlString];
     NSString *dataString = [NSString stringWithFormat:@"deviceToken=%@", @"b"];
@@ -104,6 +103,73 @@
     [self->observers addObject:observer];
     [downloader.connection start]; // setup to have to start manually
 }
+
+- (void) putUpdateGameWithUpdates:(NSDictionary *)updates ThenCallBlock:(void (^)(NSError *))block {
+    NSString* gameID = [[NSUserDefaults standardUserDefaults] stringForKey:@"gameID"];
+    
+    if (gameID == nil) {
+        ULog(@"No gameID found...");
+    }
+    else {
+        DLog(@"Updating gameID: %@", gameID);
+        SBJsonWriter* jwriter = [[SBJsonWriter alloc] init];
+        NSString* updatesJSON;
+        
+        NSString *urlString = [NSString stringWithFormat:@"%@/game/%@/update", kBaseURL, gameID];
+        NSURL *url = [NSURL URLWithString:urlString];
+        
+        NSString *dataString;
+        if ([updates objectForKey:kIsGameOver] == nil) {
+            updatesJSON = [jwriter stringWithObject:updates];
+            dataString = [NSString stringWithFormat:@"lastUpdate=%@&deviceToken=%@", updatesJSON, @"b"];
+        }
+        else {
+            NSMutableDictionary *mutableUpdates = [NSMutableDictionary dictionaryWithDictionary:updates];
+            NSString* isGameOver = [mutableUpdates objectForKey:kIsGameOver];
+            [mutableUpdates removeObjectForKey:kIsGameOver];
+            [jwriter stringWithObject:mutableUpdates];
+            dataString = [NSString stringWithFormat:@"lastUpdate=%@&deviceToken=%@&isGameOver=%@", updatesJSON, @"b", isGameOver];
+        }
+        NSString *dataLength = [NSString stringWithFormat:@"%d", [dataString length]];
+        NSData *data = [dataString dataUsingEncoding:NSUTF8StringEncoding allowLossyConversion:NO];
+        
+        NSMutableURLRequest *req = [NSMutableURLRequest requestWithURL:url cachePolicy:NSURLRequestReloadIgnoringLocalCacheData timeoutInterval:30.0];
+        [req setHTTPMethod:@"POST"];
+        [req setValue:dataLength forHTTPHeaderField:@"Content-Length"];
+        [req setHTTPBody:data];
+        
+        DLog(@"PUT to '%@' with body '%@'", urlString, dataString);
+        DVDownloader *downloader = [[DVDownloader alloc] initWithRequest:req];
+        [self->connections addObject:downloader];
+
+        id observer = [[NSNotificationCenter defaultCenter] addObserverForName:DVDownloaderDidFinishDownloading object:downloader queue:nil usingBlock:^(NSNotification *notification) {
+            if (notification.userInfo) {
+                NSError *error = [notification.userInfo objectForKey:@"error"];
+                block(error);
+            } else {
+                NSString *jsonString = [[NSString alloc] initWithData:downloader.receivedData encoding:NSUTF8StringEncoding];
+                DLog(@"Received JSON response: %@", jsonString);
+                NSDictionary *resp = [jsonString JSONValue];
+                
+                if ([resp valueForKey:@"error"] != nil) {
+                    NSString *errorString = [resp objectForKey:@"error"];
+                    DLog(@"Contained an error: %@", errorString);
+                    NSError *error = [NSError errorWithDomain:@"DVAPIWrapperErrorDomain" code:0 userInfo:@{NSLocalizedDescriptionKey : NSLocalizedString(errorString, @"")}];
+                    block(error);
+                } else {
+                    DLog(@"PUT update successful.");
+                    block(nil);
+                }
+            }
+            
+            [self->connections removeObject:downloader];
+        }];
+        
+        [self->observers addObject:observer];
+        [downloader.connection start]; // setup to have to start manually
+    }
+}
+
 /*
 - (void) deleteMessage:(DVGameStatus *)msg AndCallBlock:(void (^)(NSError *))block {
     NSString *urlString = [NSString stringWithFormat:@"%@/message/%@/delete", kBaseURL, msg.dbID];

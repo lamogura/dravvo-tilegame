@@ -112,27 +112,31 @@
 	if( (self=[super init]) ) {
         
         // get thy gamestatus from server
-        DLog(@"Getting current game status.");
-        self->apiWrapper  = [[DVAPIWrapper alloc] init];
-        
-        [self->apiWrapper postCreateNewGameAndCallBlock:^(NSError *error, DVGameStatus *status) {
-            [[NSUserDefaults standardUserDefaults] setObject:[status gameID] forKey:@"gameID"];
-                
-            [self->apiWrapper getGameStatusAndCallBlock:^(NSError *error, DVGameStatus *status) {
-                if (error != nil) {
-                    DLog(@"Received error '%@'", [error localizedDescription]);
-                    UIAlertView *av = [[UIAlertView alloc] initWithTitle:@"error"
-                                                                 message:[error localizedDescription]
-                                                                delegate:nil
-                                                       cancelButtonTitle:@"ok"
-                                                       otherButtonTitles:nil];
-                    [av show];
-                } else {
-                    DLog(@"Now we have the new game state, do something.");
-                }
-            }];
-        }];
+//        DLog(@"Getting current game status.");
+//        self->apiWrapper  = [[DVAPIWrapper alloc] init];
+//        
+//        [self->apiWrapper postCreateNewGameThenCallBlock:^(NSError *error, DVGameStatus *status) {
+//            [[NSUserDefaults standardUserDefaults] setObject:[status gameID] forKey:@"gameID"];
+//            DLog(@"Now we have the new game state, do something.");
 
+//        [self->apiWrapper getGameStatusAndCallBlock:^(NSError *error, DVGameStatus *status) {
+//            if (error != nil) {
+//                DLog(@"Received error '%@'", [error localizedDescription]);
+//                UIAlertView *av = [[UIAlertView alloc] initWithTitle:@"error"
+//                                                             message:[error localizedDescription]
+//                                                            delegate:nil
+//                                                   cancelButtonTitle:@"ok"
+//                                                   otherButtonTitles:nil];
+//                [av show];
+//            } else {
+//                DLog(@"Now we have the new game state, do something.");
+            
+//        [self->apiWrapper putUpdateGameWithUpdates:[NSDictionary dictionaryWithObject:@"dataBullshit" forKey:@"keyBullshit"] ThenCallBlock:^(NSError* error) {
+//            if (error != nil) {
+//                DLog(@"Looks like the update worked!!");
+//            }
+//        }];
+            
         self.isTouchEnabled = YES;  // set THIS LAYER as touch enabled so user can move character around with callbacks
 		
         _mode = 0;  // default game mode = 0, move mode (mode = 1, shoot mode)

@@ -13,6 +13,7 @@
 //#endif
 
 #define kNumMelons 6  // number of melons required to be eaten
+#define kIsGameOver @"isGameOver"
 
 //#define kBaseURL @"http://dravvo.ap01.aws.af.cm"
 //#define kBaseURL @"http://192.168.1.108:3000"

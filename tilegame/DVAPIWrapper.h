@@ -13,8 +13,8 @@
 
 - (id) init;
 
-- (void) getGameStatusAndCallBlock:(void (^)(NSError *, DVGameStatus *))block;
-//- (void) putUpdateGameWithStatus:(DVGameStatus *)status AndCallBlock:(void (^)(NSError *))block;
-- (void) postCreateNewGameAndCallBlock:(void (^)(NSError *, DVGameStatus *))block;
-
+- (void) getGameStatusThenCallBlock:(void (^)(NSError *, DVGameStatus *))block;
+- (void) postCreateNewGameThenCallBlock:(void (^)(NSError *, DVGameStatus *))block;
+// make a "isGameOver" key with value "true" or "false" to send to the server
+- (void) putUpdateGameWithUpdates:(NSDictionary *)updates ThenCallBlock:(void (^)(NSError *))block;
 @end
