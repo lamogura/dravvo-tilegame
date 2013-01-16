@@ -66,5 +66,9 @@
 -(void) addEnemyAtX:(int)x y:(int)y;
 -(void) enemyMoveFinished:(id)sender;
 -(void) animateEnemy:(CCSprite*) enemy;
+-(void) win;
+-(void) lose;
+-(CGPoint) pixelToPoint:(CGPoint) pixelPoint;
+-(CGSize) pixelToPointSize:(CGSize) pixelSize;
 
 @end
