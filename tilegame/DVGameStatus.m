@@ -15,7 +15,7 @@
 @synthesize createdAt;
 
 @synthesize nextTurn;
-@synthesize lastUpdate;
+@synthesize lastUpdates;
 @synthesize isGameOver;
 
 - (id)initWithDictionary:(NSDictionary *) dict {
@@ -25,7 +25,8 @@
         self.nextTurn = [dict objectForKey:@"nextTurn"];
         
         if ([dict objectForKey:@"lastUpdate"] != [NSNull null]) {
-            // TODO: unfold this unto a dictionary
+            NSString* updatesAsJSON = [dict objectForKey:@"lastUpdate"];
+            self.lastUpdates = [updatesAsJSON JSONValue];
         }
         
         self.isGameOver  = [@"true" isEqualToString:[dict objectForKey:@"isGameOver"]] ? YES : NO;

@@ -14,6 +14,7 @@
 #import "AppDelegate.h"
 #import "SimpleAudioEngine.h"
 #import "DVMacros.h"
+#import "DVConstants.h"
 
 @implementation HelloWorldHud
 
@@ -111,32 +112,44 @@
 	// Apple recommends to re-assign "self" with the "super's" return value
 	if( (self=[super init]) ) {
         
-        // get thy gamestatus from server
-//        DLog(@"Getting current game status.");
-//        self->apiWrapper  = [[DVAPIWrapper alloc] init];
-//        
+        DLog(@"");
+        DLog(@"TESTING API WRAPPER");
+        DLog(@"*******************");
+        
+        self->apiWrapper = [[DVAPIWrapper alloc] init];
+        
+        // test create new game
 //        [self->apiWrapper postCreateNewGameThenCallBlock:^(NSError *error, DVGameStatus *status) {
-//            [[NSUserDefaults standardUserDefaults] setObject:[status gameID] forKey:@"gameID"];
-//            DLog(@"Now we have the new game state, do something.");
-
-//        [self->apiWrapper getGameStatusAndCallBlock:^(NSError *error, DVGameStatus *status) {
 //            if (error != nil) {
-//                DLog(@"Received error '%@'", [error localizedDescription]);
-//                UIAlertView *av = [[UIAlertView alloc] initWithTitle:@"error"
-//                                                             message:[error localizedDescription]
-//                                                            delegate:nil
-//                                                   cancelButtonTitle:@"ok"
-//                                                   otherButtonTitles:nil];
-//                [av show];
-//            } else {
-//                DLog(@"Now we have the new game state, do something.");
-            
-//        [self->apiWrapper putUpdateGameWithUpdates:[NSDictionary dictionaryWithObject:@"dataBullshit" forKey:@"keyBullshit"] ThenCallBlock:^(NSError* error) {
-//            if (error != nil) {
-//                DLog(@"Looks like the update worked!!");
+//                ULog([error localizedDescription]);
+//            }
+//            else {
+//                [[NSUserDefaults standardUserDefaults] setObject:[status gameID] forKey:kCurrentGameIDKey];
+//                DLog(@"CREATED NEW GAME, saved GameID '%@'to NSUserDefaults", [status gameID]);
 //            }
 //        }];
-            
+        
+        // test getting current game's status
+//        [self->apiWrapper getGameStatusThenCallBlock:^(NSError *error, DVGameStatus *status) {
+//            if (error != nil) {
+//                ULog([error localizedDescription]);
+//            }
+//            else {
+//                DLog(@"GOT GAME STATUS");
+//            }
+//        }];
+        
+        // test sending game update
+//        NSDictionary* updates = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:5], @"melonsEaten", [NSNumber numberWithInt:2], @"enemiesKilled", [NSNumber numberWithInt:6], @"starsThrown", @"false", kIsGameOver, nil];
+//        [self->apiWrapper postUpdateGameWithUpdates:updates ThenCallBlock:^(NSError* error) {
+//            if (error != nil) {
+//                ULog([error localizedDescription]);
+//            }
+//            else {
+//                DLog(@"UPDATED GAME GAME STATUS");
+//            }
+//        }];
+        
         self.isTouchEnabled = YES;  // set THIS LAYER as touch enabled so user can move character around with callbacks
 		
         _mode = 0;  // default game mode = 0, move mode (mode = 1, shoot mode)

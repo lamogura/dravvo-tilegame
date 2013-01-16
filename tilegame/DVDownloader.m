@@ -38,12 +38,12 @@
     [receivedData appendData:data];
 }
 
-- (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)err {
-    [[NSNotificationCenter defaultCenter] postNotificationName:DVDownloaderDidFinishDownloading object:self userInfo:[NSDictionary dictionaryWithObject:err forKey:@"error"]];
+- (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error {
+    [[NSNotificationCenter defaultCenter] postNotificationName:kDVDownloaderDidFinishDownloadingNotification object:self userInfo:[NSDictionary dictionaryWithObject:error forKey:kDVDownloaderErrorKey]];
 }
 
 - (void)connectionDidFinishLoading:(NSURLConnection *)connection {
-    [[NSNotificationCenter defaultCenter] postNotificationName:DVDownloaderDidFinishDownloading object:self];
+    [[NSNotificationCenter defaultCenter] postNotificationName:kDVDownloaderDidFinishDownloadingNotification object:self];
 }
 
 @end
