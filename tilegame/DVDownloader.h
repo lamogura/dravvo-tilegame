@@ -8,7 +8,8 @@
 
 #import <Foundation/Foundation.h>
 
-#define DVDownloaderDidFinishDownloading @"DVDownloaderDidFinishDownloading"
+#define kDVDownloaderDidFinishDownloadingNotification @"DVDownloaderDidFinishDownloading"
+#define kDVDownloaderErrorKey @"error"
 
 @interface DVDownloader : NSObject <NSURLConnectionDataDelegate>
 

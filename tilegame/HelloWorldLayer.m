@@ -13,6 +13,8 @@
 // Needed to obtain the Navigation Controller
 #import "AppDelegate.h"
 #import "SimpleAudioEngine.h"
+#import "DVMacros.h"
+#import "DVConstants.h"
 
 @implementation HelloWorldHud
 
@@ -109,6 +111,45 @@
 	// always call "super" init
 	// Apple recommends to re-assign "self" with the "super's" return value
 	if( (self=[super init]) ) {
+        
+        DLog(@"");
+        DLog(@"TESTING API WRAPPER");
+        DLog(@"*******************");
+        
+        self->apiWrapper = [[DVAPIWrapper alloc] init];
+        
+        // test create new game
+//        [self->apiWrapper postCreateNewGameThenCallBlock:^(NSError *error, DVGameStatus *status) {
+//            if (error != nil) {
+//                ULog([error localizedDescription]);
+//            }
+//            else {
+//                [[NSUserDefaults standardUserDefaults] setObject:[status gameID] forKey:kCurrentGameIDKey];
+//                DLog(@"CREATED NEW GAME, saved GameID '%@'to NSUserDefaults", [status gameID]);
+//            }
+//        }];
+        
+        // test getting current game's status
+//        [self->apiWrapper getGameStatusThenCallBlock:^(NSError *error, DVGameStatus *status) {
+//            if (error != nil) {
+//                ULog([error localizedDescription]);
+//            }
+//            else {
+//                DLog(@"GOT GAME STATUS");
+//            }
+//        }];
+        
+        // test sending game update
+//        NSDictionary* updates = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:5], @"melonsEaten", [NSNumber numberWithInt:2], @"enemiesKilled", [NSNumber numberWithInt:6], @"starsThrown", @"false", kIsGameOver, nil];
+//        [self->apiWrapper postUpdateGameWithUpdates:updates ThenCallBlock:^(NSError* error) {
+//            if (error != nil) {
+//                ULog([error localizedDescription]);
+//            }
+//            else {
+//                DLog(@"UPDATED GAME GAME STATUS");
+//            }
+//        }];
+        
         self.isTouchEnabled = YES;  // set THIS LAYER as touch enabled so user can move character around with callbacks
 		
         _mode = 0;  // default game mode = 0, move mode (mode = 1, shoot mode)
@@ -165,7 +206,8 @@
         [self setViewpointCenter:_player.position];
         
         [self addChild:_tileMap z:-1];
-	}
+        
+    }
 	return self;
 }
 

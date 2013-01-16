@@ -13,8 +13,11 @@
 //#endif
 
 #define kNumMelons 6  // number of melons required to be eaten
+#define kIsGameOver @"isGameOver"
+
+#define kCurrentGameIDKey @"gameID" // used to save/fetch from NSUserDefaults
 
 //#define kBaseURL @"http://dravvo.ap01.aws.af.cm"
 //#define kBaseURL @"http://192.168.1.108:3000"
-#define kBaseURL @"http://192.168.20.2:3000"
+#define kBaseURL @"http://localhost:3000"
 
