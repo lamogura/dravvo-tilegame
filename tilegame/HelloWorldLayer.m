@@ -13,6 +13,7 @@
 // Needed to obtain the Navigation Controller
 #import "AppDelegate.h"
 #import "SimpleAudioEngine.h"
+#import "GameOverScene.h"
 
 @implementation HelloWorldHud
 
@@ -142,14 +143,15 @@
         
         // draw the player sprite
         self.player = [CCSprite spriteWithFile:@"Player.png"];
-        _player.position = ccp(x, y);
+        // _player.position = ccp(x, y);
+        _player.position = [self pixelToPoint:ccp(x, y)];  // NEW
         [self addChild:_player];
         
         // draw the enemy sprites
         // iterate through tileMap dictionary objects, finding all enemy spawn points
         // create an enemy for each one
-//        NSMutableDictionary* spawnPoint;
-
+        //        NSMutableDictionary* spawnPoint;
+        
         // objects method returns an array of objects (in this case dictionaries) from the ObjectGroup
         for(spawnPoint in [objects objects]) 
         {
@@ -157,7 +159,9 @@
             {
                 x = [[spawnPoint valueForKey:@"x"] intValue];
                 y = [[spawnPoint valueForKey:@"y"] intValue];
-                [self addEnemyAtX:x y:y];
+                CGPoint enemyPoint = [self pixelToPoint:ccp(x, y)];
+//                [self addEnemyAtX:x y:y];
+                [self addEnemyAtX:enemyPoint.x y:enemyPoint.y];
             }
         }
         
@@ -175,8 +179,8 @@
     
     int x = MAX(position.x, winSize.width/2);
     int y = MAX(position.y, winSize.height/2);
-    x = MIN(x, (_tileMap.mapSize.width * _tileMap.tileSize.width) - winSize.width/2);
-    y = MIN(y, (_tileMap.mapSize.height * _tileMap.tileSize.height) - winSize.height/2);
+    x = MIN(x, (_tileMap.mapSize.width * [self pixelToPointSize:_tileMap.tileSize].width) - winSize.width/2);
+    y = MIN(y, (_tileMap.mapSize.height * [self pixelToPointSize:_tileMap.tileSize].height) - winSize.height/2);
     CGPoint actualPosition = ccp(x, y);
     
     CGPoint centerOfView = ccp(winSize.width/2, winSize.height/2);
@@ -225,11 +229,23 @@
                 [_foreground removeTileAt:tileCoord];
                 self.numCollected++;
                 [_hud numCollectedChanged:_numCollected];
+                
+                // check win condition then end game if win
+                // put the number of melons on your map in place of the '2'
+                if (_numCollected == 5) {  // replace with constants.h NUM_MELONS
+                    [self win];
+                }
             }
         }
     }
     
     _player.position = position;
+}
+
+- (void) win {
+    GameOverScene *gameOverScene = [GameOverScene node];
+    [gameOverScene.layer.label setString:@"You Win!"];
+    [[CCDirector sharedDirector] replaceScene:gameOverScene];
 }
 
 -(void) ccTouchEnded:(UITouch *)touch withEvent:(UIEvent *)event
@@ -242,26 +258,29 @@
         touchLocation = [self convertToNodeSpace:touchLocation];
         // calling convertToNodeSpace method offsets the touch based on how we have moved the layer
         // for example, This is because the touch location will give us coordinates for where the user tapped inside the viewport (for example 100,100). But we might have scrolled the map a good bit so that it actually matches up to (800,800) for example.
-    
+        
+        //CGSize tileSize = [self pixelToPointSize:tileMap.tileSize];
+        
         // this just moves sprite by the one tile of pixels
         CGPoint playerPos = _player.position;
         CGPoint diff = ccpSub(touchLocation, playerPos);
         if (abs(diff.x) > abs(diff.y)) {
-            if (diff.x > 0) {
-                playerPos.x += _tileMap.tileSize.width;
+            if (diff.x > 0) {                
+                playerPos.x += [self pixelToPointSize:_tileMap.tileSize].width;
+                //playerPos.x += _tileMap.tileSize.width;
             } else {
-                playerPos.x -= _tileMap.tileSize.width; 
+                playerPos.x -= [self pixelToPointSize:_tileMap.tileSize].width;
             }    
         } else {
             if (diff.y > 0) {
-                playerPos.y += _tileMap.tileSize.height;
+                playerPos.y += [self pixelToPointSize:_tileMap.tileSize].height;
             } else {
-                playerPos.y -= _tileMap.tileSize.height;
+                playerPos.y -= [self pixelToPointSize:_tileMap.tileSize].height;
             }
         }
-    
-        if (playerPos.x <= (_tileMap.mapSize.width * _tileMap.tileSize.width) &&
-            playerPos.y <= (_tileMap.mapSize.height * _tileMap.tileSize.height) &&
+        
+        if (playerPos.x <= (_tileMap.mapSize.width * [self pixelToPointSize:_tileMap.tileSize].width) &&
+            playerPos.y <= (_tileMap.mapSize.height * [self pixelToPointSize:_tileMap.tileSize].height) &&
             playerPos.y >= 0 &&
             playerPos.x >= 0 ) 
         {
@@ -269,7 +288,7 @@
             [[SimpleAudioEngine sharedEngine] playEffect:@"move.caf"];
             [self setPlayerPosition:playerPos];
         }
-    
+        
         [self setViewpointCenter:_player.position];
     }
     // else if throw shuriken mode
@@ -290,9 +309,9 @@
         // Are we shooting to the left or right?
         CGPoint diff = ccpSub(touchLocation, _player.position);
         if(diff.x > 0)
-            realX = (_tileMap.mapSize.width * _tileMap.tileSize.width) + (projectile.contentSize.width/2);
+            realX = (_tileMap.mapSize.width * [self pixelToPointSize:_tileMap.tileSize].width) + (projectile.contentSize.width/2);
         else
-            realX = -(_tileMap.mapSize.width * _tileMap.tileSize.width) - (projectile.contentSize.width/2);
+            realX = -(_tileMap.mapSize.width * [self pixelToPointSize:_tileMap.tileSize].width) - (projectile.contentSize.width/2);
         
         float ratio = (float) diff.y / (float) diff.x;
         int realY = ((realX - projectile.position.x) * ratio) + projectile.position.y;
@@ -321,9 +340,9 @@
 // we will need the tile coordinate for some purposes:
 -(CGPoint) tileCoordForPosition:(CGPoint) position
 {
-    int x = position.x / _tileMap.tileSize.width;
+    int x = position.x / [self pixelToPointSize:_tileMap.tileSize].width;
     // gotta flip in y-direction
-    int y = ((_tileMap.mapSize.height * _tileMap.tileSize.height) - position.y) / _tileMap.tileSize.height;
+    int y = ((_tileMap.mapSize.height * [self pixelToPointSize:_tileMap.tileSize].height) - position.y) / [self pixelToPointSize:_tileMap.tileSize].height;
     return ccp(x,y);
 }
 
@@ -382,6 +401,20 @@
 
 -(void) testCollisions:(ccTime) dt
 {
+    // First, see if lose condition is met locally
+    // itterate over the enemies to see if any of them are in contact with player (dead)
+    for (CCSprite *target in _enemies) {
+        CGRect targetRect = CGRectMake(
+                                       target.position.x - (target.contentSize.width/2),
+                                       target.position.y - (target.contentSize.height/2),
+                                       target.contentSize.width,
+                                       target.contentSize.height );
+        
+        if (CGRectContainsPoint(targetRect, _player.position)) {
+            [self lose];
+        }
+    }
+    
     NSMutableArray* projectilesToDelete = [[NSMutableArray alloc] init];
     
     for (CCSprite *projectile in _projectiles) {
@@ -426,6 +459,21 @@
     }
     [projectilesToDelete release];
 }
+
+- (void) lose {
+    GameOverScene *gameOverScene = [GameOverScene node];
+    [gameOverScene.layer.label setString:@"You Lose!"];
+    [[CCDirector sharedDirector] replaceScene:gameOverScene];
+}
+
+// NEW
+-(CGPoint) pixelToPoint:(CGPoint) pixelPoint{
+    return ccpMult(pixelPoint, 1/CC_CONTENT_SCALE_FACTOR());
+}
+-(CGSize) pixelToPointSize:(CGSize) pixelSize{
+    return CGSizeMake((pixelSize.width / CC_CONTENT_SCALE_FACTOR()), (pixelSize.height / CC_CONTENT_SCALE_FACTOR()));
+}
+// END
 
 // on "dealloc" you need to release all your retained objects
 - (void) dealloc
