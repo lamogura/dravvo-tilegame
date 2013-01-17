@@ -120,15 +120,15 @@
         self->apiWrapper = [[DVAPIWrapper alloc] init];
         
         // test create new game
-        //        [self->apiWrapper postCreateNewGameThenCallBlock:^(NSError *error, DVGameStatus *status) {
-        //            if (error != nil) {
-        //                ULog([error localizedDescription]);
-        //            }
-        //            else {
-        //                [[NSUserDefaults standardUserDefaults] setObject:[status gameID] forKey:kCurrentGameIDKey];
-        //                DLog(@"CREATED NEW GAME, saved GameID '%@'to NSUserDefaults", [status gameID]);
-        //            }
-        //        }];
+        [self->apiWrapper postCreateNewGameThenCallBlock:^(NSError *error, DVGameStatus *status) {
+            if (error != nil) {
+                ULog([error localizedDescription]);
+            }
+            else {
+                [[NSUserDefaults standardUserDefaults] setObject:[status gameID] forKey:kCurrentGameIDKey];
+                DLog(@"CREATED NEW GAME, saved GameID '%@'to NSUserDefaults", [status gameID]);
+            }
+        }];
         
         // test getting current game's status
         //        [self->apiWrapper getGameStatusThenCallBlock:^(NSError *error, DVGameStatus *status) {

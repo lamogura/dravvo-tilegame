@@ -16,6 +16,7 @@
 #define kIsGameOver @"isGameOver"
 
 #define kCurrentGameIDKey @"gameID" // used to save/fetch from NSUserDefaults
+#define kDeviceToken @"deviceToken" // user to save the device token for APNS
 
 //#define kBaseURL @"http://dravvo.ap01.aws.af.cm"
 //#define kBaseURL @"http://192.168.1.108:3000"

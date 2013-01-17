@@ -11,6 +11,9 @@
 #import "AppDelegate.h"
 #import "IntroLayer.h"
 #import "DVAPIWrapper.h"
+#import "DVMacros.h"
+#import "DVConstants.h"
+#import "DVUtils.h"
 
 @implementation AppController
 
@@ -18,6 +21,9 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
+    // register for APNS
+    [[UIApplication sharedApplication] registerForRemoteNotificationTypes:(UIRemoteNotificationTypeBadge | UIRemoteNotificationTypeSound | UIRemoteNotificationTypeAlert)];
+
 	// Create the main window
 	window_ = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
 
@@ -90,6 +96,19 @@
 	
 	return YES;
 }
+
+-(void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
+    
+    // save device token to defaults
+    if ([[NSUserDefaults standardUserDefaults] stringForKey:kDeviceToken] == nil) {
+        [[NSUserDefaults standardUserDefaults] setValue:[DVUtils hexadecimalStringFromData:deviceToken] forKey:kDeviceToken];
+    }
+}
+
+- (void)application:(UIApplication *)app didFailToRegisterForRemoteNotificationsWithError:(NSError *)err {
+    ULog(@"Error in registration. Error: %@", [err localizedDescription]);
+}
+
 
 // Supported orientations: Landscape. Customize it for your own needs
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
