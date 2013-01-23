@@ -18,14 +18,20 @@
 // Heads Up Display HUD label / stats layer class declaration (put in separate file in future)
 @interface HelloWorldHud : CCLayer
 {
-    HelloWorldLayer* _gameLayer;  // give the HUD a reference back to the HelloWorldLayer
-    CCLabelTTF* label;
+    HelloWorldLayer* __unsafe_unretained _gameLayer;  // give the HUD a reference back to the HelloWorldLayer
+    CCLabelTTF* labelMelonsCount;
+    CCLabelTTF* labelKillsCount;
+    CCLabelTTF* labelShurikensCount;
+    CCLabelTTF* labelMissilesCount;
 }
 
-@property (nonatomic, assign) HelloWorldLayer* gameLayer;
+@property (nonatomic, unsafe_unretained) HelloWorldLayer* gameLayer;
 
 -(void) projectileButtonTapped:(id)sender;
 -(void) numCollectedChanged:(int) numCollected;
+-(void) numKillsChanged:(int) numKills;
+-(void) numShurikensChanged:(int) numShurikens;
+-(void) numMissilesChanged:(int) numMissiles;
 
 @end
 
@@ -38,24 +44,36 @@
     CCTMXLayer* _background;  // background layer is the constant background layer (walls, roads, bushes, etc)
     CCTMXLayer* _meta;  // meta layer is NOT seen by player, just used to specify collidable, collectible tiles
     CCTMXLayer* _foreground;  // foreground layer is seen by player but is modifiable, like collectible items
+    CCTMXLayer* _destruction;  // destruction under-layer, for when terrain is devastated
     CCSprite* _player;
     NSMutableArray* _enemies;
     NSMutableArray* _projectiles;
+    NSMutableArray* _missiles;
     
-    int numCollected;
+    int _numKills;
+    int _numCollected;
     HelloWorldHud* _hud; // keep a pointer to the HUD labels/stats layer
     int _mode;  // game mode variable - shooting or moving
+    int _numShurikens;
+    int _numMissiles;
+    BOOL isSwipe;
+    BOOL isTouchMoveStarted;
+    NSMutableArray* myToucharray;
     
     DVAPIWrapper* apiWrapper;
 }
 
-@property (nonatomic, retain) CCTMXTiledMap* tileMap;
-@property (nonatomic, retain) CCTMXLayer* background;
-@property (nonatomic, retain) CCTMXLayer* meta;
-@property (nonatomic, retain) CCTMXLayer* foreground;
-@property (nonatomic, retain) CCSprite* player;
+@property (nonatomic, strong) CCTMXTiledMap* tileMap;
+@property (nonatomic, strong) CCTMXLayer* background;
+@property (nonatomic, strong) CCTMXLayer* meta;
+@property (nonatomic, strong) CCTMXLayer* foreground;
+@property (nonatomic, strong) CCTMXLayer* destruction;
+@property (nonatomic, strong) CCSprite* player;
 @property (nonatomic, assign) int numCollected;
-@property (nonatomic, retain) HelloWorldHud* hud;
+@property (nonatomic, assign) int numKills;
+@property (nonatomic, assign) int numShurikens;
+@property (nonatomic, assign) int numMissiles;
+@property (nonatomic, strong) HelloWorldHud* hud;
 @property (nonatomic, assign) int mode;
 
 // returns a CCScene that contains the HelloWorldLayer as the only child
@@ -64,10 +82,14 @@
 -(CGPoint) tileCoordForPosition:(CGPoint) position;
 -(void) setPlayerPosition:(CGPoint) position;
 -(void) addEnemyAtX:(int)x y:(int)y;
+-(void) projectileMoveFinished:(id) sender;
 -(void) enemyMoveFinished:(id)sender;
+-(void) missileMoveFinished:(id) sender;
 -(void) animateEnemy:(CCSprite*) enemy;
 -(void) win;
 -(void) lose;
+-(void) missileExplodes:(CGPoint) hitLocation;
+-(void) missileExplodesFinished:(id) sender;
 -(CGPoint) pixelToPoint:(CGPoint) pixelPoint;
 -(CGSize) pixelToPointSize:(CGSize) pixelSize;
 

@@ -1,8 +1,8 @@
 //
 //  AppDelegate.h
-//  tutorial_TileGame
+//  cocos2d-2.x-ARC-iOS
 //
-//  Created by Jeremiah Anderson on 12/10/12.
+//  Created by Steffen Itterheim on 27.04.12.
 //  Copyright __MyCompanyName__ 2012. All rights reserved.
 //
 
@@ -14,11 +14,11 @@
 	UIWindow *window_;
 	UINavigationController *navController_;
 
-	CCDirectorIOS	*director_;							// weak ref
+	CCDirectorIOS	*__unsafe_unretained director_;							// weak ref
 }
 
-@property (nonatomic, retain) UIWindow *window;
+@property (nonatomic) UIWindow *window;
 @property (readonly) UINavigationController *navController;
-@property (readonly) CCDirectorIOS *director;
+@property (unsafe_unretained, readonly) CCDirectorIOS *director;
 
 @end

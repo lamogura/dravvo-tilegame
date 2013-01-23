@@ -16,13 +16,18 @@
    </properties>
   </tile>
  </tileset>
+ <layer name="Destruction" width="50" height="50">
+  <data encoding="base64" compression="zlib">
+   eJztwwEJAAAMBKFr8P3bLsdAwVVTVVVVVVVVVVXV5w/5mpJ9
+  </data>
+ </layer>
  <layer name="Background" width="50" height="50">
   <data encoding="base64" compression="zlib">
-   eJzt1bEJADAIRUGHSO3+Y2aHGFDkiuv/E0IyIhIAGpyi7v2/btC9YVtHZcuWjkl0zLLpfbz+GZM6qt3dewAAAAAAACa6/mQjWg==
+   eJztl70OgzAMhNN2qpj6t7UIMbRb3//xmg6RoghDHDtxkG74hADJ8fkMTkbn3Aiy+XSQgxUzA4v83gwdrXslN7e1OGmMJR177E9NP0rrrFE3q76v5cfd86hQ/ynif3/wHAs5Zeh4el6K9Qkap+QqYcjQoZHzli81dIS4rb+PM/H821AHZ2ZSM5TSwYUzpyXzKtRqEuhY82iO1tDsF0qzRMeWH1s6pD5Qa0p1DETMWh6k71Id3LlRW0euptI1L55rxG0lpnYPaepoHTNA7W0k/2uL85D23mYvtOhpCb2cw7h5WOa95Km1z9br9+ZRq5x6rLtV/Xr0GwAAAAAAAAAAAGCv/ADNwiMZ
   </data>
  </layer>
  <objectgroup name="Objects" width="50" height="50">
-  <object name="SpawnPoint" x="203" y="779" width="39" height="42"/>
+  <object name="SpawnPoint" x="224" y="752" width="39" height="42"/>
   <object name="EnemySpawn1" x="777" y="212" width="39" height="42">
    <properties>
     <property name="Enemy" value="1"/>
@@ -76,7 +81,7 @@
  </layer>
  <layer name="Meta" width="50" height="50">
   <data encoding="base64" compression="zlib">
-   eJzt1cEJwCAQRUFb0v6LSwcGNeDXzIAnL/tA2VIAYI+6eG5wUkfr3CV1vM3yh44kOrKsvPG0/zG7M5I6Rty6BwEAAAAAAL72AMKoCWc=
+   eJzt1t0OgCAIgFFfid7/4bptpgsUlOV3trZuAvEnKQUWsnsA6Mq2NtJ5H42jiZFtDlYbrf/0eWuRYp8X7R59xpbJR5vPS30ePWJH7z/Pf8dljLHrbH3lPaGOqJya7+sY3nV4r0cv3s46IvecR0/ibWQuZu6MFWc6IoflHqS3efPuCXb5Sx1W2WvOMr6I/j1Kpp4rS/6WE8aUscZI3N8AAAAAAABr3Jj8E1s=
   </data>
  </layer>
 </map>

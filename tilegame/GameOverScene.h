@@ -12,7 +12,7 @@
 {
     CCLabelTTF* _label;
 }
-@property (nonatomic, retain) CCLabelTTF *label;
+@property (nonatomic, strong) CCLabelTTF *label;
 @end
 
 
@@ -21,5 +21,5 @@
 {
     GameOverLayer* _layer;
 }
-@property (nonatomic, retain) GameOverLayer* layer;
+@property (nonatomic, strong) GameOverLayer* layer;
 @end

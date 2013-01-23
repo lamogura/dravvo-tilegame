@@ -87,14 +87,11 @@
 
 - (void) postCreateNewGameThenCallBlock:(void (^)(NSError *, DVGameStatus *))block {
     
-    NSString *deviceToken = [[NSUserDefaults standardUserDefaults] stringForKey:kDeviceToken];
-    DLog(@"Loaded deviceToken from defaults: %@", deviceToken);
-    
     NSString *urlString = [NSString stringWithFormat:@"%@/game/new", kBaseURL];
     NSURL *url = [NSURL URLWithString:urlString];
     
     // TODO: query the real device token and insert into post data string, now using "b"
-    NSString *dataString = [NSString stringWithFormat:@"deviceToken=%@", deviceToken];
+    NSString *dataString = [NSString stringWithFormat:@"deviceToken=%@", @"b"];
     NSString *dataLength = [NSString stringWithFormat:@"%d", [dataString length]];
     NSData *data = [dataString dataUsingEncoding:NSUTF8StringEncoding allowLossyConversion:NO];
     
@@ -138,11 +135,7 @@
 }
 
 - (void) postUpdateGameWithUpdates:(NSDictionary *)updates ThenCallBlock:(void (^)(NSError *))block {
-
     NSString* gameID = [[NSUserDefaults standardUserDefaults] stringForKey:kCurrentGameIDKey];
-    NSString *deviceToken = [[NSUserDefaults standardUserDefaults] stringForKey:kDeviceToken];
-    DLog(@"Loaded deviceToken from defaults: %@", deviceToken);
-
     
     if (gameID == nil) {
         ULog(@"No GameID found when trying to update...");
@@ -158,7 +151,7 @@
         // treat the isGameOver entry in updates dict specially, if exists remove it and send it in separate POST variable
         if ([updates objectForKey:kIsGameOver] == nil) {
             updatesAsJSON = [jwriter stringWithObject:updates];
-            dataString = [NSString stringWithFormat:@"lastUpdate=%@&deviceToken=%@", updatesAsJSON, deviceToken];
+            dataString = [NSString stringWithFormat:@"lastUpdate=%@&deviceToken=%@", updatesAsJSON, @"b"];
             // TODO: faking deviceToken, replace with call to get actual deviceToken
         }
         else {
@@ -234,7 +227,7 @@
     self->connections = nil;
     self->observers = nil;
     
-    [super dealloc];
+//    [super dealloc];
 }
 
 @end

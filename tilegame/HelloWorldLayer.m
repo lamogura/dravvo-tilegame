@@ -16,6 +16,8 @@
 #import "GameOverScene.h"
 #import "DVMacros.h"
 #import "DVConstants.h"
+#import "gameConstants.h"
+#import "CCSequence+Helper.h"
 
 @implementation HelloWorldHud
 
@@ -28,10 +30,10 @@
         // setup a mode menu item
         CCMenuItem* on;
         CCMenuItem* off;
-        on = [[CCMenuItemImage itemFromNormalImage:@"projectile-button-on.png"
-                                     selectedImage:@"projectile-button-on.png" target:nil selector:nil] retain];
-        off = [[CCMenuItemImage itemFromNormalImage:@"projectile-button-off.png"
-                                      selectedImage:@"projectile-button-off.png" target:nil selector:nil] retain];
+        on = [CCMenuItemImage itemFromNormalImage:@"projectile-button-on.png"
+                                     selectedImage:@"projectile-button-on.png" target:nil selector:nil];
+        off = [CCMenuItemImage itemFromNormalImage:@"projectile-button-off.png"
+                                      selectedImage:@"projectile-button-off.png" target:nil selector:nil];
         CCMenuItemToggle *toggleItem = [CCMenuItemToggle itemWithTarget:self
                                                                selector:@selector(projectileButtonTapped:)
                                                                   items:off, on, nil];
@@ -41,12 +43,41 @@
         
         
         CGSize winSize = [[CCDirector sharedDirector] winSize];
-        label = [CCLabelTTF labelWithString:@"0" dimensions:CGSizeMake(50, 20) alignment:UITextAlignmentRight fontName:@"Verdana-Bold" fontSize:18.0];
-        label.color = ccc3(0, 0, 0);
+        
+        // initialize label for melons collected count
+        labelMelonsCount = [CCLabelTTF labelWithString:@"melons: 0" dimensions:CGSizeMake(350, 20) alignment:UITextAlignmentRight fontName:@"Verdana-Bold" fontSize:18.0];
+        labelMelonsCount.color = ccc3(0, 0, 0);
         int margin = 10;
-        label.position = ccp(winSize.width - (label.contentSize.width/2)
-                             - margin, label.contentSize.height/2 + margin);
-        [self addChild:label];
+        labelMelonsCount.position = ccp(winSize.width - (labelMelonsCount.contentSize.width/2)
+                             - margin, labelMelonsCount.contentSize.height/2 + margin);
+        [self addChild:labelMelonsCount];
+        
+        // initialize label for kill count
+//        labelKillsCount = [CCLabelTTF labelWithString:@"kills" dimensions:CGSizeMake(50, 20) alignment:UITextAlignmentRight fontName:@"Verdana-Bold" fontSize:18.0];
+        labelKillsCount = [CCLabelTTF labelWithString:@"kills: 0" dimensions:CGSizeMake(350, 20) alignment:UITextAlignmentRight fontName:@"Verdana-Bold" fontSize:18.0];
+        labelKillsCount.color = ccc3(255, 0, 0);
+        margin = 10;
+        labelKillsCount.position = ccp(winSize.width - (labelKillsCount.contentSize.width/2) - margin, labelKillsCount.contentSize.height/2 + margin*2 + labelMelonsCount.contentSize.height/2);
+        [self addChild:labelKillsCount];
+        
+        
+        // label for numShurikens
+        NSString *theString = [NSString stringWithFormat:@"S: %d", kInitShurikens];
+        labelShurikensCount = [CCLabelTTF labelWithString:theString dimensions:CGSizeMake(100, 20) alignment:UITextAlignmentRight fontName:@"Verdana-Bold" fontSize:18.0];
+        labelShurikensCount.color = ccc3(120, 200, 0);
+        margin = 10;
+        labelShurikensCount.position = ccp(winSize.width - (labelShurikensCount.contentSize.width/2) - margin, winSize.height - labelShurikensCount.contentSize.height/2 - margin);
+        [self addChild:labelShurikensCount];
+
+        // label for numMissiles
+        theString = [NSString stringWithFormat:@"M: %d", kInitMissiles];
+        labelMissilesCount = [CCLabelTTF labelWithString:theString dimensions:CGSizeMake(100, 20) alignment:UITextAlignmentRight fontName:@"Verdana-Bold" fontSize:18.0];
+        labelMissilesCount.color = ccc3(0, 0, 255);
+        margin = 10;
+        labelMissilesCount.position = ccp(winSize.width - (labelMissilesCount.contentSize.width/2) - margin*2 - (labelShurikensCount.contentSize.width/2), winSize.height - labelMissilesCount.contentSize.height/2 - margin);
+        [self addChild:labelMissilesCount];
+
+
     }
     return self;
 }
@@ -61,7 +92,22 @@
 
 -(void) numCollectedChanged:(int)numCollected
 {
-    [label setString:[NSString stringWithFormat:@"%d", numCollected]];
+    [labelMelonsCount setString:[NSString stringWithFormat:@"melons: %d", numCollected]];
+}
+
+-(void) numKillsChanged:(int) numKills
+{
+    [labelKillsCount setString:[NSString stringWithFormat:@"kills: %d", numKills]];
+}
+
+-(void) numShurikensChanged:(int) numShurikens
+{
+    [labelShurikensCount setString:[NSString stringWithFormat:@"S: %d", numShurikens]];
+}
+
+-(void) numMissilesChanged:(int) numMissiles
+{
+    [labelMissilesCount setString:[NSString stringWithFormat:@"S: %d", numMissiles]];
 }
 
 @end
@@ -77,10 +123,15 @@
 @synthesize background = _background;
 @synthesize meta = _meta;
 @synthesize foreground = _foreground;
+@synthesize destruction = _destruction;
 @synthesize player = _player;
 @synthesize numCollected = _numCollected;
+@synthesize numKills = _numKills;
+@synthesize numShurikens = _numShurikens;
+@synthesize numMissiles = _numMissiles;
 @synthesize hud = _hud;
 @synthesize mode = _mode;
+//@synthesize isTouchMoveStarted, isTouchEnabled;
 
 // Helper class method that creates a Scene with the HelloWorldLayer as the only child.
 // What calls this class??
@@ -120,15 +171,15 @@
         self->apiWrapper = [[DVAPIWrapper alloc] init];
         
         // test create new game
-        [self->apiWrapper postCreateNewGameThenCallBlock:^(NSError *error, DVGameStatus *status) {
-            if (error != nil) {
-                ULog([error localizedDescription]);
-            }
-            else {
-                [[NSUserDefaults standardUserDefaults] setObject:[status gameID] forKey:kCurrentGameIDKey];
-                DLog(@"CREATED NEW GAME, saved GameID '%@'to NSUserDefaults", [status gameID]);
-            }
-        }];
+        //        [self->apiWrapper postCreateNewGameThenCallBlock:^(NSError *error, DVGameStatus *status) {
+        //            if (error != nil) {
+        //                ULog([error localizedDescription]);
+        //            }
+        //            else {
+        //                [[NSUserDefaults standardUserDefaults] setObject:[status gameID] forKey:kCurrentGameIDKey];
+        //                DLog(@"CREATED NEW GAME, saved GameID '%@'to NSUserDefaults", [status gameID]);
+        //            }
+        //        }];
         
         // test getting current game's status
         //        [self->apiWrapper getGameStatusThenCallBlock:^(NSError *error, DVGameStatus *status) {
@@ -152,24 +203,38 @@
         //        }];
         
         self.isTouchEnabled = YES;  // set THIS LAYER as touch enabled so user can move character around with callbacks
-		
+		isSwipe = NO;
+        myToucharray =[[NSMutableArray alloc ] init]; // store the touches for missile launching
+        
+        _numShurikens = kInitShurikens;
+        _numMissiles = kInitMissiles;
         _mode = 0;  // default game mode = 0, move mode (mode = 1, shoot mode)
         
         _enemies = [[NSMutableArray alloc] init];
         _projectiles = [[NSMutableArray alloc] init];
+        _missiles = [[NSMutableArray alloc] init];
         [self schedule:@selector(testCollisions:)];
         
         // sound effects pre-load
+        [SimpleAudioEngine sharedEngine].effectsVolume = 1.0;
+        [SimpleAudioEngine sharedEngine].backgroundMusicVolume = 0.70;
+        
         [[SimpleAudioEngine sharedEngine] preloadEffect:@"pickup.caf"];
         [[SimpleAudioEngine sharedEngine] preloadEffect:@"hit.caf"];
         [[SimpleAudioEngine sharedEngine] preloadEffect:@"move.caf"];
-        [[SimpleAudioEngine sharedEngine] playBackgroundMusic:@"TileMap.caf"];
+        [[SimpleAudioEngine sharedEngine] preloadEffect:@"missileSound.m4a"];
+        [[SimpleAudioEngine sharedEngine] preloadEffect:@"missileExplode.m4a"];
+        [[SimpleAudioEngine sharedEngine] preloadEffect:@"shurikenSound.m4a"];
+        [[SimpleAudioEngine sharedEngine] preloadEffect:@"juliaRoar.m4a"];
+//        [[SimpleAudioEngine sharedEngine] playBackgroundMusic:@"TileMap.caf"];
+        [[SimpleAudioEngine sharedEngine] playBackgroundMusic:@"montersoundtrack2.m4a"];
         
         // load the TileMap and the tile layers
         self.tileMap = [CCTMXTiledMap tiledMapWithTMXFile:@"TileMap.tmx"];
         self.background = [_tileMap layerNamed:@"Background"];
         self.meta = [_tileMap layerNamed:@"Meta"];
         self.foreground = [_tileMap layerNamed:@"Foreground"];
+        self.destruction = [_tileMap layerNamed:@"Destruction"];
         _meta.visible = NO;
         
         // get the objectGroup objects layer from the tileMap, it contains spawn point objects for player and enemy sprites
@@ -207,10 +272,35 @@
         }
         
         // set the view position focused on player
+
         [self setViewpointCenter:_player.position];
         
         [self addChild:_tileMap z:-1];
+
+        /*
+        // DEBUG section
+        // test CCSequence helper category
+        CCSprite* missile = [CCSprite spriteWithFile:@"missile.png"];
+        id actionMoveDone = [CCCallFuncN actionWithTarget:self selector:@selector(missileMoveFinished:)];
+        missile.position = _player.position;
+        [self addChild:missile];
         
+        // iphone coords is 320 x 480
+        id actionMove1 = [CCMoveTo actionWithDuration:4.0 position:ccp(1, 1)];
+        id actionMove2 = [CCMoveTo actionWithDuration:1.0 position:ccp(319, 479)];
+        id actionMove3 = [CCMoveTo actionWithDuration:1.0 position:ccp(100, 100)];
+        id actionMove4 = [CCMoveTo actionWithDuration:4.0 position:_player.position];
+        NSMutableArray* actionArray = [[NSMutableArray alloc] initWithCapacity:1];
+        [actionArray addObject:actionMove1];
+        [actionArray addObject:actionMove2];
+        [actionArray addObject:actionMove3];
+        [actionArray addObject:actionMove4];
+        [actionArray addObject:actionMoveDone];
+        CCSequence *seq = [CCSequence actionMutableArray: actionArray];
+        
+        [missile runAction:seq];
+        // COOL! end DEBUG
+        */
     }
 	return self;
 }
@@ -236,7 +326,7 @@
     [[CCTouchDispatcher sharedDispatcher] addTargetedDelegate:self priority:0 swallowsTouches:YES];
 }
 
--(BOOL) ccTouchBegan:(UITouch *)touch withEvent:(UIEvent *)event
+- (BOOL)ccTouchBegan:(UITouch *)touch withEvent:(UIEvent *)event
 {
     return YES;
 }
@@ -269,14 +359,14 @@
                 // removing from both meta layer AND foreground means we can no longer see OR "collect" the item
                 [_meta removeTileAt:tileCoord];
                 [_foreground removeTileAt:tileCoord];
+
                 self.numCollected++;
                 [_hud numCollectedChanged:_numCollected];
                 
                 // check win condition then end game if win
                 // put the number of melons on your map in place of the '2'
-                if (_numCollected == 5) {  // replace with constants.h NUM_MELONS
+                if (_numCollected == kMaxMelons)
                     [self win];
-                }
             }
         }
     }
@@ -290,10 +380,101 @@
     [[CCDirector sharedDirector] replaceScene:gameOverScene];
 }
 
--(void) ccTouchEnded:(UITouch *)touch withEvent:(UIEvent *)event
+
+ - (void)ccTouchMoved:(UITouch *)touch withEvent:(UIEvent *)event
+{
+    isSwipe = YES;
+    
+    // otherwise, test for can test for another kind of move gesture
+
+//    UITouch *touch = [touches anyObject];
+//    CGPoint new_location = [touch locationInView: [touch view]];
+//    new_location = [[CCDirector sharedDirector] convertToGL:new_location];
+    
+//    CGPoint oldTouchLocation = [touch previousLocationInView:touch.view];
+//    oldTouchLocation = [[CCDirector sharedDirector] convertToGL:oldTouchLocation];
+//    oldTouchLocation = [self convertToNodeSpace:oldTouchLocation];
+    
+    // add my touches to the naughty touch array
+//    [myToucharray addObject:NSStringFromCGPoint(new_location)];
+//    [myToucharray addObject:NSStringFromCGPoint(oldTouchLocation)];
+    
+ 
+}
+
+
+- (void)ccTouchEnded:(UITouch *)touch withEvent:(UIEvent *)event
 {
     // if move mode
-    if(_mode == 0)
+    
+    if((isSwipe == YES) && (_numMissiles > 0))
+    {
+        DLog(@"GOT MISSILES");
+        
+        isSwipe = NO; // finger swipe bool for touchesMoved callback
+     
+        CGPoint touchLocation = [touch locationInView: [touch view]];
+        touchLocation = [[CCDirector sharedDirector] convertToGL: touchLocation];
+        touchLocation = [self convertToNodeSpace:touchLocation];
+//        isSwipe = NO; // finger swipe bool for touchesMoved callback
+
+        // Create a missile and put it at the player's location
+        CCSprite* missile = [CCSprite spriteWithFile:@"missile.png"];
+        // draw a line between player and last touch
+        
+        missile.position = _player.position;
+        [self addChild:missile];
+        
+        // send it on a line from player position to new_location
+        
+        
+        // Determine where we want to shoot the projectile to
+        int realX, realY;
+
+        // Are we shooting to the left or right?
+        CGPoint diff = ccpSub(touchLocation, _player.position);
+        realX = missile.position.x + diff.x;
+        realY = missile.position.y + diff.y;
+/*
+        if(diff.x > 0)
+            realX = (_tileMap.mapSize.width * [self pixelToPointSize:_tileMap.tileSize].width) + (missile.contentSize.width/2);
+        else
+            realX = -(_tileMap.mapSize.width * [self pixelToPointSize:_tileMap.tileSize].width) - (missile.contentSize.width/2);
+*/
+//        float ratio = (float) diff.y / (float) diff.x;
+//        realY = ((realX - missile.position.x) * ratio) + missile.position.y;
+        CGPoint realDest = ccp(realX, realY);
+        
+        // Determine the length of how far we're shooting
+        int offRealX = realX - missile.position.x;
+        int offRealY = realY - missile.position.y;
+        float length = sqrtf((offRealX*offRealX) + (offRealY*offRealY));
+        float velocity = 240/1; // 480pixels/1sec
+        float realMoveDuration = length/velocity;
+        
+        // Determine angle for the missile to face
+        // basic trig stuff using touch info a character position calculations from above
+        float angleRadians = atanf((float)offRealY / (float)offRealX);
+        float angleDegrees = CC_RADIANS_TO_DEGREES(angleRadians);
+        float cocosAngle = -1 * angleDegrees - 90;
+        if(touchLocation.x > missile.position.x)
+            cocosAngle += 180;
+//        [missile setRotation:cocosAngle];
+        missile.rotation = cocosAngle;
+            
+            
+        // Move projectile to the last touch position
+        id actionMoveDone = [CCCallFuncN actionWithTarget:self selector:@selector(missileMoveFinished:)];
+        [missile runAction:[CCSequence actionOne:
+                            [CCMoveTo actionWithDuration:realMoveDuration position:realDest]
+                                                 two:actionMoveDone]];
+        [[SimpleAudioEngine sharedEngine] playEffect:@"missileSound.m4a"];
+        // we need to keep a reference to each shuriken so we can delete it if it makes a collision with a target
+        [_missiles addObject:missile];
+        self.numMissiles--;
+        [_hud numMissilesChanged:_numMissiles];
+    }
+    else if(_mode == 0)
     {
         CGPoint touchLocation = [touch locationInView: [touch view]];
         touchLocation = [[CCDirector sharedDirector] convertToGL: touchLocation];
@@ -334,7 +515,7 @@
         [self setViewpointCenter:_player.position];
     }
     // else if throw shuriken mode
-    else {
+    else if (self.numShurikens > 0) {
         // Find where the touch point is
         CGPoint touchLocation = [touch locationInView:[touch view]];
         touchLocation = [[CCDirector sharedDirector] convertToGL:touchLocation];
@@ -371,8 +552,12 @@
         [projectile runAction:[CCSequence actionOne:
                                [CCMoveTo actionWithDuration:realMoveDuration position:realDest]
                                                 two:actionMoveDone]];
+        [[SimpleAudioEngine sharedEngine] playEffect:@"shurikenSound.m4a"];
         // we need to keep a reference to each shuriken so we can delete it if it makes a collision with a target
         [_projectiles addObject:projectile];
+        self.numShurikens--;
+        [_hud numShurikensChanged:_numShurikens];
+
     }
     
 }
@@ -390,7 +575,7 @@
 
 -(void) addEnemyAtX:(int)x y:(int)y
 {
-    CCSprite* enemy = [CCSprite spriteWithFile:@"enemy1.png"];
+    CCSprite* enemy = [CCSprite spriteWithFile:@"bat.png"];
     enemy.position = ccp(x, y);
     [self addChild:enemy];
     
@@ -411,6 +596,7 @@
         cocosAngle += 180;
     enemy.rotation = cocosAngle;
     
+    // 10 pixels per 0.3 seconds -> speed = 33 pixels / second
     // speed of the enemy
     ccTime actualDuration = 0.3;
     
@@ -441,43 +627,123 @@
     [_projectiles removeObject:sprite];  // remove our reference to this shuriken from the projectiles array of sprite objects
 }
 
+-(void) missileMoveFinished:(id) sender
+{
+    CCSprite* sprite = (CCSprite*) sender;
+    [self missileExplodes:sprite.position];
+    [self removeChild:sprite cleanup:YES];
+
+    [_missiles removeObject:sprite];  // remove our reference to this shuriken from the projectiles array of sprite objects
+
+}
+
+-(void) missileExplodes:(CGPoint) hitLocation
+{
+    [[SimpleAudioEngine sharedEngine] playEffect:@"missileExplode.m4a"];
+
+    // explode, killing anything in 4 box radius
+    CCSprite* explosion = [CCSprite spriteWithFile:@"nuked.png"];
+    explosion.position = hitLocation;
+    [self addChild:explosion];
+ 
+    // Move projectile to actual endpoint
+    id actionMoveDone = [CCCallFuncN actionWithTarget:self selector:@selector(projectileMoveFinished:)];
+
+//    [explosion runAction:CC]
+    id scaleUpAction =  [CCEaseInOut actionWithAction:[CCScaleTo actionWithDuration:1 scaleX:2.0 scaleY:2.5] rate:2.0];
+    [explosion runAction:[CCSequence actionOne:scaleUpAction two:actionMoveDone]];
+
+    // make a rectangle that is 2*2 tiles wide, kill everything collided with it (including destructable tiles from tilemap)
+    // anything within 2 * the explosion images bounding box gets killed (explosion will expand to 2 times size)
+    CGRect explosionArea = CGRectMake(explosion.position.x - (explosion.contentSize.width/2)*2, explosion.position.y - (explosion.contentSize.height/2)*2, explosion.contentSize.width*2, explosion.contentSize.height*2);
+
+    // First, if the explosion hit YOU then you're dead
+    if(CGRectIntersectsRect(explosionArea, _player.boundingBox))
+        [self schedule:@selector(lose) interval:0.75];
+
+    
+    // iterate through enemies, see if any intersect with current projectile
+    NSMutableArray *targetsToDelete = [[NSMutableArray alloc] init];
+    for (CCSprite *target in _enemies) {
+        // enemy down!
+        if(CGRectIntersectsRect(explosionArea, target.boundingBox))
+        {
+            self.numKills += 1;
+            [_hud numKillsChanged:_numKills];
+            [targetsToDelete addObject:target];
+            [[SimpleAudioEngine sharedEngine] playEffect:@"juliaRoar.m4a"];
+        }
+    }
+    
+    // delete all hit enemies
+    for (CCSprite *target in targetsToDelete) {
+        [_enemies removeObject:target];
+        [self removeChild:target cleanup:YES];
+    }
+    
+    // Finally, detroy any background layer tiles that were here, scorched earth! Everything anhialated!
+
+    CGPoint bottomLeft = CGPointMake(explosionArea.origin.x + explosionArea.size.width * 0.26, explosionArea.origin.y + explosionArea.size.height * 0.26);
+    CGPoint bottomRight = CGPointMake(explosionArea.origin.x + explosionArea.size.width * 0.74, explosionArea.origin.y + explosionArea.size.height * 0.26);
+    CGPoint topLeft = CGPointMake(explosionArea.origin.x + explosionArea.size.width * 0.26, explosionArea.origin.y + explosionArea.size.height * 0.74);
+    CGPoint topRight = CGPointMake(explosionArea.origin.x + explosionArea.size.width * 0.74, explosionArea.origin.y + explosionArea.size.height * 0.74);
+
+    [_background removeTileAt:[self tileCoordForPosition:bottomLeft]];
+    [_background removeTileAt:[self tileCoordForPosition:bottomRight]];
+    [_background removeTileAt:[self tileCoordForPosition:topLeft]];
+    [_background removeTileAt:[self tileCoordForPosition:topRight]];
+    
+    [_foreground removeTileAt:[self tileCoordForPosition:bottomLeft]];
+    [_foreground removeTileAt:[self tileCoordForPosition:bottomRight]];
+    [_foreground removeTileAt:[self tileCoordForPosition:topLeft]];
+    [_foreground removeTileAt:[self tileCoordForPosition:topRight]];
+
+    [_meta removeTileAt:[self tileCoordForPosition:bottomLeft]];
+    [_meta removeTileAt:[self tileCoordForPosition:bottomRight]];
+    [_meta removeTileAt:[self tileCoordForPosition:topLeft]];
+    [_meta removeTileAt:[self tileCoordForPosition:topRight]];
+}
+
+// this might not be necessary since children of our node are cleaned up after the node deallocates itself
+-(void) missileExplodesFinished:(id) sender
+{
+    CCSprite* sprite = (CCSprite*) sender;
+    [self removeChild:sprite cleanup:YES];
+
+}
+
 -(void) testCollisions:(ccTime) dt
 {
     // First, see if lose condition is met locally
     // itterate over the enemies to see if any of them are in contact with player (dead)
     for (CCSprite *target in _enemies) {
-        CGRect targetRect = CGRectMake(
-                                       target.position.x - (target.contentSize.width/2),
-                                       target.position.y - (target.contentSize.height/2),
-                                       target.contentSize.width,
-                                       target.contentSize.height );
+        CGRect targetRect = target.boundingBox; //CGRectMake(
+                            //           target.position.x - (target.contentSize.width/2),
+                            //           target.position.y - (target.contentSize.height/2),
+                            //           target.contentSize.width,
+                            //           target.contentSize.height );
         
         if (CGRectContainsPoint(targetRect, _player.position)) {
             [self lose];
         }
     }
     
+    // shurikens hitting enemies?
     NSMutableArray* projectilesToDelete = [[NSMutableArray alloc] init];
     
     for (CCSprite *projectile in _projectiles) {
-        CGRect projectileRect = CGRectMake(
-                                           projectile.position.x - (projectile.contentSize.width/2),
-                                           projectile.position.y - (projectile.contentSize.height/2),
-                                           projectile.contentSize.width,
-                                           projectile.contentSize.height);
         
         NSMutableArray *targetsToDelete = [[NSMutableArray alloc] init];
         
         // iterate through enemies, see if any intersect with current projectile
         for (CCSprite *target in _enemies) {
-            CGRect targetRect = CGRectMake(
-                                           target.position.x - (target.contentSize.width/2),
-                                           target.position.y - (target.contentSize.height/2),
-                                           target.contentSize.width,
-                                           target.contentSize.height);
-            
-            if (CGRectIntersectsRect(projectileRect, targetRect)) {
+            // enemy down!
+            if(CGRectIntersectsRect(projectile.boundingBox, target.boundingBox))
+            {
+                self.numKills += 1;
+                [_hud numKillsChanged:_numKills];
                 [targetsToDelete addObject:target];
+                [[SimpleAudioEngine sharedEngine] playEffect:@"juliaRoar.m4a"];
             }
         }
         
@@ -491,7 +757,6 @@
             // add the projectile to the list of ones to remove
             [projectilesToDelete addObject:projectile];
         }
-        [targetsToDelete release];
     }
     
     // remove all the projectiles that hit.
@@ -499,7 +764,9 @@
         [_projectiles removeObject:projectile];
         [self removeChild:projectile cleanup:YES];
     }
-    [projectilesToDelete release];
+    
+    // Finally, destroy all BACKGROUND layer tiles that were here
+
 }
 
 - (void) lose {
@@ -518,21 +785,6 @@
 // END
 
 // on "dealloc" you need to release all your retained objects
-- (void) dealloc
-{
-	// in case you have something to dealloc, do it in this method
-	// in this particular example nothing needs to be released.
-	// cocos2d will automatically release all the children (Label)
-	
-	// don't forget to call "super dealloc"
-    self.tileMap = nil;
-    self.background = nil;
-    self.meta = nil;
-    self.foreground = nil;
-    self.player = nil;
-    self.hud = nil;
-	[super dealloc];
-}
 
 #pragma mark GameKit delegate
 

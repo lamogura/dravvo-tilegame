@@ -1,8 +1,8 @@
 //
 //  main.m
-//  tilegame
+//  cocos2d-2.x-ARC-iOS
 //
-//  Created by pyrus on 12/10/12.
+//  Created by Steffen Itterheim on 27.04.12.
 //  Copyright __MyCompanyName__ 2012. All rights reserved.
 //
 
@@ -10,8 +10,8 @@
 
 int main(int argc, char *argv[]) {
     
-    NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
-    int retVal = UIApplicationMain(argc, argv, nil, @"AppController");
-    [pool release];
-    return retVal;
+    @autoreleasepool {
+        int retVal = UIApplicationMain(argc, argv, nil, @"AppController");
+        return retVal;
+    }
 }

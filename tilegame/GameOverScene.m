@@ -22,11 +22,6 @@
     return self;
 }
 
-- (void)dealloc {
-    [_layer release];
-    _layer = nil;
-    [super dealloc];
-}
 
 @end
 
@@ -58,10 +53,5 @@
     
 }
 
-- (void)dealloc {
-    [_label release];
-    _label = nil;
-    [super dealloc];
-}
 
 @end

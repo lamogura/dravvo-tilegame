@@ -1,19 +1,15 @@
 //
 //  AppDelegate.m
-//  tutorial_TileGame
+//  cocos2d-2.x-ARC-iOS
 //
-//  Created by Jeremiah Anderson on 12/10/12.
+//  Created by Steffen Itterheim on 27.04.12.
 //  Copyright __MyCompanyName__ 2012. All rights reserved.
 //
 
 #import "cocos2d.h"
 
 #import "AppDelegate.h"
-#import "IntroLayer.h"
-#import "DVAPIWrapper.h"
-#import "DVMacros.h"
-#import "DVConstants.h"
-#import "DVUtils.h"
+#import "HelloWorldLayer.h"
 
 @implementation AppController
 
@@ -21,9 +17,6 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-    // register for APNS
-    [[UIApplication sharedApplication] registerForRemoteNotificationTypes:(UIRemoteNotificationTypeBadge | UIRemoteNotificationTypeSound | UIRemoteNotificationTypeAlert)];
-
 	// Create the main window
 	window_ = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
 
@@ -61,6 +54,17 @@
 	if( ! [director_ enableRetinaDisplay:YES] )
 		CCLOG(@"Retina Display Not supported");
 
+	// Create a Navigation Controller with the Director
+	navController_ = [[UINavigationController alloc] initWithRootViewController:director_];
+	navController_.navigationBarHidden = YES;
+
+	// set the Navigation Controller as the root view controller
+//	[window_ setRootViewController:rootViewController_];
+	[window_ addSubview:navController_.view];
+
+	// make main window visible
+	[window_ makeKeyAndVisible];
+
 	// Default texture format for PNG/BMP/TIFF/JPEG/GIF images
 	// It can be RGBA8888, RGBA4444, RGB5_A1, RGB565
 	// You can change anytime.
@@ -80,35 +84,10 @@
 	[CCTexture2D PVRImagesHavePremultipliedAlpha:YES];
 
 	// and add the scene to the stack. The director will run it when it automatically when the view is displayed.
-	[director_ pushScene: [IntroLayer scene]]; 
+	[director_ pushScene: [HelloWorldLayer scene]]; 
 
-	
-	// Create a Navigation Controller with the Director
-	navController_ = [[UINavigationController alloc] initWithRootViewController:director_];
-	navController_.navigationBarHidden = YES;
-	
-	// set the Navigation Controller as the root view controller
-//	[window_ addSubview:navController_.view];	// Generates flicker.
-	[window_ setRootViewController:navController_];
-	
-	// make main window visible
-	[window_ makeKeyAndVisible];
-	
 	return YES;
 }
-
--(void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
-    
-    // save device token to defaults
-    if ([[NSUserDefaults standardUserDefaults] stringForKey:kDeviceToken] == nil) {
-        [[NSUserDefaults standardUserDefaults] setValue:[DVUtils hexadecimalStringFromData:deviceToken] forKey:kDeviceToken];
-    }
-}
-
-- (void)application:(UIApplication *)app didFailToRegisterForRemoteNotificationsWithError:(NSError *)err {
-    ULog(@"Error in registration. Error: %@", [err localizedDescription]);
-}
-
 
 // Supported orientations: Landscape. Customize it for your own needs
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
@@ -161,12 +140,4 @@
 	[[CCDirector sharedDirector] setNextDeltaTimeZero:YES];
 }
 
-- (void) dealloc
-{
-	[window_ release];
-	[navController_ release];
-
-	[super dealloc];
-}
 @end
-
