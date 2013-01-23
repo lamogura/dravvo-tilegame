@@ -64,7 +64,6 @@
 		CE857DC416B01D5C00947B06 /* Icon-Small@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CE857D8916B01D5C00947B06 /* Icon-Small@2x.png */; };
 		CE857DC516B01D5C00947B06 /* Icon.png in Resources */ = {isa = PBXBuildFile; fileRef = CE857D8A16B01D5C00947B06 /* Icon.png */; };
 		CE857DC616B01D5C00947B06 /* Icon@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CE857D8B16B01D5C00947B06 /* Icon@2x.png */; };
-		CE857DC716B01D5C00947B06 /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = CE857D8C16B01D5C00947B06 /* Info.plist */; };
 		CE857DC816B01D5C00947B06 /* iTunesArtwork in Resources */ = {isa = PBXBuildFile; fileRef = CE857D8D16B01D5C00947B06 /* iTunesArtwork */; };
 		CE857EDA16B01E0300947B06 /* CCAction.h in Headers */ = {isa = PBXBuildFile; fileRef = CE857DCE16B01E0200947B06 /* CCAction.h */; };
 		CE857EDB16B01E0300947B06 /* CCAction.m in Sources */ = {isa = PBXBuildFile; fileRef = CE857DCF16B01E0200947B06 /* CCAction.m */; };
@@ -1503,7 +1502,6 @@
 				CE857DC416B01D5C00947B06 /* Icon-Small@2x.png in Resources */,
 				CE857DC516B01D5C00947B06 /* Icon.png in Resources */,
 				CE857DC616B01D5C00947B06 /* Icon@2x.png in Resources */,
-				CE857DC716B01D5C00947B06 /* Info.plist in Resources */,
 				CE857DC816B01D5C00947B06 /* iTunesArtwork in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
