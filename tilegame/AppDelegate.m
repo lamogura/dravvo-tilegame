@@ -10,6 +10,9 @@
 
 #import "AppDelegate.h"
 #import "HelloWorldLayer.h"
+#import "DVUtils.h"
+#import "DVConstants.h"
+#import "DVMacros.h"
 
 @implementation AppController
 
@@ -17,6 +20,9 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
+    // register for APNS
+    [[UIApplication sharedApplication] registerForRemoteNotificationTypes:(UIRemoteNotificationTypeBadge | UIRemoteNotificationTypeSound | UIRemoteNotificationTypeAlert)];
+    
 	// Create the main window
 	window_ = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
 
@@ -87,6 +93,20 @@
 	[director_ pushScene: [HelloWorldLayer scene]]; 
 
 	return YES;
+}
+
+-(void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
+    NSString* deviceTokenString = [DVUtils hexadecimalStringFromData:deviceToken];
+    DLog("Found deviceToken: %@", deviceTokenString);
+    
+    // save device token to defaults
+    if ([[NSUserDefaults standardUserDefaults] stringForKey:kDeviceToken] == nil) {
+        [[NSUserDefaults standardUserDefaults] setValue:deviceTokenString forKey:kDeviceToken];
+    }
+}
+
+- (void)application:(UIApplication *)app didFailToRegisterForRemoteNotificationsWithError:(NSError *)err {
+    ULog(@"Error in registration. Error: %@", [err localizedDescription]);
 }
 
 // Supported orientations: Landscape. Customize it for your own needs
