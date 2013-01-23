@@ -11,10 +11,10 @@
 @interface DVGameStatus : NSObject
 
 @property (nonatomic, copy) NSString *gameID;
-@property (nonatomic, strong) NSDate *createdAt;
+@property (nonatomic, retain) NSDate *createdAt;
 
 @property (nonatomic, copy) NSString *nextTurn;
-@property (nonatomic, strong) NSDictionary *lastUpdates;
+@property (nonatomic, retain) NSDictionary *lastUpdates;
 @property (nonatomic, assign) BOOL isGameOver;
 
 - (id)initWithDictionary:(NSDictionary *)dict;
