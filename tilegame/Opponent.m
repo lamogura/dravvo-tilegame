@@ -6,9 +6,9 @@
 //
 //
 
-#import "Player2.h"
+#import "Opponent.h"
 
-@implementation Player2
+@implementation Opponent
 
 @synthesize playerSprite, myLayer, minionsList;
 

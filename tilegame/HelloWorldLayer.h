@@ -12,6 +12,8 @@
 #import <GameKit/GameKit.h>
 #import "cocos2d.h" // When you import this file, you import all the cocos2d classes
 #import "DVAPIWrapper.h"
+//#import "Entity.h"
+#import "Bat.h"
 
 @class HelloWorldLayer;
 
@@ -46,9 +48,10 @@
     CCTMXLayer* _foreground;  // foreground layer is seen by player but is modifiable, like collectible items
     CCTMXLayer* _destruction;  // destruction under-layer, for when terrain is devastated
     CCSprite* _player;
-    NSMutableArray* _enemies;
+//    NSMutableArray* _enemies;
     NSMutableArray* _projectiles;
     NSMutableArray* _missiles;
+    NSMutableArray* _bats;
     
     int _numKills;
     int _numCollected;
@@ -75,13 +78,14 @@
 @property (nonatomic, assign) int numMissiles;
 @property (nonatomic, strong) HelloWorldHud* hud;
 @property (nonatomic, assign) int mode;
+//@property (nonatomic, strong) NSMutableArray* bats;
 
 // returns a CCScene that contains the HelloWorldLayer as the only child
 +(CCScene *) scene;
 - (void) setViewpointCenter:(CGPoint) position;
 -(CGPoint) tileCoordForPosition:(CGPoint) position;
 -(void) setPlayerPosition:(CGPoint) position;
--(void) addEnemyAtX:(int)x y:(int)y;
+//-(void) addEnemyAtX:(int)x y:(int)y;
 -(void) projectileMoveFinished:(id) sender;
 -(void) enemyMoveFinished:(id)sender;
 -(void) missileMoveFinished:(id) sender;

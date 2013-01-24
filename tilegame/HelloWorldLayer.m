@@ -18,6 +18,8 @@
 #import "DVConstants.h"
 #import "gameConstants.h"
 #import "CCSequence+Helper.h"
+//#import "Entity.h"
+#import "Bat.h"
 
 @implementation HelloWorldHud
 
@@ -27,6 +29,7 @@
 {
     if((self = [super init]))
     {
+        
         // setup a mode menu item
         CCMenuItem* on;
         CCMenuItem* off;
@@ -64,7 +67,7 @@
         // label for numShurikens
         NSString *theString = [NSString stringWithFormat:@"S: %d", kInitShurikens];
         labelShurikensCount = [CCLabelTTF labelWithString:theString dimensions:CGSizeMake(100, 20) alignment:UITextAlignmentRight fontName:@"Verdana-Bold" fontSize:18.0];
-        labelShurikensCount.color = ccc3(120, 200, 0);
+        labelShurikensCount.color = ccc3(67, 173, 59);
         margin = 10;
         labelShurikensCount.position = ccp(winSize.width - (labelShurikensCount.contentSize.width/2) - margin, winSize.height - labelShurikensCount.contentSize.height/2 - margin);
         [self addChild:labelShurikensCount];
@@ -76,7 +79,6 @@
         margin = 10;
         labelMissilesCount.position = ccp(winSize.width - (labelMissilesCount.contentSize.width/2) - margin*2 - (labelShurikensCount.contentSize.width/2), winSize.height - labelMissilesCount.contentSize.height/2 - margin);
         [self addChild:labelMissilesCount];
-
 
     }
     return self;
@@ -107,7 +109,7 @@
 
 -(void) numMissilesChanged:(int) numMissiles
 {
-    [labelMissilesCount setString:[NSString stringWithFormat:@"S: %d", numMissiles]];
+    [labelMissilesCount setString:[NSString stringWithFormat:@"M: %d", numMissiles]];
 }
 
 @end
@@ -131,6 +133,7 @@
 @synthesize numMissiles = _numMissiles;
 @synthesize hud = _hud;
 @synthesize mode = _mode;
+//@synthesize bats = _bats;
 //@synthesize isTouchMoveStarted, isTouchEnabled;
 
 // Helper class method that creates a Scene with the HelloWorldLayer as the only child.
@@ -210,7 +213,8 @@
         _numMissiles = kInitMissiles;
         _mode = 0;  // default game mode = 0, move mode (mode = 1, shoot mode)
         
-        _enemies = [[NSMutableArray alloc] init];
+//        _enemies = [[NSMutableArray alloc] init];
+        _bats = [[NSMutableArray alloc] init];
         _projectiles = [[NSMutableArray alloc] init];
         _missiles = [[NSMutableArray alloc] init];
         [self schedule:@selector(testCollisions:)];
@@ -225,7 +229,7 @@
         [[SimpleAudioEngine sharedEngine] preloadEffect:@"missileSound.m4a"];
         [[SimpleAudioEngine sharedEngine] preloadEffect:@"missileExplode.m4a"];
         [[SimpleAudioEngine sharedEngine] preloadEffect:@"shurikenSound.m4a"];
-        [[SimpleAudioEngine sharedEngine] preloadEffect:@"juliaRoar.m4a"];
+//        [[SimpleAudioEngine sharedEngine] preloadEffect:@"juliaRoar.m4a"];
 //        [[SimpleAudioEngine sharedEngine] playBackgroundMusic:@"TileMap.caf"];
         [[SimpleAudioEngine sharedEngine] playBackgroundMusic:@"montersoundtrack2.m4a"];
         
@@ -267,7 +271,10 @@
                 y = [[spawnPoint valueForKey:@"y"] intValue];
                 CGPoint enemyPoint = [self pixelToPoint:ccp(x, y)];
                 //                [self addEnemyAtX:x y:y];
-                [self addEnemyAtX:enemyPoint.x y:enemyPoint.y];
+                //[self addEnemyAtX:enemyPoint.x y:enemyPoint.y];
+                Bat *aBat = [[Bat alloc] initWithLayer:self andSpawnAt:enemyPoint withBehavior:kBehavior_default];
+                // add the bat to the bats NSMuttableArray
+                [_bats addObject:aBat];
             }
         }
         
@@ -301,6 +308,7 @@
         [missile runAction:seq];
         // COOL! end DEBUG
         */
+        
     }
 	return self;
 }
@@ -573,6 +581,7 @@
     return ccp(x,y);
 }
 
+/*
 -(void) addEnemyAtX:(int)x y:(int)y
 {
     CCSprite* enemy = [CCSprite spriteWithFile:@"bat.png"];
@@ -583,6 +592,7 @@
     [self animateEnemy:enemy];
     [_enemies addObject:enemy];
 }
+ */
 
 -(void) animateEnemy:(CCSprite*) enemy
 {
@@ -664,21 +674,26 @@
     
     // iterate through enemies, see if any intersect with current projectile
     NSMutableArray *targetsToDelete = [[NSMutableArray alloc] init];
-    for (CCSprite *target in _enemies) {
+    for (Bat *target in _bats) {
         // enemy down!
-        if(CGRectIntersectsRect(explosionArea, target.boundingBox))
+        if(CGRectIntersectsRect(explosionArea, target.sprite.boundingBox))
         {
-            self.numKills += 1;
-            [_hud numKillsChanged:_numKills];
+            [target wound:2];
+//            self.numKills += 1;
+//            [_hud numKillsChanged:_numKills];
             [targetsToDelete addObject:target];
-            [[SimpleAudioEngine sharedEngine] playEffect:@"juliaRoar.m4a"];
+//            [[SimpleAudioEngine sharedEngine] playEffect:@"juliaRoar.m4a"];
         }
     }
     
     // delete all hit enemies
-    for (CCSprite *target in targetsToDelete) {
-        [_enemies removeObject:target];
-        [self removeChild:target cleanup:YES];
+    for (Bat *target in targetsToDelete) {
+        if(target.hitPoints < 1)
+        {
+            [target kill];
+            [_bats removeObject:target];
+            [self removeChild:target cleanup:YES];
+        }
     }
     
     // Finally, detroy any background layer tiles that were here, scorched earth! Everything anhialated!
@@ -716,8 +731,8 @@
 {
     // First, see if lose condition is met locally
     // itterate over the enemies to see if any of them are in contact with player (dead)
-    for (CCSprite *target in _enemies) {
-        CGRect targetRect = target.boundingBox; //CGRectMake(
+    for (Bat *target in _bats) {
+        CGRect targetRect = target.sprite.boundingBox; //CGRectMake(
                             //           target.position.x - (target.contentSize.width/2),
                             //           target.position.y - (target.contentSize.height/2),
                             //           target.contentSize.width,
@@ -736,23 +751,27 @@
         NSMutableArray *targetsToDelete = [[NSMutableArray alloc] init];
         
         // iterate through enemies, see if any intersect with current projectile
-        for (CCSprite *target in _enemies) {
+        for (Bat *target in _bats) {
             // enemy down!
-            if(CGRectIntersectsRect(projectile.boundingBox, target.boundingBox))
+            if(CGRectIntersectsRect(projectile.boundingBox, target.sprite.boundingBox))
             {
-                self.numKills += 1;
-                [_hud numKillsChanged:_numKills];
+                [target wound:1];
+//                self.numKills += 1;
+//                [_hud numKillsChanged:_numKills];
                 [targetsToDelete addObject:target];
-                [[SimpleAudioEngine sharedEngine] playEffect:@"juliaRoar.m4a"];
+//                [[SimpleAudioEngine sharedEngine] playEffect:@"juliaRoar.m4a"];
             }
         }
         
         // delete all hit enemies
-        for (CCSprite *target in targetsToDelete) {
-            [_enemies removeObject:target];
-            [self removeChild:target cleanup:YES];
-        }
-        
+        for (Bat *target in targetsToDelete) {
+            if(target.hitPoints < 1)
+            {
+                [target kill];
+                [_bats removeObject:target];
+                [self removeChild:target cleanup:YES];
+            }
+        }        
         if (targetsToDelete.count > 0) {
             // add the projectile to the list of ones to remove
             [projectilesToDelete addObject:projectile];

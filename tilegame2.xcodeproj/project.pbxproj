@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3F205FBD16B0EEB1008D9399 /* Missile.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F205FBC16B0EEB0008D9399 /* Missile.m */; };
+		3F205FC016B0EED1008D9399 /* Shuriken.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F205FBF16B0EED1008D9399 /* Shuriken.m */; };
+		3F205FC216B1295E008D9399 /* bat2-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = 3F205FC116B1295E008D9399 /* bat2-hd.png */; };
 		CE857D8E16B01D5C00947B06 /* AnimateActions.m in Sources */ = {isa = PBXBuildFile; fileRef = CE857D3E16B01D5C00947B06 /* AnimateActions.m */; };
 		CE857D8F16B01D5C00947B06 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = CE857D4016B01D5C00947B06 /* AppDelegate.m */; };
 		CE857D9016B01D5C00947B06 /* bat-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = CE857D4216B01D5C00947B06 /* bat-hd.png */; };
@@ -48,11 +51,10 @@
 		CE857DB416B01D5C00947B06 /* HelloWorldLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = CE857D6E16B01D5C00947B06 /* HelloWorldLayer.m */; };
 		CE857DB516B01D5C00947B06 /* IntroLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = CE857D7016B01D5C00947B06 /* IntroLayer.m */; };
 		CE857DB616B01D5C00947B06 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = CE857D7116B01D5C00947B06 /* main.m */; };
-		CE857DB716B01D5C00947B06 /* Minion.m in Sources */ = {isa = PBXBuildFile; fileRef = CE857D7316B01D5C00947B06 /* Minion.m */; };
 		CE857DB816B01D5C00947B06 /* DVAPIWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = CE857D7616B01D5C00947B06 /* DVAPIWrapper.m */; };
 		CE857DB916B01D5C00947B06 /* DVDownloader.m in Sources */ = {isa = PBXBuildFile; fileRef = CE857D7916B01D5C00947B06 /* DVDownloader.m */; };
 		CE857DBA16B01D5C00947B06 /* DVUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = CE857D7C16B01D5C00947B06 /* DVUtils.m */; };
-		CE857DBB16B01D5C00947B06 /* Player2.m in Sources */ = {isa = PBXBuildFile; fileRef = CE857D7E16B01D5C00947B06 /* Player2.m */; };
+		CE857DBB16B01D5C00947B06 /* Opponent.m in Sources */ = {isa = PBXBuildFile; fileRef = CE857D7E16B01D5C00947B06 /* Opponent.m */; };
 		CE857DBC16B01D5C00947B06 /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CE857D8116B01D5C00947B06 /* Default-568h@2x.png */; };
 		CE857DBD16B01D5C00947B06 /* Default.png in Resources */ = {isa = PBXBuildFile; fileRef = CE857D8216B01D5C00947B06 /* Default.png */; };
 		CE857DBE16B01D5C00947B06 /* fps_images-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = CE857D8316B01D5C00947B06 /* fps_images-hd.png */; };
@@ -330,6 +332,11 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		3F205FBB16B0EEB0008D9399 /* Missile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Missile.h; sourceTree = "<group>"; };
+		3F205FBC16B0EEB0008D9399 /* Missile.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Missile.m; sourceTree = "<group>"; };
+		3F205FBE16B0EED1008D9399 /* Shuriken.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Shuriken.h; sourceTree = "<group>"; };
+		3F205FBF16B0EED1008D9399 /* Shuriken.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Shuriken.m; sourceTree = "<group>"; };
+		3F205FC116B1295E008D9399 /* bat2-hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "bat2-hd.png"; sourceTree = "<group>"; };
 		CE857D3D16B01D5C00947B06 /* AnimateActions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AnimateActions.h; path = tilegame/AnimateActions.h; sourceTree = "<group>"; };
 		CE857D3E16B01D5C00947B06 /* AnimateActions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AnimateActions.m; path = tilegame/AnimateActions.m; sourceTree = "<group>"; };
 		CE857D3F16B01D5C00947B06 /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = tilegame/AppDelegate.h; sourceTree = "<group>"; };
@@ -381,8 +388,7 @@
 		CE857D6F16B01D5C00947B06 /* IntroLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IntroLayer.h; path = tilegame/IntroLayer.h; sourceTree = "<group>"; };
 		CE857D7016B01D5C00947B06 /* IntroLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = IntroLayer.m; path = tilegame/IntroLayer.m; sourceTree = "<group>"; };
 		CE857D7116B01D5C00947B06 /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = tilegame/main.m; sourceTree = "<group>"; };
-		CE857D7216B01D5C00947B06 /* Minion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Minion.h; path = tilegame/Minion.h; sourceTree = "<group>"; };
-		CE857D7316B01D5C00947B06 /* Minion.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Minion.m; path = tilegame/Minion.m; sourceTree = "<group>"; };
+		CE857D7216B01D5C00947B06 /* Entity.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Entity.h; path = tilegame/Entity.h; sourceTree = "<group>"; };
 		CE857D7516B01D5C00947B06 /* DVAPIWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DVAPIWrapper.h; sourceTree = "<group>"; };
 		CE857D7616B01D5C00947B06 /* DVAPIWrapper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DVAPIWrapper.m; sourceTree = "<group>"; };
 		CE857D7716B01D5C00947B06 /* DVConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DVConstants.h; sourceTree = "<group>"; };
@@ -391,8 +397,8 @@
 		CE857D7A16B01D5C00947B06 /* DVMacros.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DVMacros.h; sourceTree = "<group>"; };
 		CE857D7B16B01D5C00947B06 /* DVUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DVUtils.h; sourceTree = "<group>"; };
 		CE857D7C16B01D5C00947B06 /* DVUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DVUtils.m; sourceTree = "<group>"; };
-		CE857D7D16B01D5C00947B06 /* Player2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Player2.h; path = tilegame/Player2.h; sourceTree = "<group>"; };
-		CE857D7E16B01D5C00947B06 /* Player2.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Player2.m; path = tilegame/Player2.m; sourceTree = "<group>"; };
+		CE857D7D16B01D5C00947B06 /* Opponent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Opponent.h; path = tilegame/Opponent.h; sourceTree = "<group>"; };
+		CE857D7E16B01D5C00947B06 /* Opponent.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Opponent.m; path = tilegame/Opponent.m; sourceTree = "<group>"; };
 		CE857D7F16B01D5C00947B06 /* Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Prefix.pch; path = tilegame/Prefix.pch; sourceTree = "<group>"; };
 		CE857D8116B01D5C00947B06 /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
 		CE857D8216B01D5C00947B06 /* Default.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Default.png; sourceTree = "<group>"; };
@@ -710,6 +716,7 @@
 			children = (
 				CE857D5416B01D5C00947B06 /* Sounds */,
 				CE857D4216B01D5C00947B06 /* bat-hd.png */,
+				3F205FC116B1295E008D9399 /* bat2-hd.png */,
 				CE857D4316B01D5C00947B06 /* bat.png */,
 				CE857D4416B01D5C00947B06 /* boom-hd.png */,
 				CE857D4516B01D5C00947B06 /* boom.png */,
@@ -793,15 +800,15 @@
 			isa = PBXGroup;
 			children = (
 				CE857D4116B01D5C00947B06 /* Assets */,
-				CE857DCA16B01D9300947B06 /* Multiplayer */,
 				CE857D7416B01D5C00947B06 /* MyLibs */,
+				CE857DCA16B01D9300947B06 /* Multiplayer */,
+				CE857D6816B01D5C00947B06 /* GameConstants.h */,
 				CE857D3D16B01D5C00947B06 /* AnimateActions.h */,
 				CE857D3E16B01D5C00947B06 /* AnimateActions.m */,
 				CE857D3F16B01D5C00947B06 /* AppDelegate.h */,
 				CE857D4016B01D5C00947B06 /* AppDelegate.m */,
 				CE857D6616B01D5C00947B06 /* DVGameStatus.h */,
 				CE857D6716B01D5C00947B06 /* DVGameStatus.m */,
-				CE857D6816B01D5C00947B06 /* GameConstants.h */,
 				CE857D6916B01D5C00947B06 /* GameOverScene.h */,
 				CE857D6A16B01D5C00947B06 /* GameOverScene.m */,
 				CE857D6B16B01D5C00947B06 /* GameStateChanged.h */,
@@ -822,10 +829,13 @@
 				CE857D6316B01D5C00947B06 /* Bat.m */,
 				CE857D6416B01D5C00947B06 /* CCSequence+Helper.h */,
 				CE857D6516B01D5C00947B06 /* CCSequence+Helper.m */,
-				CE857D7216B01D5C00947B06 /* Minion.h */,
-				CE857D7316B01D5C00947B06 /* Minion.m */,
-				CE857D7D16B01D5C00947B06 /* Player2.h */,
-				CE857D7E16B01D5C00947B06 /* Player2.m */,
+				CE857D7216B01D5C00947B06 /* Entity.h */,
+				CE857D7D16B01D5C00947B06 /* Opponent.h */,
+				CE857D7E16B01D5C00947B06 /* Opponent.m */,
+				3F205FBB16B0EEB0008D9399 /* Missile.h */,
+				3F205FBC16B0EEB0008D9399 /* Missile.m */,
+				3F205FBE16B0EED1008D9399 /* Shuriken.h */,
+				3F205FBF16B0EED1008D9399 /* Shuriken.m */,
 			);
 			name = Multiplayer;
 			sourceTree = "<group>";
@@ -1503,6 +1513,7 @@
 				CE857DC516B01D5C00947B06 /* Icon.png in Resources */,
 				CE857DC616B01D5C00947B06 /* Icon@2x.png in Resources */,
 				CE857DC816B01D5C00947B06 /* iTunesArtwork in Resources */,
+				3F205FC216B1295E008D9399 /* bat2-hd.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1523,11 +1534,12 @@
 				CE857DB416B01D5C00947B06 /* HelloWorldLayer.m in Sources */,
 				CE857DB516B01D5C00947B06 /* IntroLayer.m in Sources */,
 				CE857DB616B01D5C00947B06 /* main.m in Sources */,
-				CE857DB716B01D5C00947B06 /* Minion.m in Sources */,
 				CE857DB816B01D5C00947B06 /* DVAPIWrapper.m in Sources */,
 				CE857DB916B01D5C00947B06 /* DVDownloader.m in Sources */,
 				CE857DBA16B01D5C00947B06 /* DVUtils.m in Sources */,
-				CE857DBB16B01D5C00947B06 /* Player2.m in Sources */,
+				CE857DBB16B01D5C00947B06 /* Opponent.m in Sources */,
+				3F205FBD16B0EEB1008D9399 /* Missile.m in Sources */,
+				3F205FC016B0EED1008D9399 /* Shuriken.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1698,7 +1710,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ENABLE_OBJC_ARC = YES;
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Jeremiah Anderson (9Z7PP6A7GD)";
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
@@ -1710,7 +1722,7 @@
 					"-ObjC",
 				);
 				PRODUCT_NAME = tilegame2;
-				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "71727998-3D05-4E01-828D-E26196AE6C7B";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;

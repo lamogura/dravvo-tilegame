@@ -9,10 +9,11 @@
 #import <Foundation/Foundation.h>
 #import "cocos2d.h"
 #import "HelloWorldLayer.h"
-#import "Minion.h"
+#import "Entity.h"
+#import "CCSequence+Helper.h"
 
 // multiplayer other player object
-@interface Player2 : CCNode
+@interface Opponent : CCNode // <Entity>
 
 @property (nonatomic, retain) CCSprite* playerSprite;
 @property (nonatomic, retain) HelloWorldLayer* myLayer;

@@ -1,34 +1,38 @@
 //
-//  Bat.h
+//  Entity.h
 //  dravvo-tilegame_master
 //
 //  Created by Jeremiah Anderson on 1/22/13.
 //
 //
-
 #import <Foundation/Foundation.h>
 #import "cocos2d.h"
-#import "Entity.h"
 #import "CCSequence+Helper.h"
 #import "HelloWorldLayer.h"
+#import <GameKit/GameKit.h>
 
 
-@interface Bat : CCNode <Entity>
-
+// Entity's include Bat, Missile, Shuriken, Player?
+// IN the very least, make sure that all previous time step actions and animations are finished before performing the next time step's actions from main
+@protocol Entity // <CCNode> // <NSObject>
+//@required // required PROPERTIES
 @property (nonatomic, unsafe_unretained) HelloWorldLayer* myLayer;
+@property (nonatomic, strong) CCSprite* sprite;  // most things with pointers, nonatomic, strong ?
 @property (nonatomic, assign) int hitPoints;
 @property (nonatomic, assign) int speedInPixelsPerSec;
-@property (nonatomic, strong) CCSprite* sprite;
 @property (nonatomic, assign) int behavior;
+
 
 // required METHODS
 -(id)initWithLayer:(HelloWorldLayer*) layer andSpawnAt:(CGPoint) spawnPoint withBehavior:(int) initBehavior;
--(void)spwan:(CGPoint) spawnPoint;
+//-(void)spwan:(CGPoint) spawnPoint;
 // for sampling during real actions
 -(void)sampleCurrentPosition:(CGPoint) currentPoint;  // this should be called (callbacked) once every kTimeStepSeconds for later animation on player2's side
-// state changes like decreasing HP or killing a creature
+
+// State changes like decreasing HP or killing a creature
 -(void)wound:(int) hpLost;
 -(void)kill; // possibly animate a death then remove this minion
+
 
 // List of real actions the entity can do to interact with the environment state changes
 -(void)realSetBehaviour:(int) newBeahavior;
