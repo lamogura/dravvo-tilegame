@@ -10,6 +10,19 @@
 		3F205FBD16B0EEB1008D9399 /* Missile.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F205FBC16B0EEB0008D9399 /* Missile.m */; };
 		3F205FC016B0EED1008D9399 /* Shuriken.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F205FBF16B0EED1008D9399 /* Shuriken.m */; };
 		3F205FC216B1295E008D9399 /* bat2-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = 3F205FC116B1295E008D9399 /* bat2-hd.png */; };
+		3F3F40D516B14BE30080C341 /* bat2.png in Resources */ = {isa = PBXBuildFile; fileRef = 3F3F40D416B14BE30080C341 /* bat2.png */; };
+		3F3F40D916B180E00080C341 /* Player.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F3F40D816B180E00080C341 /* Player.m */; };
+		3F3F40E016B18D6F0080C341 /* ChangeableObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F3F40DF16B18D6F0080C341 /* ChangeableObject.m */; };
+		3F3F40E716B1E3210080C341 /* RoundFinishedScene.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F3F40E616B1E3200080C341 /* RoundFinishedScene.m */; };
+		3F3F40E916B273C90080C341 /* bloodSplat-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = 3F3F40E816B273C90080C341 /* bloodSplat-hd.png */; };
+		3F3F40EB16B273D10080C341 /* bloodSplat.png in Resources */ = {isa = PBXBuildFile; fileRef = 3F3F40EA16B273D10080C341 /* bloodSplat.png */; };
+		3F3F40EE16B2AB930080C341 /* HistoricalEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F3F40ED16B2AB930080C341 /* HistoricalEvent.m */; };
+		3F3F40F016B2BC7E0080C341 /* DMMainTheme.m4r in Resources */ = {isa = PBXBuildFile; fileRef = 3F3F40EF16B2BC7E0080C341 /* DMMainTheme.m4r */; };
+		3F3F40F216B2BCAE0080C341 /* DMPlayerDies.m4r in Resources */ = {isa = PBXBuildFile; fileRef = 3F3F40F116B2BCAD0080C341 /* DMPlayerDies.m4r */; };
+		3F3F40F416B2BF770080C341 /* DMRespawn.m4r in Resources */ = {isa = PBXBuildFile; fileRef = 3F3F40F316B2BF770080C341 /* DMRespawn.m4r */; };
+		3F3F40F616B2BF980080C341 /* DMZombie.m4r in Resources */ = {isa = PBXBuildFile; fileRef = 3F3F40F516B2BF980080C341 /* DMZombie.m4r */; };
+		3F3F40F816B2C2490080C341 /* DMLifePack.m4r in Resources */ = {isa = PBXBuildFile; fileRef = 3F3F40F716B2C2490080C341 /* DMLifePack.m4r */; };
+		3F3F40FA16B2C3820080C341 /* DMZombiePain.m4r in Resources */ = {isa = PBXBuildFile; fileRef = 3F3F40F916B2C3820080C341 /* DMZombiePain.m4r */; };
 		CE857D8E16B01D5C00947B06 /* AnimateActions.m in Sources */ = {isa = PBXBuildFile; fileRef = CE857D3E16B01D5C00947B06 /* AnimateActions.m */; };
 		CE857D8F16B01D5C00947B06 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = CE857D4016B01D5C00947B06 /* AppDelegate.m */; };
 		CE857D9016B01D5C00947B06 /* bat-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = CE857D4216B01D5C00947B06 /* bat-hd.png */; };
@@ -337,6 +350,23 @@
 		3F205FBE16B0EED1008D9399 /* Shuriken.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Shuriken.h; sourceTree = "<group>"; };
 		3F205FBF16B0EED1008D9399 /* Shuriken.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Shuriken.m; sourceTree = "<group>"; };
 		3F205FC116B1295E008D9399 /* bat2-hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "bat2-hd.png"; sourceTree = "<group>"; };
+		3F3F40D416B14BE30080C341 /* bat2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bat2.png; sourceTree = "<group>"; };
+		3F3F40D716B180E00080C341 /* Player.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Player.h; sourceTree = "<group>"; };
+		3F3F40D816B180E00080C341 /* Player.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Player.m; sourceTree = "<group>"; };
+		3F3F40DE16B18D6F0080C341 /* ChangeableObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChangeableObject.h; sourceTree = "<group>"; };
+		3F3F40DF16B18D6F0080C341 /* ChangeableObject.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ChangeableObject.m; sourceTree = "<group>"; };
+		3F3F40E516B1E3200080C341 /* RoundFinishedScene.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RoundFinishedScene.h; sourceTree = "<group>"; };
+		3F3F40E616B1E3200080C341 /* RoundFinishedScene.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RoundFinishedScene.m; sourceTree = "<group>"; };
+		3F3F40E816B273C90080C341 /* bloodSplat-hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "bloodSplat-hd.png"; sourceTree = "<group>"; };
+		3F3F40EA16B273D10080C341 /* bloodSplat.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bloodSplat.png; sourceTree = "<group>"; };
+		3F3F40EC16B2AB930080C341 /* HistoricalEvent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HistoricalEvent.h; sourceTree = "<group>"; };
+		3F3F40ED16B2AB930080C341 /* HistoricalEvent.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HistoricalEvent.m; sourceTree = "<group>"; };
+		3F3F40EF16B2BC7E0080C341 /* DMMainTheme.m4r */ = {isa = PBXFileReference; lastKnownFileType = file; path = DMMainTheme.m4r; sourceTree = "<group>"; };
+		3F3F40F116B2BCAD0080C341 /* DMPlayerDies.m4r */ = {isa = PBXFileReference; lastKnownFileType = file; path = DMPlayerDies.m4r; sourceTree = "<group>"; };
+		3F3F40F316B2BF770080C341 /* DMRespawn.m4r */ = {isa = PBXFileReference; lastKnownFileType = file; path = DMRespawn.m4r; sourceTree = "<group>"; };
+		3F3F40F516B2BF980080C341 /* DMZombie.m4r */ = {isa = PBXFileReference; lastKnownFileType = file; path = DMZombie.m4r; sourceTree = "<group>"; };
+		3F3F40F716B2C2490080C341 /* DMLifePack.m4r */ = {isa = PBXFileReference; lastKnownFileType = file; path = DMLifePack.m4r; sourceTree = "<group>"; };
+		3F3F40F916B2C3820080C341 /* DMZombiePain.m4r */ = {isa = PBXFileReference; lastKnownFileType = file; path = DMZombiePain.m4r; sourceTree = "<group>"; };
 		CE857D3D16B01D5C00947B06 /* AnimateActions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AnimateActions.h; path = tilegame/AnimateActions.h; sourceTree = "<group>"; };
 		CE857D3E16B01D5C00947B06 /* AnimateActions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AnimateActions.m; path = tilegame/AnimateActions.m; sourceTree = "<group>"; };
 		CE857D3F16B01D5C00947B06 /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = tilegame/AppDelegate.h; sourceTree = "<group>"; };
@@ -711,13 +741,33 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		3F3F40DD16B18C770080C341 /* Protocols */ = {
+			isa = PBXGroup;
+			children = (
+				CE857D7216B01D5C00947B06 /* Entity.h */,
+			);
+			name = Protocols;
+			sourceTree = "<group>";
+		};
+		3F3F40E116B18F770080C341 /* Superclasses */ = {
+			isa = PBXGroup;
+			children = (
+				3F3F40DE16B18D6F0080C341 /* ChangeableObject.h */,
+				3F3F40DF16B18D6F0080C341 /* ChangeableObject.m */,
+			);
+			name = Superclasses;
+			sourceTree = "<group>";
+		};
 		CE857D4116B01D5C00947B06 /* Assets */ = {
 			isa = PBXGroup;
 			children = (
 				CE857D5416B01D5C00947B06 /* Sounds */,
-				CE857D4216B01D5C00947B06 /* bat-hd.png */,
+				3F3F40D416B14BE30080C341 /* bat2.png */,
 				3F205FC116B1295E008D9399 /* bat2-hd.png */,
 				CE857D4316B01D5C00947B06 /* bat.png */,
+				CE857D4216B01D5C00947B06 /* bat-hd.png */,
+				3F3F40EA16B273D10080C341 /* bloodSplat.png */,
+				3F3F40E816B273C90080C341 /* bloodSplat-hd.png */,
 				CE857D4416B01D5C00947B06 /* boom-hd.png */,
 				CE857D4516B01D5C00947B06 /* boom.png */,
 				CE857D4616B01D5C00947B06 /* meta_tiles-hd.png */,
@@ -746,6 +796,12 @@
 		CE857D5416B01D5C00947B06 /* Sounds */ = {
 			isa = PBXGroup;
 			children = (
+				3F3F40F116B2BCAD0080C341 /* DMPlayerDies.m4r */,
+				3F3F40EF16B2BC7E0080C341 /* DMMainTheme.m4r */,
+				3F3F40F316B2BF770080C341 /* DMRespawn.m4r */,
+				3F3F40F516B2BF980080C341 /* DMZombie.m4r */,
+				3F3F40F916B2C3820080C341 /* DMZombiePain.m4r */,
+				3F3F40F716B2C2490080C341 /* DMLifePack.m4r */,
 				CE857D5516B01D5C00947B06 /* hit.caf */,
 				CE857D5616B01D5C00947B06 /* juliaRoar.m4a */,
 				CE857D5716B01D5C00947B06 /* missileExplode.m4a */,
@@ -801,6 +857,8 @@
 			children = (
 				CE857D4116B01D5C00947B06 /* Assets */,
 				CE857D7416B01D5C00947B06 /* MyLibs */,
+				3F3F40E116B18F770080C341 /* Superclasses */,
+				3F3F40DD16B18C770080C341 /* Protocols */,
 				CE857DCA16B01D9300947B06 /* Multiplayer */,
 				CE857D6816B01D5C00947B06 /* GameConstants.h */,
 				CE857D3D16B01D5C00947B06 /* AnimateActions.h */,
@@ -829,13 +887,18 @@
 				CE857D6316B01D5C00947B06 /* Bat.m */,
 				CE857D6416B01D5C00947B06 /* CCSequence+Helper.h */,
 				CE857D6516B01D5C00947B06 /* CCSequence+Helper.m */,
-				CE857D7216B01D5C00947B06 /* Entity.h */,
 				CE857D7D16B01D5C00947B06 /* Opponent.h */,
 				CE857D7E16B01D5C00947B06 /* Opponent.m */,
 				3F205FBB16B0EEB0008D9399 /* Missile.h */,
 				3F205FBC16B0EEB0008D9399 /* Missile.m */,
 				3F205FBE16B0EED1008D9399 /* Shuriken.h */,
 				3F205FBF16B0EED1008D9399 /* Shuriken.m */,
+				3F3F40D716B180E00080C341 /* Player.h */,
+				3F3F40D816B180E00080C341 /* Player.m */,
+				3F3F40E516B1E3200080C341 /* RoundFinishedScene.h */,
+				3F3F40E616B1E3200080C341 /* RoundFinishedScene.m */,
+				3F3F40EC16B2AB930080C341 /* HistoricalEvent.h */,
+				3F3F40ED16B2AB930080C341 /* HistoricalEvent.m */,
 			);
 			name = Multiplayer;
 			sourceTree = "<group>";
@@ -1514,6 +1577,15 @@
 				CE857DC616B01D5C00947B06 /* Icon@2x.png in Resources */,
 				CE857DC816B01D5C00947B06 /* iTunesArtwork in Resources */,
 				3F205FC216B1295E008D9399 /* bat2-hd.png in Resources */,
+				3F3F40D516B14BE30080C341 /* bat2.png in Resources */,
+				3F3F40E916B273C90080C341 /* bloodSplat-hd.png in Resources */,
+				3F3F40EB16B273D10080C341 /* bloodSplat.png in Resources */,
+				3F3F40F016B2BC7E0080C341 /* DMMainTheme.m4r in Resources */,
+				3F3F40F216B2BCAE0080C341 /* DMPlayerDies.m4r in Resources */,
+				3F3F40F416B2BF770080C341 /* DMRespawn.m4r in Resources */,
+				3F3F40F616B2BF980080C341 /* DMZombie.m4r in Resources */,
+				3F3F40F816B2C2490080C341 /* DMLifePack.m4r in Resources */,
+				3F3F40FA16B2C3820080C341 /* DMZombiePain.m4r in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1540,6 +1612,10 @@
 				CE857DBB16B01D5C00947B06 /* Opponent.m in Sources */,
 				3F205FBD16B0EEB1008D9399 /* Missile.m in Sources */,
 				3F205FC016B0EED1008D9399 /* Shuriken.m in Sources */,
+				3F3F40D916B180E00080C341 /* Player.m in Sources */,
+				3F3F40E016B18D6F0080C341 /* ChangeableObject.m in Sources */,
+				3F3F40E716B1E3210080C341 /* RoundFinishedScene.m in Sources */,
+				3F3F40EE16B2AB930080C341 /* HistoricalEvent.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

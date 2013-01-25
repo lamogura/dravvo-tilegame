@@ -14,6 +14,8 @@
 #import "DVAPIWrapper.h"
 //#import "Entity.h"
 #import "Bat.h"
+#import "Player.h"
+#import "Opponent.h"
 
 @class HelloWorldLayer;
 
@@ -25,6 +27,7 @@
     CCLabelTTF* labelKillsCount;
     CCLabelTTF* labelShurikensCount;
     CCLabelTTF* labelMissilesCount;
+    CCLabelTTF* labelTimer;
 }
 
 @property (nonatomic, unsafe_unretained) HelloWorldLayer* gameLayer;
@@ -34,6 +37,8 @@
 -(void) numKillsChanged:(int) numKills;
 -(void) numShurikensChanged:(int) numShurikens;
 -(void) numMissilesChanged:(int) numMissiles;
+-(void) timerChanged:(int) newTime;
+
 
 @end
 
@@ -47,11 +52,13 @@
     CCTMXLayer* _meta;  // meta layer is NOT seen by player, just used to specify collidable, collectible tiles
     CCTMXLayer* _foreground;  // foreground layer is seen by player but is modifiable, like collectible items
     CCTMXLayer* _destruction;  // destruction under-layer, for when terrain is devastated
-    CCSprite* _player;
+//    CCSprite* _player;
 //    NSMutableArray* _enemies;
     NSMutableArray* _projectiles;
     NSMutableArray* _missiles;
     NSMutableArray* _bats;
+    NSMutableArray* _actionRecordDictionaries;
+    NSMutableArray* _playerMinionList;
     
     int _numKills;
     int _numCollected;
@@ -62,6 +69,8 @@
     BOOL isSwipe;
     BOOL isTouchMoveStarted;
     NSMutableArray* myToucharray;
+    int _timeStepIndex; // should count up to 10 or 20, to get to a 10 second round
+    Player* player;
     
     DVAPIWrapper* apiWrapper;
 }
@@ -71,18 +80,26 @@
 @property (nonatomic, strong) CCTMXLayer* meta;
 @property (nonatomic, strong) CCTMXLayer* foreground;
 @property (nonatomic, strong) CCTMXLayer* destruction;
-@property (nonatomic, strong) CCSprite* player;
+//@property (nonatomic, strong) CCSprite* player;
 @property (nonatomic, assign) int numCollected;
 @property (nonatomic, assign) int numKills;
 @property (nonatomic, assign) int numShurikens;
 @property (nonatomic, assign) int numMissiles;
 @property (nonatomic, strong) HelloWorldHud* hud;
 @property (nonatomic, assign) int mode;
+@property (nonatomic, assign) int timeStepIndex;
+@property (nonatomic, assign) float timer;
+@property (nonatomic, strong) NSMutableArray* playerMinionList;
+@property (nonatomic, strong) Player* player;
+
 //@property (nonatomic, strong) NSMutableArray* bats;
 
 // returns a CCScene that contains the HelloWorldLayer as the only child
 +(CCScene *) scene;
-- (void) setViewpointCenter:(CGPoint) position;
+//+(HelloWorldLayer*) helloWorldLayerGetter;
+-(void) mainGameLoop:(ccTime)deltaTime;
+-(void) sampleCurrentPositions:(ccTime)deltaTime; // scheduled callback
+-(void) setViewpointCenter:(CGPoint) position;
 -(CGPoint) tileCoordForPosition:(CGPoint) position;
 -(void) setPlayerPosition:(CGPoint) position;
 //-(void) addEnemyAtX:(int)x y:(int)y;
@@ -96,5 +113,6 @@
 -(void) missileExplodesFinished:(id) sender;
 -(CGPoint) pixelToPoint:(CGPoint) pixelPoint;
 -(CGSize) pixelToPointSize:(CGSize) pixelSize;
+-(void) roundFinished;
 
 @end

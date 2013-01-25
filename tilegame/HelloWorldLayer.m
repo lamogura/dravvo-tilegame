@@ -20,6 +20,9 @@
 #import "CCSequence+Helper.h"
 //#import "Entity.h"
 #import "Bat.h"
+#import "Player.h"
+#import "Opponent.h"
+#import "RoundFinishedScene.h"
 
 @implementation HelloWorldHud
 
@@ -80,6 +83,16 @@
         labelMissilesCount.position = ccp(winSize.width - (labelMissilesCount.contentSize.width/2) - margin*2 - (labelShurikensCount.contentSize.width/2), winSize.height - labelMissilesCount.contentSize.height/2 - margin);
         [self addChild:labelMissilesCount];
 
+        // label for T-minus time remaining in this round
+        theString = [NSString stringWithFormat:@"Time: %d", kTurnLengthSeconds];
+        labelTimer = [CCLabelTTF labelWithString:theString dimensions:CGSizeMake(350, 20) alignment:UITextAlignmentLeft fontName:@"Verdana-Bold" fontSize:18.0];
+        labelTimer.color = ccc3(255, 0, 0);
+        margin = 10;
+        labelTimer.position = ccp((labelTimer.contentSize.width/2) + margin,
+                                        winSize.height - labelTimer.contentSize.height/2 - margin);
+        [self addChild:labelTimer];
+
+    
     }
     return self;
 }
@@ -112,11 +125,18 @@
     [labelMissilesCount setString:[NSString stringWithFormat:@"M: %d", numMissiles]];
 }
 
+-(void) timerChanged:(int) newTime
+{
+    [labelTimer setString:[NSString stringWithFormat:@"Time: %d", newTime]];
+}
+
 @end
 
 
 
 #pragma mark - HelloWorldLayer
+
+//static HelloWorldLayer* theHelloWorldLayer;
 
 // HelloWorldLayer implementation
 @implementation HelloWorldLayer
@@ -126,15 +146,25 @@
 @synthesize meta = _meta;
 @synthesize foreground = _foreground;
 @synthesize destruction = _destruction;
-@synthesize player = _player;
 @synthesize numCollected = _numCollected;
 @synthesize numKills = _numKills;
 @synthesize numShurikens = _numShurikens;
 @synthesize numMissiles = _numMissiles;
 @synthesize hud = _hud;
 @synthesize mode = _mode;
+@synthesize timeStepIndex = _timeStepIndex;
+@synthesize playerMinionList = _playerMinionList;
+@synthesize player;
+@synthesize timer;
+
 //@synthesize bats = _bats;
 //@synthesize isTouchMoveStarted, isTouchEnabled;
+/*
++(HelloWorldLayer*) helloWorldLayerGetter
+{
+    return theHelloWorldLayer;
+}
+*/
 
 // Helper class method that creates a Scene with the HelloWorldLayer as the only child.
 // What calls this class??
@@ -145,9 +175,11 @@
 	
 	// 'layer' is an autorelease object.
 	HelloWorldLayer *layer = [HelloWorldLayer node];
+//    theHelloWorldLayer = [HelloWorldLayer node];
 	
 	// add layer as a child to scene
 	[theScene addChild: layer];
+//    [theScene addChild: theHelloWorldLayer];
     
     // create and add the HUD label/stats layer!
     HelloWorldHud* hud = [HelloWorldHud node];
@@ -204,7 +236,8 @@
         //                DLog(@"UPDATED GAME GAME STATUS");
         //            }
         //        }];
-        
+                
+        _timeStepIndex = 0;
         self.isTouchEnabled = YES;  // set THIS LAYER as touch enabled so user can move character around with callbacks
 		isSwipe = NO;
         myToucharray =[[NSMutableArray alloc ] init]; // store the touches for missile launching
@@ -223,15 +256,23 @@
         [SimpleAudioEngine sharedEngine].effectsVolume = 1.0;
         [SimpleAudioEngine sharedEngine].backgroundMusicVolume = 0.70;
         
-        [[SimpleAudioEngine sharedEngine] preloadEffect:@"pickup.caf"];
+//        [[SimpleAudioEngine sharedEngine] preloadEffect:@"pickup.caf"];
+        [[SimpleAudioEngine sharedEngine] preloadEffect:@"DMLifePack.m4r"];
         [[SimpleAudioEngine sharedEngine] preloadEffect:@"hit.caf"];
         [[SimpleAudioEngine sharedEngine] preloadEffect:@"move.caf"];
         [[SimpleAudioEngine sharedEngine] preloadEffect:@"missileSound.m4a"];
         [[SimpleAudioEngine sharedEngine] preloadEffect:@"missileExplode.m4a"];
         [[SimpleAudioEngine sharedEngine] preloadEffect:@"shurikenSound.m4a"];
+        [[SimpleAudioEngine sharedEngine] preloadEffect:@"DMPlayerDies.m4r"];  // preload creature sounds
+//        [[SimpleAudioEngine sharedEngine] preloadEffect:@"juliaRoar.m4a"];  // preload creature sounds
+        [[SimpleAudioEngine sharedEngine] preloadEffect:@"DMZombie.m4r"];  // preload creature sounds
+        [[SimpleAudioEngine sharedEngine] preloadEffect:@"DMZombiePain.m4r"];  // preload creature sounds
+        
 //        [[SimpleAudioEngine sharedEngine] preloadEffect:@"juliaRoar.m4a"];
 //        [[SimpleAudioEngine sharedEngine] playBackgroundMusic:@"TileMap.caf"];
-        [[SimpleAudioEngine sharedEngine] playBackgroundMusic:@"montersoundtrack2.m4a"];
+//        [[SimpleAudioEngine sharedEngine] playBackgroundMusic:@"montersoundtrack2.m4a"];
+        [[SimpleAudioEngine sharedEngine] playBackgroundMusic:@"DMMainTheme.m4r"];
+
         
         // load the TileMap and the tile layers
         self.tileMap = [CCTMXTiledMap tiledMapWithTMXFile:@"TileMap.tmx"];
@@ -250,12 +291,10 @@
         NSAssert(spawnPoint != nil, @"SpawnPoint object not found");
         int x = [[spawnPoint valueForKey:@"x"] intValue];
         int y = [[spawnPoint valueForKey:@"y"] intValue];
-        
-        // draw the player sprite
-        self.player = [CCSprite spriteWithFile:@"Player.png"];
-        // _player.position = ccp(x, y);
-        _player.position = [self pixelToPoint:ccp(x, y)];  // NEW
-        [self addChild:_player];
+        CGPoint pointPosition = [self pixelToPoint:ccp(x, y)];
+
+        // IF we are the host, playerID gets P1; if we were invited to a game, we get P2
+        player = [[Player alloc] initWithLayer:self andPlayerID:@"P1" andSpawnAt:pointPosition];
         
         // draw the enemy sprites
         // iterate through tileMap dictionary objects, finding all enemy spawn points
@@ -270,20 +309,28 @@
                 x = [[spawnPoint valueForKey:@"x"] intValue];
                 y = [[spawnPoint valueForKey:@"y"] intValue];
                 CGPoint enemyPoint = [self pixelToPoint:ccp(x, y)];
+                DLog(@"spawn point PIXELS...(x,y) = %@",NSStringFromCGPoint(ccp(x,y)));
+                DLog(@"spawn point POINTS...(x,y) = %@",NSStringFromCGPoint(enemyPoint));
                 //                [self addEnemyAtX:x y:y];
                 //[self addEnemyAtX:enemyPoint.x y:enemyPoint.y];
-                Bat *aBat = [[Bat alloc] initWithLayer:self andSpawnAt:enemyPoint withBehavior:kBehavior_default];
+                Bat *aBat = [[Bat alloc] initWithLayer:self andSpawnAt:enemyPoint withBehavior:kBehavior_default withPlayerOwner:player.playerID];
                 // add the bat to the bats NSMuttableArray
                 [_bats addObject:aBat];
+                //[self addChild:aBat];
             }
         }
         
         // set the view position focused on player
 
-        [self setViewpointCenter:_player.position];
+        [self setViewpointCenter:player.sprite.position];
         
         [self addChild:_tileMap z:-1];
 
+        timer = (float) kTurnLengthSeconds;
+        // start up the main game loops
+        [self schedule:@selector(mainGameLoop:) interval:kTickLengthSeconds];
+        [self schedule:@selector(sampleCurrentPositions:) interval:kPlaybackTickLengthSeconds];
+                
         /*
         // DEBUG section
         // test CCSequence helper category
@@ -309,9 +356,63 @@
         // COOL! end DEBUG
         */
         
+        
     }
 	return self;
 }
+
+-(void) mainGameLoop:(ccTime)deltaTime
+{
+    // update the minions
+    for (Bat *theMinion in _bats) {
+        [theMinion realUpdate];
+    }
+   
+}
+
+// at the end of the tick, we find out where the sprites travelled to and then we insert the "move" activity to the SECOND index
+// of each local activityReport list, so as not to precede a possible "spawn" activity and therefore have a re-play issue
+-(void) sampleCurrentPositions:(ccTime)deltaTime
+{
+    // get the reports before incrementing _timeStepIndex
+    // player position report
+    
+    // sample minions
+    for (Bat *theMinion in _bats) {
+        [theMinion sampleCurrentPosition];
+    }
+    
+    // sample player
+    [player sampleCurrentPosition];
+    
+    timer -= kPlaybackTickLengthSeconds;
+    // update the label every second
+    if((int)timer % 1 == 0)  // FIX cheating by hardcoding for now, fix this to allow time periods to change just in constants
+        [_hud timerChanged:timer];
+    
+    _timeStepIndex++;
+    if((float)_timeStepIndex * kPlaybackTickLengthSeconds >= kTurnLengthSeconds)
+    {
+        [self roundFinished];
+    }
+}
+
+-(void) roundFinished
+{
+    // unschedule the loops and everything (collision detection, etc)
+    // [self unscheduleAllSelectors];
+    
+    // DEBUG
+    // now try re-playing all the historical activities from the list
+    
+    
+    
+    // transition to a waiting for opponent scene, ideally displaying current stats (maybe keep HUD up)
+    GameOverScene *gameOverScene = [GameOverScene node];
+    [gameOverScene.layer.label setString:@"Round Finished!"];
+    [[CCDirector sharedDirector] replaceScene:gameOverScene];
+}
+
 
 - (void) setViewpointCenter:(CGPoint) position
 {
@@ -363,7 +464,7 @@
             if (collectable && [collectable compare:@"True"] == NSOrderedSame)
             {
                 // got the item sound
-                [[SimpleAudioEngine sharedEngine] playEffect:@"pickup.caf"];
+                [[SimpleAudioEngine sharedEngine] playEffect:@"DMLifePack.m4r"];
                 // removing from both meta layer AND foreground means we can no longer see OR "collect" the item
                 [_meta removeTileAt:tileCoord];
                 [_foreground removeTileAt:tileCoord];
@@ -379,7 +480,7 @@
         }
     }
     
-    _player.position = position;
+    player.sprite.position = position;
 }
 
 - (void) win {
@@ -430,7 +531,7 @@
         CCSprite* missile = [CCSprite spriteWithFile:@"missile.png"];
         // draw a line between player and last touch
         
-        missile.position = _player.position;
+        missile.position = player.sprite.position;
         [self addChild:missile];
         
         // send it on a line from player position to new_location
@@ -440,7 +541,7 @@
         int realX, realY;
 
         // Are we shooting to the left or right?
-        CGPoint diff = ccpSub(touchLocation, _player.position);
+        CGPoint diff = ccpSub(touchLocation, player.sprite.position);
         realX = missile.position.x + diff.x;
         realY = missile.position.y + diff.y;
 /*
@@ -493,7 +594,7 @@
         //CGSize tileSize = [self pixelToPointSize:tileMap.tileSize];
         
         // this just moves sprite by the one tile of pixels
-        CGPoint playerPos = _player.position;
+        CGPoint playerPos = player.sprite.position;
         CGPoint diff = ccpSub(touchLocation, playerPos);
         if (abs(diff.x) > abs(diff.y)) {
             if (diff.x > 0) {
@@ -520,7 +621,7 @@
             [self setPlayerPosition:playerPos];
         }
         
-        [self setViewpointCenter:_player.position];
+        [self setViewpointCenter:player.sprite.position];
     }
     // else if throw shuriken mode
     else if (self.numShurikens > 0) {
@@ -531,14 +632,14 @@
         
         // Create a projectile and put it at the player's location
         CCSprite* projectile = [CCSprite spriteWithFile:@"Projectile.png"];
-        projectile.position = _player.position;
+        projectile.position = player.sprite.position;
         [self addChild:projectile];
         
         // Determine where we want to shoot the projectile to
         int realX;
         
         // Are we shooting to the left or right?
-        CGPoint diff = ccpSub(touchLocation, _player.position);
+        CGPoint diff = ccpSub(touchLocation, player.sprite.position);
         if(diff.x > 0)
             realX = (_tileMap.mapSize.width * [self pixelToPointSize:_tileMap.tileSize].width) + (projectile.contentSize.width/2);
         else
@@ -592,13 +693,13 @@
     [self animateEnemy:enemy];
     [_enemies addObject:enemy];
 }
- */
+*/
 
 -(void) animateEnemy:(CCSprite*) enemy
 {
     //immediately before creating the actions in animateEnemy
     //rotate to face the player
-    CGPoint diff = ccpSub(_player.position, enemy.position);
+    CGPoint diff = ccpSub(player.sprite.position, enemy.position);
     float angleRadians = atanf((float)diff.y / (float)diff.x);
     float angleDegrees = CC_RADIANS_TO_DEGREES(angleRadians);
     float cocosAngle = -1 * angleDegrees;
@@ -614,7 +715,7 @@
     // ccpMult, ccpSub multiplies, subtracts two point coordinates (vectors) to give one resulting point
     // ccpNormalize calculates a unit vector given 2 point coordinates,...
     // and gives a hypotenous of length 1 with appropriate x,y
-    id actionMove = [CCMoveBy actionWithDuration:actualDuration position:ccpMult(ccpNormalize(ccpSub(_player.position,enemy.position)), 10)];
+    id actionMove = [CCMoveBy actionWithDuration:actualDuration position:ccpMult(ccpNormalize(ccpSub(player.sprite.position,enemy.position)), 10)];
     id actionMoveDone = [CCCallFuncN actionWithTarget:self selector:@selector(enemyMoveFinished:)];
     [enemy runAction:[CCSequence actions:actionMove, actionMoveDone, nil]];
 }
@@ -668,8 +769,11 @@
     CGRect explosionArea = CGRectMake(explosion.position.x - (explosion.contentSize.width/2)*2, explosion.position.y - (explosion.contentSize.height/2)*2, explosion.contentSize.width*2, explosion.contentSize.height*2);
 
     // First, if the explosion hit YOU then you're dead
-    if(CGRectIntersectsRect(explosionArea, _player.boundingBox))
-        [self schedule:@selector(lose) interval:0.75];
+    if(CGRectIntersectsRect(explosionArea, player.sprite.boundingBox))
+    {
+        [self lose];
+        // [self schedule:@selector(lose) interval:0.75];
+    }
 
     
     // iterate through enemies, see if any intersect with current projectile
@@ -690,9 +794,12 @@
     for (Bat *target in targetsToDelete) {
         if(target.hitPoints < 1)
         {
+            [[SimpleAudioEngine sharedEngine] playEffect:@"DMZombiePain.m4r"];
             [target kill];
+            _numKills += 1;
+            [_hud numKillsChanged:_numKills];
             [_bats removeObject:target];
-            [self removeChild:target cleanup:YES];
+            // [self removeChild:target cleanup:YES];
         }
     }
     
@@ -738,7 +845,7 @@
                             //           target.contentSize.width,
                             //           target.contentSize.height );
         
-        if (CGRectContainsPoint(targetRect, _player.position)) {
+        if (CGRectContainsPoint(targetRect, player.sprite.position)) {
             [self lose];
         }
     }
@@ -767,7 +874,11 @@
         for (Bat *target in targetsToDelete) {
             if(target.hitPoints < 1)
             {
+                [[SimpleAudioEngine sharedEngine] playEffect:@"DMZombie.m4r"];
+
                 [target kill];
+                _numKills += 1;
+                [_hud numKillsChanged:_numKills];
                 [_bats removeObject:target];
                 [self removeChild:target cleanup:YES];
             }
@@ -789,9 +900,17 @@
 }
 
 - (void) lose {
-    GameOverScene *gameOverScene = [GameOverScene node];
-    [gameOverScene.layer.label setString:@"You Lose!"];
-    [[CCDirector sharedDirector] replaceScene:gameOverScene];
+    // delete the player, re-init and re-spawn him back at the beginning,
+    // then idle him there until turn is finished (no moving or attacking allowed)
+
+    [player wound:2];
+    [player kill];
+
+    [self scheduleOnce:@selector(roundFinished) delay:3.0];
+
+//    GameOverScene *gameOverScene = [GameOverScene node];
+//    [gameOverScene.layer.label setString:@"You Lose!"];
+//    [[CCDirector sharedDirector] replaceScene:gameOverScene];
 }
 
 // NEW

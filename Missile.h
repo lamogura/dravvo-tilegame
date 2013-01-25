@@ -10,8 +10,9 @@
 #import "cocos2d.h"
 #import "Entity.h"
 #import "CCSequence+Helper.h"
+#import "ChangeableObject.h"
 
 
-@interface Missile : CCNode // <Entity>
+@interface Missile : ChangeableObject // <Entity>
 
 @end

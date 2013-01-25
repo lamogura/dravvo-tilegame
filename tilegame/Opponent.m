@@ -10,20 +10,29 @@
 
 @implementation Opponent
 
-@synthesize playerSprite, myLayer, minionsList;
+@synthesize opponentSprite, playerID, myLayer, hitPoints, opponentMinionList;
 
--(id) initWithLayer:(HelloWorldLayer*) layer
+-(id)initWithLayer:(HelloWorldLayer*) layer andPlayerID:(NSString*)plyrID andSpawnAt:(CGPoint) spawnPoint;
 {
     self = [super init];
     if(self)
     {
-        self.myLayer = layer;
-        [layer addChild:self];  // since we are a Node, we can add ourself to the layer
+        playerID = plyrID;
+        // store the layer we belong to - not sure if this is needed or not
+        myLayer = layer;
         
-        // load the appropriate player sprite here
+        //        [[SimpleAudioEngine sharedEngine] preloadEffect:@"juliaRoar.m4a"];  // preload creature sounds
         
-        // setup and run the action here
-
+        // set Player's initial stats
+        self.hitPoints = 1;
+        
+        opponentSprite = [CCSprite spriteWithFile:@"Player.png"];
+        opponentSprite.position = spawnPoint;
+        
+        [self addChild:opponentSprite];
+        // is this enough to display it?
+        
+        [myLayer addChild:self];
     }
     return self;
 }

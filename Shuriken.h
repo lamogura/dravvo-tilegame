@@ -10,8 +10,8 @@
 #import "cocos2d.h"
 #import "Entity.h"
 #import "CCSequence+Helper.h"
+#import "ChangeableObject.h"
 
-
-@interface Shuriken : CCNode // <Entity>
+@interface Shuriken : ChangeableObject // <Entity>
 
 @end

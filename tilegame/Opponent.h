@@ -4,25 +4,27 @@
 //
 //  Created by Jeremiah Anderson on 1/22/13.
 //
-//
+//  Opponent is NOT an Entity (too unique)
 
 #import <Foundation/Foundation.h>
 #import "cocos2d.h"
 #import "HelloWorldLayer.h"
-#import "Entity.h"
+//#import "Entity.h"
 #import "CCSequence+Helper.h"
+#import "ChangeableObject.h"
 
 // multiplayer other player object
-@interface Opponent : CCNode // <Entity>
+@interface Opponent : ChangeableObject
 
-@property (nonatomic, retain) CCSprite* playerSprite;
+@property (nonatomic, retain) CCSprite* opponentSprite;
 @property (nonatomic, retain) HelloWorldLayer* myLayer;
-@property (nonatomic, strong) NSMutableArray* minionsList;
+@property (nonatomic, assign) int hitPoints;
+@property (nonatomic, assign) NSString* playerID;
+@property (nonatomic, strong) NSMutableArray* opponentMinionList;  // player maintains an array of minions
 
-// player maintains an array of minions, maybe better a dictionary of minions?
-//@property (nonatomic, assign) NSMutableArray* Minion*
 
--(id)initWithLayer:(HelloWorldLayer*) layer;
+-(id)initWithLayer:(HelloWorldLayer*) layer andPlayerID:(NSString*)plyrID andSpawnAt:(CGPoint) spawnPoint;
+//-(void)sampleCurrentPosition:(CGPoint) currentPoint;  // don't need this since player should be non-moving during player's turn
 
 // attributes
 // CCSprite with MOST RECENT position, hp
