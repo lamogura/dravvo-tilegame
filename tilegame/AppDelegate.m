@@ -90,8 +90,15 @@
 	// Assume that PVR images have premultiplied alpha
 	[CCTexture2D PVRImagesHavePremultipliedAlpha:YES];
 
-	// and add the scene to the stack. The director will run it when it automatically when the view is displayed.
-	[director_ pushScene: [NewGameLayer scene]];
+    // load new game scene if there isnt one currently going
+    NSString* currentGameID = [[NSUserDefaults standardUserDefaults] valueForKey:kCurrentGameIDKey];
+    if (currentGameID != nil) {
+        DLog(@"Found gameID: %@", currentGameID);
+        [director_ pushScene: [HelloWorldLayer scene]];
+    }
+    else {
+        [director_ pushScene: [NewGameLayer scene]];
+    }
 
 	return YES;
 }
