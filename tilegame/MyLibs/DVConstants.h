@@ -18,5 +18,5 @@
 #define kDeviceToken @"deviceToken" // user to save the device token for APNS
 
 //#define kBaseURL @"http://dravvo.ap01.aws.af.cm"
-//#define kBaseURL @"http://192.168.1.108:3000"
-#define kBaseURL @"http://localhost:3000"
+#define kBaseURL @"http://192.168.1.103:3000"
+//#define kBaseURL @"http://localhost:3000"

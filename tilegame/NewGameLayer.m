@@ -8,6 +8,8 @@
 
 #import "NewGameLayer.h"
 #import "HelloWorldLayer.h"
+#import "DVMacros.h"
+#import "DVConstants.h"
 
 @implementation NewGameScene
 @synthesize layer = _layer;
@@ -29,9 +31,18 @@
 -(id) init
 {
     if( (self=[super initWithColor:ccc4(255,255,255,255)] )) {
+        self->_apiWrapper = [[DVAPIWrapper alloc] init];
         
-//        CGSize winSize = [[CCDirector sharedDirector] winSize];
         CCMenuItemImage *item1 = [CCMenuItemImage itemWithNormalImage:@"new_game_button.png" selectedImage:nil disabledImage:nil block:^(id sender) {
+            [self->_apiWrapper postCreateNewGameThenCallBlock:^(NSError *error, DVGameStatus *status) {
+                if (error != nil) {
+                    ULog([error localizedDescription]);
+                }
+                else {
+                    DLog(@"Saving gameID to defaults: %@", status.gameID);
+                    [[NSUserDefaults standardUserDefaults] setObject:status.gameID forKey:kCurrentGameIDKey];
+                }
+            }];
             [[CCDirector sharedDirector] replaceScene:[HelloWorldLayer scene]];
         }];
         
@@ -42,6 +53,10 @@
         [self addChild:selectMenu];
     }
     return self;
+}
+
+- (void) dealloc {
+    self->_apiWrapper = nil;
 }
 
 +(CCScene *) scene
