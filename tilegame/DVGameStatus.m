@@ -11,13 +11,6 @@
 
 @implementation DVGameStatus
 
-@synthesize gameID;
-@synthesize createdAt;
-
-@synthesize nextTurn;
-@synthesize lastUpdates;
-@synthesize isGameOver;
-
 - (id)initWithDictionary:(NSDictionary *) dict {
     self = [super init];
     if (self) {
