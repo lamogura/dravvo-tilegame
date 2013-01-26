@@ -14,10 +14,11 @@
 @property (nonatomic, retain) NSDate *createdAt;
 
 @property (nonatomic, copy) NSString *nextTurn;
-@property (nonatomic, retain) NSDictionary *lastUpdates;
+@property (nonatomic, retain) NSArray *lastUpdates;
 @property (nonatomic, assign) BOOL isGameOver;
 
 - (id)initWithDictionary:(NSDictionary *)dict;
 - (id)initWithJSONString:(NSString *)jsonString;
+- (id)initWithTurn:(NSString *)turn;
 
 @end

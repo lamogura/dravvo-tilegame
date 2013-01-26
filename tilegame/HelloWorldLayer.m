@@ -18,6 +18,7 @@
 #import "DVConstants.h"
 #import "gameConstants.h"
 #import "CCSequence+Helper.h"
+#import "Libs/SBJSON/SBJson.h"
 
 #import "Bat.h"
 #import "Player.h"
@@ -91,13 +92,9 @@
 	// Apple recommends to re-assign "self" with the "super's" return value
 	if( (self=[super init]) ) {
         
-        DLog(@"");
-        DLog(@"TESTING API WRAPPER");
-        DLog(@"*******************");
-        
         self->apiWrapper = [[DVAPIWrapper alloc] init];
-        
-        
+       
+       
         // test create new game
         //        [self->apiWrapper postCreateNewGameThenCallBlock:^(NSError *error, DVGameStatus *status) {
         //            if (error != nil) {
