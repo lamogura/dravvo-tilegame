@@ -17,8 +17,11 @@
 {
     if( (self=[super initWithColor:ccc4(255,255,255,255)] )) {
         self->_apiWrapper = [[DVAPIWrapper alloc] init];
-        
-        CCMenuItemImage *item1 = [CCMenuItemImage itemWithNormalImage:@"new_game_button.png" selectedImage:nil disabledImage:nil block:^(id sender) {
+        CCMenuItemImage *newGameItem = [CCMenuItemImage
+                                        itemWithNormalImage:@"new_game_button.png"
+                                        selectedImage:nil
+                                        disabledImage:nil
+                                        block:^(id sender) {
             [self->_apiWrapper postCreateNewGameThenCallBlock:^(NSError *error, DVGameStatus *status) {
                 if (error != nil) {
                     ULog([error localizedDescription]);
@@ -31,11 +34,10 @@
             }];
         }];
         
-        //Adding menu items to the CCMenu. Don't forget to include 'nil'
-        CCMenu *selectMenu= [CCMenu menuWithItems:item1, nil];
+        CCMenu *menu= [CCMenu menuWithItems:newGameItem, nil];
         //Aligning & Adding CCMenu child to the scene
-        [selectMenu alignItemsVertically];
-        [self addChild:selectMenu];
+        [menu alignItemsVertically];
+        [self addChild:menu];
     }
     return self;
 }
@@ -46,11 +48,9 @@
 
 +(CCScene *) scene
 {
-	CCScene *theScene = [CCScene node];
-    NewGameLayer *layer = [NewGameLayer node];
-
-	[theScene addChild: layer];
-	return theScene;
+	CCScene *scene = [CCScene node];
+	[scene addChild: [NewGameLayer node]];
+	return scene;
 }
 
 @end
