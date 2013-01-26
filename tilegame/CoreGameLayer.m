@@ -48,7 +48,7 @@ static BOOL isEnemyPlaybackRound = NO;
 @synthesize player;
 @synthesize timer;
 @synthesize historicalEventsDict;
-@synthesize opponent = _opponent;
+//@synthesize opponent = _opponent;
 
 //@synthesize bats = _bats;
 //@synthesize isTouchMoveStarted, isTouchEnabled;
@@ -94,7 +94,15 @@ static BOOL isEnemyPlaybackRound = NO;
         if(!isEnemyPlaybackRound)
             [self enemyPlayback];
         
-        self->apiWrapper = [[DVAPIWrapper alloc] init];
+        self->_apiWrapper = [[DVAPIWrapper alloc] init];
+        [self->_apiWrapper getGameStatusThenCallBlock:^(NSError *error, DVGameStatus *status) {
+            if (error != nil) {
+                ULog([error localizedDescription]);
+            }
+            else {
+                DLog(@"%@", status.lastUpdates);
+            }
+        }];
 
         // test create new game
         //        [self->apiWrapper postCreateNewGameThenCallBlock:^(NSError *error, DVGameStatus *status) {
@@ -185,7 +193,7 @@ static BOOL isEnemyPlaybackRound = NO;
                 [[spawnPointsDict valueForKey:@"y"] intValue])];
 
         // IF we are the host, playerID gets P1; if we were invited to a game, we get P2
-        player = [[Player alloc] initWithLayer:self andPlayerID:@"P1" andSpawnAt:playerSpawnPoint];
+        player = [[Player alloc] initInLayer:self atSpawnPoint:playerSpawnPoint];
         
         // draw the enemy sprites
         // iterate through tileMap dictionary objects, finding all enemy spawn points
@@ -202,10 +210,10 @@ static BOOL isEnemyPlaybackRound = NO;
                     ccp([[spawnPointsDict valueForKey:@"x"] intValue],
                         [[spawnPointsDict valueForKey:@"y"] intValue])];
 
-                Bat *aBat = [[Bat alloc] initWithLayer:self
-                                            andSpawnAt:enemySpawnPoint
-                                          withBehavior:kBehavior_default
-                                       withPlayerOwner:[NSMutableString stringWithString:player.playerID]];
+                Bat *aBat = [[Bat alloc] initInLayer:self
+                                        atSpawnPoint:enemySpawnPoint
+                                        withBehavior:DVCreatureBehaviorDefault
+                                             ownedBy:player];
                 // add the bat to the bats NSMuttableArray
                 //[_bats addObject:aBat];
                 
@@ -224,7 +232,7 @@ static BOOL isEnemyPlaybackRound = NO;
         timer = (float) kTurnLengthSeconds;
         // start up the main game loops
         [self schedule:@selector(mainGameLoop:) interval:kTickLengthSeconds];
-        [self schedule:@selector(sampleCurrentPositions:) interval:kPlaybackTickLengthSeconds];
+        [self schedule:@selector(sampleCurrentPositions:) interval:kReplayTickLengthSeconds];
                 
         /*
         // DEBUG section
@@ -284,13 +292,13 @@ static BOOL isEnemyPlaybackRound = NO;
     // sample player
     [player sampleCurrentPosition];
     
-    timer -= kPlaybackTickLengthSeconds;
+    timer -= kReplayTickLengthSeconds;
     // update the label every second
     if((int)timer % 1 == 0)  // FIX cheating by hardcoding for now, fix this to allow time periods to change just in constants
         [_hud timerChanged:timer];
     
     _timeStepIndex++;
-    if((float)_timeStepIndex * kPlaybackTickLengthSeconds >= kTurnLengthSeconds)
+    if((float)_timeStepIndex * kReplayTickLengthSeconds >= kTurnLengthSeconds)
     {
 //        [self unscheduleAllSelectors];  // terminate the game loops and collision detection
         [self roundFinished];
@@ -337,7 +345,7 @@ static BOOL isEnemyPlaybackRound = NO;
     timer = (float) kTurnLengthSeconds;
     // schedule the playback loops
     
-    [self schedule:@selector(enemyPlaybackLoop:) interval:kPlaybackTickLengthSeconds];
+    [self schedule:@selector(enemyPlaybackLoop:) interval:kReplayTickLengthSeconds];
     isEnemyPlaybackRound = NO;
 }
 
@@ -372,22 +380,22 @@ static BOOL isEnemyPlaybackRound = NO;
     // sample player
 //    [player performHistoryAtTimeStepIndex: atTimeStepIndex: _timeStepIndex];
 
-    _timeStepIndex++;
+//    _timeStepIndex++;
 }
 
 -(void) roundFinished
 {
-    [NSString stringWithFormat:@"%@_%@",opponent.playerID,kDVChangeableObjectName_bat];
-    // here we should make one fat NSDictionary (kDVChangeableObjectName_*) of Arrays of NSDictionarys of all the local history arrays and send it to server
-    NSMutableArray* playerBatsActions = [[NSMutableArray alloc] init];
-    for (Bat* bat in player.playerMinionList) {
-        [playerBatsActions addObject:bat.historicalEventsList_local];
-    }
-    
-    historicalEventsDict = [NSDictionary dictionaryWithObjectsAndKeys:
-                            player.historicalEventsList_local, player.playerID,
-                            playerBatsActions, [NSString stringWithFormat:@"%@_%@",player.playerID, kDVChangeableObjectName_bat],
-                            nil];
+//    [NSString stringWithFormat:@"%@_%@",opponent.playerID,kDVChangeableObjectName_bat];
+//    // here we should make one fat NSDictionary (kDVChangeableObjectName_*) of Arrays of NSDictionarys of all the local history arrays and send it to server
+//    NSMutableArray* playerBatsActions = [[NSMutableArray alloc] init];
+//    for (Bat* bat in player.playerMinionList) {
+//        [playerBatsActions addObject:bat.historicalEventsList_local];
+//    }
+//    
+//    historicalEventsDict = [NSDictionary dictionaryWithObjectsAndKeys:
+//                            player.historicalEventsList_local, player.playerID,
+//                            playerBatsActions, [NSString stringWithFormat:@"%@_%@",player.playerID, kDVChangeableObjectName_bat],
+//                            nil];
     // GO JSON!
     
     // unschedule the loops and everything (collision detection, etc)
@@ -417,7 +425,7 @@ static BOOL isEnemyPlaybackRound = NO;
     
     
     // [self enemyPlayback];
-    [self->apiWrapper postUpdateGameWithUpdates:historicalEventsDict ThenCallBlock:^(NSError *error) {
+    [self->_apiWrapper postUpdateGameWithUpdates:historicalEventsDict ThenCallBlock:^(NSError *error) {
         if (error != nil) {
             ULog([error localizedDescription]);
         }
@@ -800,7 +808,7 @@ static BOOL isEnemyPlaybackRound = NO;
         // enemy down!
         if(CGRectIntersectsRect(explosionArea, target.sprite.boundingBox))
         {
-            [target wound:2];
+            [target takeDamage:2];
 //            self.numKills += 1;
 //            [_hud numKillsChanged:_numKills];
             [targetsToDelete addObject:target];
@@ -880,7 +888,7 @@ static BOOL isEnemyPlaybackRound = NO;
             // enemy down!
             if(CGRectIntersectsRect(projectile.boundingBox, target.sprite.boundingBox))
             {
-                [target wound:1];
+                [target takeDamage:1];
 //                self.numKills += 1;
 //                [_hud numKillsChanged:_numKills];
                 [targetsToDelete addObject:target];
@@ -921,7 +929,7 @@ static BOOL isEnemyPlaybackRound = NO;
     // delete the player, re-init and re-spawn him back at the beginning,
     // then idle him there until turn is finished (no moving or attacking allowed)
 
-    [player wound:2];
+    [player takeDamage:2];
     [player kill];
 
     // [self scheduleOnce:@selector(roundFinished) delay:3.0];

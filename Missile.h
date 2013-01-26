@@ -8,11 +8,11 @@
 
 #import <Foundation/Foundation.h>
 #import "cocos2d.h"
-#import "Entity.h"
+#import "EntityNode.h"
 #import "CCSequence+Helper.h"
-#import "ChangeableObject.h"
+//#import "ReplayableEventsNode.h"
 
 
-@interface Missile : ChangeableObject // <Entity>
+@interface Missile : EntityNode
 
 @end

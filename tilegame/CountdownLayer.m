@@ -25,7 +25,10 @@
         self.label.color = ccc3(0,0,0);
         self.label.position = ccp(winSize.width/2, winSize.height/2);
         
+        self->_labelAction = [CCScaleBy actionWithDuration:0.9 scale:3.0];
+        
         [self addChild:self.label];
+        [self.label runAction:self->_labelAction];
         [self schedule:@selector(updateLabel:) interval:1];
 //        id scaleUpAction = [CCEaseInOut actionWithAction:[CCScaleTo actionWithDuration:1 scaleX:3.0 scaleY:3.0] rate:1.0];
     }
@@ -37,7 +40,9 @@
         [self unschedule:_cmd];
         [self.parent removeChild:self cleanup:YES];
     }
+    self.label.scale = 1.0;
     self.label.string = [NSString stringWithFormat:kLabelFormat, self.countdownCount];
+    [self.label runAction:self->_labelAction];
 }
 
 +(CCScene *) scene

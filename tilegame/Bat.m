@@ -14,120 +14,39 @@
 #import "CoreGameLayer.h"
 #import "DVMacros.h"
 
-static int theUniqueIntIDCounter = -1;
+static int _uniqueIDCounter = 0;
 
 @implementation Bat
 
-@synthesize myLayer, sprite, hitPoints, speedInPixelsPerSec, behavior, previousPosition, ownershipPlayerID, entityType, uniqueIntID;
+#pragma mark - Entity overrides
 
-+(int)uniqueIntIDCounter  // static function for providing unique integer IDs to each new instance of each particular entity kind
++(int)nextUniqueID  // static function for providing unique integer IDs to each new instance of each particular entity kind
 {
-//    static int initializeIntIDCounter = 0;  // this is only run once, otherwise, a call to this function will return the uniqueIntIDCounter int value
-    return theUniqueIntIDCounter;
+    return _uniqueIDCounter++;
 }
 
-// required METHODS
-// init
--(id)initWithLayer:(CoreGameLayer*) layer andSpawnAt:(CGPoint) spawnPoint withBehavior:(int) initBehavior withPlayerOwner:(NSString*) ownerPlayerID;
+-(id)initInLayer:(CoreGameLayer *)layer atSpawnPoint:(CGPoint)spawnPoint withBehavior:(DVCreatureBehavior)behavior ownedBy:(EntityNode *)player
 {
-    self = [super init];
-    if(self)
+    if(self = [super initInLayer:layer atSpawnPoint:spawnPoint withBehavior:behavior ownedBy:(EntityNode *)player])
     {
-        entityType = @"bat";
-        // Assign a uniqueIntIDCounter
-        theUniqueIntIDCounter++;
-     
-        uniqueIntID = theUniqueIntIDCounter;
-        ownershipPlayerID = ownerPlayerID;
-        previousPosition = spawnPoint;
-        
-        // store the layer we belong to - not sure if this is needed or not
-        myLayer = layer;
-        behavior = initBehavior;
+        self.entityType = kEntityTypeBat;
+        self.uniqueID = [Bat nextUniqueID];
 
         // set bat's stats
-        self.hitPoints = 1;
-        self.speedInPixelsPerSec = 33;
+        self.hitPoints = kEntityBatHitPoints;
+        self.speedInPixelsPerSec = kEntityBatSpeedPPS;
     
-        sprite = [CCSprite spriteWithFile:@"bat2.png"];
-        sprite.position = spawnPoint;
+        self.sprite = [CCSprite spriteWithFile:@"bat2.png"];
+        self.sprite.position = self.previousPosition = spawnPoint;
+        [self addChild:self.sprite];
         
-        [self addChild:sprite];
-        // is this enough to display it?
+        [self cacheStateForEvent:DVEvent_Spawn];
         
-        // record an event entry for spawning
-        // Should look like:  P1_bat
-//        NSMutableString* entity = @"bat";
-        
-
-//        ownerAndEntityID = [ownershipPlayerID stringByAppendingFormat:@"bat"];
-//        ownerAndEntityID = [ownershipPlayerID stringByAppendingString:@"bat"];
-//        [ownershipPlayerID stringByAppendingString:@"bat"];
-
-        NSDictionary* activityDictionary = [NSDictionary dictionaryWithObjectsAndKeys:
-                                            [NSNumber numberWithInt:myLayer.timeStepIndex], kDVHistKey_TimeStepIndex,
-                                            @"spawn", kDVHistKey_Action,
-                                            ownershipPlayerID, kDVHistKey_OwnerID,
-                                            entityType, kDVHistKey_EntityType,
-                                            [NSNumber numberWithInt:uniqueIntID], kDVHistKey_EntityNumber,
-                                            [NSNumber numberWithFloat:sprite.position.x], kDVHistKey_CoordX,
-                                            [NSNumber numberWithFloat:sprite.position.y], kDVHistKey_CoordY, nil];
-        // Now put this dictionary onto the object's NSMuttableArray
-        [self.historicalEventsList_local addObject:activityDictionary];
-        DLog(@"spawn...%@",activityDictionary);
-        
-        [myLayer addChild:self];
-        
-        //[self takeActions];
+        [self.gameLayer addChild:self];
     }
     return self;
 }
 
-// for sampling during real actions
--(void)sampleCurrentPosition //:(int) theUniqueIntID // this should be called (callbacked) once every kTimeStepSeconds for later animation on player2's side
-{
-    // Dictionary constructor is delimited with nil
-    NSDictionary* activityDictionary = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:myLayer.timeStepIndex], kDVHistKey_TimeStepIndex,  @"move", kDVHistKey_Action, ownershipPlayerID, kDVHistKey_OwnerID, entityType, kDVHistKey_EntityType, [NSNumber numberWithInt:uniqueIntID], kDVHistKey_EntityNumber,  [NSNumber numberWithFloat:sprite.position.x], kDVHistKey_CoordX, [NSNumber numberWithFloat:sprite.position.y], kDVHistKey_CoordY, nil];
-    // Now put this dictionary onto the object's NSMuttableArray
-    [self.historicalEventsList_local addObject:activityDictionary];
-    DLog(@"sample...%@",activityDictionary);
-
-/*
-    // generate a "move" event string entry from last point to current point with a time differential of kPlaybackTickLengthSeconds
-    NSString* activityEntry = [NSString stringWithFormat:@"%d aniMove %@ %d %d %d",
-                               myLayer.timeStepIndex, ownerAndEntityID, uniqueIntID, (int)sprite.position.x, (int)sprite.position.y];
-
-    [self.historicalEventsList_local addObject:activityEntry];
-    DLog(@"sample...%@",activityEntry);
-*/
-}
-
-
-// state changes like decreasing HP or killing a creature
--(void)wound:(int) hpLost
-{
-    hitPoints -= hpLost;
-    // we send hpLost in place of the x-coordinate integer holder
-
-    // Dictionary constructor is delimited with nil
-    NSDictionary* activityDictionary = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:myLayer.timeStepIndex], kDVHistKey_TimeStepIndex,  @"wound", kDVHistKey_Action, ownershipPlayerID, kDVHistKey_OwnerID, entityType, kDVHistKey_EntityType, [NSNumber numberWithInt:uniqueIntID], kDVHistKey_EntityNumber, [NSNumber numberWithInt:hpLost], kDVHistKey_CoordX, [NSNumber numberWithInt:-1], kDVHistKey_CoordY,  nil];
-    // Now put this dictionary onto the object's NSMuttableArray
-    [self.historicalEventsList_local addObject:activityDictionary];
-    DLog(@"wound...%@",activityDictionary);
-    
-/*
-    NSString* activityEntry = [NSString stringWithFormat:@"%d wound %@ %d %d -1",
-                               myLayer.timeStepIndex, ownerAndEntityID, uniqueIntID, hpLost];
-    //[Bat uniqueIntIDCounter]
-    
-    [self.historicalEventsList_local addObject:activityEntry];
-    DLog(@"wound...%@",activityEntry);
-*/
-
-//  There's concurrency problems here so we have to wait for kill to be called from HelloWorldLayer first FIX
-//    if(hitPoints < 1)
-//        [self kill];
-}
 -(void)kill // possibly animate a death then remove this minion
 {
     // since we instantly erase and remove this bat here, audio won't have a chance to play. we have to do it in HelloWorldLayer logic
@@ -139,13 +58,8 @@ static int theUniqueIntIDCounter = -1;
 
     // remove the sprite as a CCNode and cleanup
   
-    NSDictionary* activityDictionary = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:myLayer.timeStepIndex], kDVHistKey_TimeStepIndex, @"kill", kDVHistKey_Action,  ownershipPlayerID, kDVHistKey_OwnerID, entityType, kDVHistKey_EntityType, [NSNumber numberWithInt:uniqueIntID], kDVHistKey_EntityNumber, [NSNumber numberWithInt:-1], kDVHistKey_CoordX, [NSNumber numberWithInt:-1], kDVHistKey_CoordY, nil];
-    // Now put this dictionary onto the object's NSMuttableArray
-    [self.historicalEventsList_local addObject:activityDictionary];
-    DLog(@"kill...%@",activityDictionary);
-
-
-    [self removeChild:sprite cleanup:YES];
+    [self cacheStateForEvent:DVEvent_Kill];
+    [self removeChild:self.sprite cleanup:YES];
 /*
     NSString* activityEntry = [NSString stringWithFormat:@"%d kill %@ %d -1 -1",
                                myLayer.timeStepIndex, ownerAndEntityID, uniqueIntID];
@@ -171,24 +85,24 @@ static int theUniqueIntIDCounter = -1;
     // Actions depend on behavior setting
     // behavior must = kBehavior_idle in the case of re-playing opponent's last actions
     // begin doing shit with this entity (moving, attacking, etc)
-    switch (behavior) {
-        case kBehavior_idle:
+    switch (self.behavior) {
+        case DVCreatureBehaviorIdle:
             // do nothing but idle at sprite's location
             break;
-        case kBehavior_default:
+        case DVCreatureBehaviorDefault:
         {
             //rotate to face the player
-            
-            CGPoint diff = ccpSub(myLayer.player.sprite.position, sprite.position);
+            CoreGameLayer* layer = (CoreGameLayer *)self.gameLayer;
+            CGPoint diff = ccpSub(layer.player.sprite.position, self.sprite.position);
             float angleRadians = atanf((float)diff.y / (float)diff.x);
             float angleDegrees = CC_RADIANS_TO_DEGREES(angleRadians);
             float cocosAngle = -1 * angleDegrees;
             if(diff.x < 0)
                 cocosAngle += 180;
-            sprite.rotation = cocosAngle;
+            self.sprite.rotation = cocosAngle;
             
             // 10 pixels per 0.3 seconds -> speed = 33 pixels / second
-            int distancePixels = (int) (speedInPixelsPerSec * kTickLengthSeconds);
+            int distancePixels = (int) (self.speedInPixelsPerSec * kTickLengthSeconds);
 //            ccTime actualDuration = (float) distancePixels / speedInPixelsPerSec; //  0.3; //  v = d / t; t = d / v
 
             //            actualDuration = 0.3;
@@ -197,13 +111,12 @@ static int theUniqueIntIDCounter = -1;
             // ccpNormalize calculates a unit vector given 2 point coordinates,...
             // and gives a hypotenous of length 1 with appropriate x,y
             //            id actionMove = [CCMoveBy actionWithDuration:actualDuration position:ccpMult(ccpNormalize(ccpSub(myLayer.player.position,sprite.position)), 10)];
-            id actionMove = [CCMoveBy actionWithDuration:kTickLengthSeconds position:ccpMult(ccpNormalize(ccpSub(myLayer.player.sprite.position,sprite.position)), distancePixels)];
+            id actionMove = [CCMoveBy actionWithDuration:kTickLengthSeconds position:ccpMult(ccpNormalize(ccpSub(layer.player.sprite.position,self.sprite.position)), distancePixels)];
             // callback to this method again! If the entity has changed it's behavior, then a different case will be implemented
 //            id actionMoveDone = [CCCallFuncN actionWithTarget:self selector:@selector(takeActions)];
 //            [sprite runAction:[CCSequence actions:actionMove, nil]];
-            [sprite runAction:actionMove];
+            [self.sprite runAction:actionMove];
         }
-            
             break;
         default:
             break;
@@ -244,25 +157,25 @@ static int theUniqueIntIDCounter = -1;
     // Actions depend on behavior setting
     // behavior must = kBehavior_idle in the case of re-playing opponent's last actions
     // begin doing shit with this entity (moving, attacking, etc)
-    switch (behavior) {
-        case kBehavior_idle:
+    switch (self.behavior) {
+        case DVCreatureBehaviorIdle:
             // do nothing but idle at sprite's location
             break;
-        case kBehavior_default:
+        case DVCreatureBehaviorDefault:
         {
             //rotate to face the player
-            
-            CGPoint diff = ccpSub(myLayer.player.sprite.position, sprite.position);
+            CoreGameLayer* layer = (CoreGameLayer *)self.gameLayer;
+            CGPoint diff = ccpSub(layer.player.sprite.position, self.sprite.position);
             float angleRadians = atanf((float)diff.y / (float)diff.x);
             float angleDegrees = CC_RADIANS_TO_DEGREES(angleRadians);
             float cocosAngle = -1 * angleDegrees;
             if(diff.x < 0)
                 cocosAngle += 180;
-            sprite.rotation = cocosAngle;
+            self.sprite.rotation = cocosAngle;
             
             // 10 pixels per 0.3 seconds -> speed = 33 pixels / second
             int distancePixels = 10;
-            ccTime actualDuration = (float) distancePixels / speedInPixelsPerSec; //  0.3; //  v = d / t; t = d / v
+            ccTime actualDuration = (float) distancePixels / self.speedInPixelsPerSec; //  0.3; //  v = d / t; t = d / v
             
 //            actualDuration = 0.3;
             // create the actions
@@ -270,29 +183,17 @@ static int theUniqueIntIDCounter = -1;
             // ccpNormalize calculates a unit vector given 2 point coordinates,...
             // and gives a hypotenous of length 1 with appropriate x,y
 //            id actionMove = [CCMoveBy actionWithDuration:actualDuration position:ccpMult(ccpNormalize(ccpSub(myLayer.player.position,sprite.position)), 10)];
-            id actionMove = [CCMoveBy actionWithDuration:actualDuration position:ccpMult(ccpNormalize(ccpSub(myLayer.player.sprite.position,sprite.position)), distancePixels)];
+            id actionMove = [CCMoveBy actionWithDuration:actualDuration position:ccpMult(ccpNormalize(ccpSub(layer.player.sprite.position, self.sprite.position)), distancePixels)];
             // callback to this method again! If the entity has changed it's behavior, then a different case will be implemented
             id actionMoveDone = [CCCallFuncN actionWithTarget:self selector:@selector(takeActions)];
-            [sprite runAction:[CCSequence actions:actionMove, actionMoveDone, nil]];
+            [self.sprite runAction:[CCSequence actions:actionMove, actionMoveDone, nil]];
         }
-
             break;
         default:
             break;
     }
     
 }
-
--(void) performHistoryAtTimeStepIndex:(int) theTimeStepIndex
-{
-    [super performHistoryAtTimeStepIndex:theTimeStepIndex]; // maybe not necessary
-    
-    // now cycle through the self.historicalEventsList_local array, pull all dictionaries for
-    // if object at the key kDVHistKey_TimeStepIndex == "theTimeStepIndex", then push the action to the actionMutableArray array so actions run in sequence
-    // without killing the previous one
-
-}
-
 
 @end
 

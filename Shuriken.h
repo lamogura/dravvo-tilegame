@@ -8,10 +8,10 @@
 
 #import <Foundation/Foundation.h>
 #import "cocos2d.h"
-#import "Entity.h"
+#import "EntityNode.h"
 #import "CCSequence+Helper.h"
-#import "ChangeableObject.h"
+//#import "ReplayableEventsNode.h"
 
-@interface Shuriken : ChangeableObject // <Entity>
+@interface Shuriken : EntityNode
 
 @end

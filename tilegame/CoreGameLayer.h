@@ -15,11 +15,11 @@
 //#import "Entity.h"
 #import "Bat.h"
 #import "Player.h"
-#import "Opponent.h"
+//#import "Opponent.h"
 #import "CoreGameHudLayer.h"
 
 @class CoreGameHudLayer;
-@class Opponent;
+@class Player;
 
 // HelloWorldLayer
 @interface CoreGameLayer : CCLayer <GKAchievementViewControllerDelegate, GKLeaderboardViewControllerDelegate>
@@ -49,9 +49,9 @@
     NSMutableArray* myToucharray;
     int _timeStepIndex; // should count up to 10 or 20, to get to a 10 second round
     Player* player;
-    Opponent* opponent;
+//    Opponent* opponent;
     
-    DVAPIWrapper* apiWrapper;
+    DVAPIWrapper* _apiWrapper;
 }
 
 @property (nonatomic, strong) CCTMXTiledMap* tileMap;
@@ -71,7 +71,7 @@
 @property (nonatomic, strong) NSMutableArray* playerMinionList;
 @property (nonatomic, strong) Player* player;
 @property (nonatomic, strong) NSMutableDictionary* historicalEventsDict;
-@property (nonatomic, strong) Opponent* opponent;
+//@property (nonatomic, strong) Opponent* opponent;
 
 //@property (nonatomic, strong) NSMutableArray* bats;
 

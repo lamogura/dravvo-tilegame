@@ -12,7 +12,6 @@
 		3F205FC216B1295E008D9399 /* bat2-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = 3F205FC116B1295E008D9399 /* bat2-hd.png */; };
 		3F3F40D516B14BE30080C341 /* bat2.png in Resources */ = {isa = PBXBuildFile; fileRef = 3F3F40D416B14BE30080C341 /* bat2.png */; };
 		3F3F40D916B180E00080C341 /* Player.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F3F40D816B180E00080C341 /* Player.m */; };
-		3F3F40E016B18D6F0080C341 /* ChangeableObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F3F40DF16B18D6F0080C341 /* ChangeableObject.m */; };
 		3F3F40E716B1E3210080C341 /* RoundFinishedScene.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F3F40E616B1E3200080C341 /* RoundFinishedScene.m */; };
 		3F3F40E916B273C90080C341 /* bloodSplat-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = 3F3F40E816B273C90080C341 /* bloodSplat-hd.png */; };
 		3F3F40EB16B273D10080C341 /* bloodSplat.png in Resources */ = {isa = PBXBuildFile; fileRef = 3F3F40EA16B273D10080C341 /* bloodSplat.png */; };
@@ -335,6 +334,8 @@
 		CE857FD216B01E0300947B06 /* SBJsonUTF8Stream.m in Sources */ = {isa = PBXBuildFile; fileRef = CE857ED716B01E0300947B06 /* SBJsonUTF8Stream.m */; };
 		CE857FD316B01E0300947B06 /* SBJsonWriter.h in Headers */ = {isa = PBXBuildFile; fileRef = CE857ED816B01E0300947B06 /* SBJsonWriter.h */; };
 		CE857FD416B01E0300947B06 /* SBJsonWriter.m in Sources */ = {isa = PBXBuildFile; fileRef = CE857ED916B01E0300947B06 /* SBJsonWriter.m */; };
+		CE892A5816B4180A00BE6DAB /* EntityNode.m in Sources */ = {isa = PBXBuildFile; fileRef = CE892A5716B4180A00BE6DAB /* EntityNode.m */; };
+		CE892A5B16B4185300BE6DAB /* CreatureNode.m in Sources */ = {isa = PBXBuildFile; fileRef = CE892A5A16B4185300BE6DAB /* CreatureNode.m */; };
 		CEC591A816B3E3C900323F57 /* CoreGameLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = CEC591A716B3E3C900323F57 /* CoreGameLayer.m */; };
 		CED1D86016B2F97C00E87653 /* new_game_button.png in Resources */ = {isa = PBXBuildFile; fileRef = CED1D85F16B2F97C00E87653 /* new_game_button.png */; };
 		DC0C49F6154AB4DD00B4B727 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DC0C49F5154AB4DD00B4B727 /* QuartzCore.framework */; };
@@ -359,8 +360,6 @@
 		3F3F40D416B14BE30080C341 /* bat2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bat2.png; sourceTree = "<group>"; };
 		3F3F40D716B180E00080C341 /* Player.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Player.h; sourceTree = "<group>"; };
 		3F3F40D816B180E00080C341 /* Player.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Player.m; sourceTree = "<group>"; };
-		3F3F40DE16B18D6F0080C341 /* ChangeableObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChangeableObject.h; sourceTree = "<group>"; };
-		3F3F40DF16B18D6F0080C341 /* ChangeableObject.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ChangeableObject.m; sourceTree = "<group>"; };
 		3F3F40E516B1E3200080C341 /* RoundFinishedScene.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RoundFinishedScene.h; sourceTree = "<group>"; };
 		3F3F40E616B1E3200080C341 /* RoundFinishedScene.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RoundFinishedScene.m; sourceTree = "<group>"; };
 		3F3F40E816B273C90080C341 /* bloodSplat-hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "bloodSplat-hd.png"; sourceTree = "<group>"; };
@@ -432,7 +431,6 @@
 		CE857D6F16B01D5C00947B06 /* NewGameLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NewGameLayer.h; path = tilegame/NewGameLayer.h; sourceTree = "<group>"; };
 		CE857D7016B01D5C00947B06 /* NewGameLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NewGameLayer.m; path = tilegame/NewGameLayer.m; sourceTree = "<group>"; };
 		CE857D7116B01D5C00947B06 /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = tilegame/main.m; sourceTree = "<group>"; };
-		CE857D7216B01D5C00947B06 /* Entity.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Entity.h; path = tilegame/Entity.h; sourceTree = "<group>"; };
 		CE857D7516B01D5C00947B06 /* DVAPIWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DVAPIWrapper.h; sourceTree = "<group>"; };
 		CE857D7616B01D5C00947B06 /* DVAPIWrapper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DVAPIWrapper.m; sourceTree = "<group>"; };
 		CE857D7716B01D5C00947B06 /* DVConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DVConstants.h; sourceTree = "<group>"; };
@@ -713,6 +711,10 @@
 		CE857ED716B01E0300947B06 /* SBJsonUTF8Stream.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SBJsonUTF8Stream.m; sourceTree = "<group>"; };
 		CE857ED816B01E0300947B06 /* SBJsonWriter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SBJsonWriter.h; sourceTree = "<group>"; };
 		CE857ED916B01E0300947B06 /* SBJsonWriter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SBJsonWriter.m; sourceTree = "<group>"; };
+		CE892A5616B4180A00BE6DAB /* EntityNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = EntityNode.h; path = tilegame/EntityNode.h; sourceTree = "<group>"; };
+		CE892A5716B4180A00BE6DAB /* EntityNode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = EntityNode.m; path = tilegame/EntityNode.m; sourceTree = "<group>"; };
+		CE892A5916B4185300BE6DAB /* CreatureNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CreatureNode.h; path = tilegame/CreatureNode.h; sourceTree = "<group>"; };
+		CE892A5A16B4185300BE6DAB /* CreatureNode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CreatureNode.m; path = tilegame/CreatureNode.m; sourceTree = "<group>"; };
 		CEC591A716B3E3C900323F57 /* CoreGameLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CoreGameLayer.m; path = tilegame/CoreGameLayer.m; sourceTree = "<group>"; };
 		CED1D85F16B2F97C00E87653 /* new_game_button.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = new_game_button.png; sourceTree = "<group>"; };
 		DC0C49F1154AB4DD00B4B727 /* tilegame.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = tilegame.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -760,7 +762,6 @@
 		3F3F40DD16B18C770080C341 /* Protocols */ = {
 			isa = PBXGroup;
 			children = (
-				CE857D7216B01D5C00947B06 /* Entity.h */,
 			);
 			name = Protocols;
 			sourceTree = "<group>";
@@ -768,8 +769,10 @@
 		3F3F40E116B18F770080C341 /* Superclasses */ = {
 			isa = PBXGroup;
 			children = (
-				3F3F40DE16B18D6F0080C341 /* ChangeableObject.h */,
-				3F3F40DF16B18D6F0080C341 /* ChangeableObject.m */,
+				CE892A5616B4180A00BE6DAB /* EntityNode.h */,
+				CE892A5716B4180A00BE6DAB /* EntityNode.m */,
+				CE892A5916B4185300BE6DAB /* CreatureNode.h */,
+				CE892A5A16B4185300BE6DAB /* CreatureNode.m */,
 			);
 			name = Superclasses;
 			sourceTree = "<group>";
@@ -1640,7 +1643,6 @@
 				3F205FBD16B0EEB1008D9399 /* Missile.m in Sources */,
 				3F205FC016B0EED1008D9399 /* Shuriken.m in Sources */,
 				3F3F40D916B180E00080C341 /* Player.m in Sources */,
-				3F3F40E016B18D6F0080C341 /* ChangeableObject.m in Sources */,
 				3F3F40E716B1E3210080C341 /* RoundFinishedScene.m in Sources */,
 				3F3F40EE16B2AB930080C341 /* HistoricalEvent.m in Sources */,
 				CE54127F16B36FEA00A3F494 /* LoadingLayer.m in Sources */,
@@ -1648,6 +1650,8 @@
 				CE54128716B3A9C400A3F494 /* CountdownLayer.m in Sources */,
 				CE499FA016B3D2CE000D9EA0 /* CoreGameHudLayer.m in Sources */,
 				CEC591A816B3E3C900323F57 /* CoreGameLayer.m in Sources */,
+				CE892A5816B4180A00BE6DAB /* EntityNode.m in Sources */,
+				CE892A5B16B4185300BE6DAB /* CreatureNode.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

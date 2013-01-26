@@ -9,10 +9,12 @@
 #import "cocos2d.h"
 #import "DVAPIWrapper.h"
 
-#define kCountdownFrom 5
-#define kLabelFormat @"%d sec"
+#define kCountdownFrom 3
+#define kLabelFormat @"%d"
 
-@interface CountdownLayer : CCLayerColor
+@interface CountdownLayer : CCLayerColor {
+    id _labelAction;
+}
 
 @property (nonatomic, assign) int countdownCount;
 @property (nonatomic, strong) CCLabelTTF* label;
