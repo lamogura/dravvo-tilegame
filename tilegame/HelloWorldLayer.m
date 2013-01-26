@@ -179,14 +179,15 @@
         NSAssert(objects != nil, @"'Objects' object group not found");
         
         // extract the "SpawnPoint" object from the tileMap object
-        NSMutableDictionary* spawnPoint = [objects objectNamed:@"SpawnPoint"];
-        NSAssert(spawnPoint != nil, @"SpawnPoint object not found");
-        int x = [[spawnPoint valueForKey:@"x"] intValue];
-        int y = [[spawnPoint valueForKey:@"y"] intValue];
-        CGPoint pointPosition = [self pixelToPoint:ccp(x, y)];
+        NSDictionary* spawnPointsDict = [objects objectNamed:@"SpawnPoint"];
+        NSAssert(spawnPointsDict != nil, @"SpawnPoint object not found");
+
+        CGPoint playerSpawnPoint = [self pixelToPoint:
+            ccp([[spawnPointsDict valueForKey:@"x"] intValue],
+                [[spawnPointsDict valueForKey:@"y"] intValue])];
 
         // IF we are the host, playerID gets P1; if we were invited to a game, we get P2
-        player = [[Player alloc] initWithLayer:self andPlayerID:@"P1" andSpawnAt:pointPosition];
+        player = [[Player alloc] initWithLayer:self andPlayerID:@"P1" andSpawnAt:playerSpawnPoint];
         
         // draw the enemy sprites
         // iterate through tileMap dictionary objects, finding all enemy spawn points
@@ -194,24 +195,24 @@
         //        NSMutableDictionary* spawnPoint;
         
         // objects method returns an array of objects (in this case dictionaries) from the ObjectGroup
-        for(spawnPoint in [objects objects])
+        for(spawnPointsDict in [objects objects])
         {
-            if([[spawnPoint valueForKey:@"Enemy"] intValue] == 1)
+            if([[spawnPointsDict valueForKey:@"Enemy"] intValue] == 1)
             {
-                x = [[spawnPoint valueForKey:@"x"] intValue];
-                y = [[spawnPoint valueForKey:@"y"] intValue];
-                CGPoint enemyPoint = [self pixelToPoint:ccp(x, y)];
-                DLog(@"spawn point PIXELS...(x,y) = %@",NSStringFromCGPoint(ccp(x,y)));
-                DLog(@"spawn point POINTS...(x,y) = %@",NSStringFromCGPoint(enemyPoint));
-                //                [self addEnemyAtX:x y:y];
-                //[self addEnemyAtX:enemyPoint.x y:enemyPoint.y];
-                Bat *aBat = [[Bat alloc] initWithLayer:self andSpawnAt:enemyPoint withBehavior:kBehavior_default withPlayerOwner:[NSMutableString stringWithString:player.playerID]];
+                CGPoint enemySpawnPoint = [self pixelToPoint:
+                    ccp([[spawnPointsDict valueForKey:@"x"] intValue],
+                        [[spawnPointsDict valueForKey:@"y"] intValue])];
+
+                Bat *aBat = [[Bat alloc] initWithLayer:self
+                                            andSpawnAt:enemySpawnPoint
+                                          withBehavior:kBehavior_default
+                                       withPlayerOwner:[NSMutableString stringWithString:player.playerID]];
                 // add the bat to the bats NSMuttableArray
                 [_bats addObject:aBat];
                 //[self addChild:aBat];
             }
         }
-        
+
         // set the view position focused on player
 
         [self setViewpointCenter:player.sprite.position];
