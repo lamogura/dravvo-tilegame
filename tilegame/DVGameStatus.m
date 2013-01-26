@@ -11,24 +11,6 @@
 
 @implementation DVGameStatus
 
-<<<<<<< Updated upstream
-=======
-@synthesize gameID;
-@synthesize createdAt;
-
-@synthesize nextTurn;
-@synthesize lastUpdates;
-@synthesize isGameOver;
-
-- (id)initWithTurn:(NSString *)turn {
-    self = [super init];
-    if (self) {
-        self.nextTurn = turn;
-    }
-    return self;
-}
-
->>>>>>> Stashed changes
 - (id)initWithDictionary:(NSDictionary *) dict {
     self = [super init];
     if (self) {

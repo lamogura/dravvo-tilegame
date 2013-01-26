@@ -23,6 +23,7 @@
 		3F3F40F616B2BF980080C341 /* DMZombie.m4r in Resources */ = {isa = PBXBuildFile; fileRef = 3F3F40F516B2BF980080C341 /* DMZombie.m4r */; };
 		3F3F40F816B2C2490080C341 /* DMLifePack.m4r in Resources */ = {isa = PBXBuildFile; fileRef = 3F3F40F716B2C2490080C341 /* DMLifePack.m4r */; };
 		3F3F40FA16B2C3820080C341 /* DMZombiePain.m4r in Resources */ = {isa = PBXBuildFile; fileRef = 3F3F40F916B2C3820080C341 /* DMZombiePain.m4r */; };
+		CE499FA016B3D2CE000D9EA0 /* CoreGameHudLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = CE499F9F16B3D2CE000D9EA0 /* CoreGameHudLayer.m */; };
 		CE54127F16B36FEA00A3F494 /* LoadingLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = CE54127E16B36FEA00A3F494 /* LoadingLayer.m */; };
 		CE54128116B370ED00A3F494 /* loading.png in Resources */ = {isa = PBXBuildFile; fileRef = CE54128016B370ED00A3F494 /* loading.png */; };
 		CE54128416B3A62200A3F494 /* GameLifecycle.m in Sources */ = {isa = PBXBuildFile; fileRef = CE54128316B3A62200A3F494 /* GameLifecycle.m */; };
@@ -372,6 +373,8 @@
 		3F3F40F516B2BF980080C341 /* DMZombie.m4r */ = {isa = PBXFileReference; lastKnownFileType = file; path = DMZombie.m4r; sourceTree = "<group>"; };
 		3F3F40F716B2C2490080C341 /* DMLifePack.m4r */ = {isa = PBXFileReference; lastKnownFileType = file; path = DMLifePack.m4r; sourceTree = "<group>"; };
 		3F3F40F916B2C3820080C341 /* DMZombiePain.m4r */ = {isa = PBXFileReference; lastKnownFileType = file; path = DMZombiePain.m4r; sourceTree = "<group>"; };
+		CE499F9E16B3D2CE000D9EA0 /* CoreGameHudLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CoreGameHudLayer.h; path = tilegame/CoreGameHudLayer.h; sourceTree = "<group>"; };
+		CE499F9F16B3D2CE000D9EA0 /* CoreGameHudLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CoreGameHudLayer.m; path = tilegame/CoreGameHudLayer.m; sourceTree = "<group>"; };
 		CE54127D16B36FE900A3F494 /* LoadingLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LoadingLayer.h; path = tilegame/LoadingLayer.h; sourceTree = "<group>"; };
 		CE54127E16B36FEA00A3F494 /* LoadingLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = LoadingLayer.m; path = tilegame/LoadingLayer.m; sourceTree = "<group>"; };
 		CE54128016B370ED00A3F494 /* loading.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = loading.png; sourceTree = "<group>"; };
@@ -890,6 +893,8 @@
 				CE857D6C16B01D5C00947B06 /* GameStateChanged.m */,
 				CE857D6D16B01D5C00947B06 /* HelloWorldLayer.h */,
 				CE857D6E16B01D5C00947B06 /* HelloWorldLayer.m */,
+				CE499F9E16B3D2CE000D9EA0 /* CoreGameHudLayer.h */,
+				CE499F9F16B3D2CE000D9EA0 /* CoreGameHudLayer.m */,
 				CE54127D16B36FE900A3F494 /* LoadingLayer.h */,
 				CE54127E16B36FEA00A3F494 /* LoadingLayer.m */,
 				CE857D6F16B01D5C00947B06 /* NewGameLayer.h */,
@@ -1642,6 +1647,7 @@
 				CE54127F16B36FEA00A3F494 /* LoadingLayer.m in Sources */,
 				CE54128416B3A62200A3F494 /* GameLifecycle.m in Sources */,
 				CE54128716B3A9C400A3F494 /* CountdownLayer.m in Sources */,
+				CE499FA016B3D2CE000D9EA0 /* CoreGameHudLayer.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

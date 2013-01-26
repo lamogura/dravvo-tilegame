@@ -18,127 +18,14 @@
 #import "DVConstants.h"
 #import "gameConstants.h"
 #import "CCSequence+Helper.h"
-<<<<<<< Updated upstream
-//#import "Entity.h"
+
 #import "Bat.h"
 #import "Player.h"
 #import "Opponent.h"
 #import "RoundFinishedScene.h"
 #import "CountdownLayer.h"
-=======
+
 #import "Libs/SBJSON/SBJson.h"
->>>>>>> Stashed changes
-
-@implementation HelloWorldHud
-
-@synthesize gameLayer = _gameLayer;
-
--(id) init
-{
-    if((self = [super init]))
-    {
-        
-        // setup a mode menu item
-        CCMenuItem* on;
-        CCMenuItem* off;
-
-        on = [CCMenuItemImage itemWithNormalImage:@"projectile-button-on.png"
-                                     selectedImage:@"projectile-button-on.png"];
-        off = [CCMenuItemImage itemWithNormalImage:@"projectile-button-off.png"
-                                      selectedImage:@"projectile-button-off.png"];
-        CCMenuItemToggle *toggleItem = [CCMenuItemToggle itemWithTarget:self
-                                                               selector:@selector(projectileButtonTapped:)
-                                                                  items:off, on, nil];
-        CCMenu *toggleMenu = [CCMenu menuWithItems:toggleItem, nil];
-        toggleMenu.position = ccp(100, 32);
-        [self addChild:toggleMenu];  // add the toggle menu to the HUD layer
-        
-        
-        CGSize winSize = [[CCDirector sharedDirector] winSize];
-        
-        // initialize label for melons collected count
-        labelMelonsCount = [CCLabelTTF labelWithString:@"melons: 0" dimensions:CGSizeMake(350, 20) hAlignment:UITextAlignmentRight fontName:@"Verdana-Bold" fontSize:18.0];
-        labelMelonsCount.color = ccc3(0, 0, 0);
-        int margin = 10;
-        labelMelonsCount.position = ccp(winSize.width - (labelMelonsCount.contentSize.width/2)
-                             - margin, labelMelonsCount.contentSize.height/2 + margin);
-        [self addChild:labelMelonsCount];
-        
-        // initialize label for kill count
-//        labelKillsCount = [CCLabelTTF labelWithString:@"kills" dimensions:CGSizeMake(50, 20) alignment:UITextAlignmentRight fontName:@"Verdana-Bold" fontSize:18.0];
-        labelKillsCount = [CCLabelTTF labelWithString:@"kills: 0" dimensions:CGSizeMake(350, 20) hAlignment:UITextAlignmentRight fontName:@"Verdana-Bold" fontSize:18.0];
-        labelKillsCount.color = ccc3(255, 0, 0);
-        margin = 10;
-        labelKillsCount.position = ccp(winSize.width - (labelKillsCount.contentSize.width/2) - margin, labelKillsCount.contentSize.height/2 + margin*2 + labelMelonsCount.contentSize.height/2);
-        [self addChild:labelKillsCount];
-        
-        
-        // label for numShurikens
-        NSString *theString = [NSString stringWithFormat:@"S: %d", kInitShurikens];
-        labelShurikensCount = [CCLabelTTF labelWithString:theString dimensions:CGSizeMake(100, 20) hAlignment:UITextAlignmentRight fontName:@"Verdana-Bold" fontSize:18.0];
-        labelShurikensCount.color = ccc3(67, 173, 59);
-        margin = 10;
-        labelShurikensCount.position = ccp(winSize.width - (labelShurikensCount.contentSize.width/2) - margin, winSize.height - labelShurikensCount.contentSize.height/2 - margin);
-        [self addChild:labelShurikensCount];
-
-        // label for numMissiles
-        theString = [NSString stringWithFormat:@"M: %d", kInitMissiles];
-        labelMissilesCount = [CCLabelTTF labelWithString:theString dimensions:CGSizeMake(100, 20) hAlignment:UITextAlignmentRight fontName:@"Verdana-Bold" fontSize:18.0];
-        labelMissilesCount.color = ccc3(0, 0, 255);
-        margin = 10;
-        labelMissilesCount.position = ccp(winSize.width - (labelMissilesCount.contentSize.width/2) - margin*2 - (labelShurikensCount.contentSize.width/2), winSize.height - labelMissilesCount.contentSize.height/2 - margin);
-        [self addChild:labelMissilesCount];
-
-        // label for T-minus time remaining in this round
-        theString = [NSString stringWithFormat:@"Time: %d", kTurnLengthSeconds];
-        labelTimer = [CCLabelTTF labelWithString:theString dimensions:CGSizeMake(350, 20) hAlignment:UITextAlignmentLeft fontName:@"Verdana-Bold" fontSize:18.0];
-        labelTimer.color = ccc3(255, 0, 0);
-        margin = 10;
-        labelTimer.position = ccp((labelTimer.contentSize.width/2) + margin,
-                                        winSize.height - labelTimer.contentSize.height/2 - margin);
-        [self addChild:labelTimer];
-
-    
-    }
-    return self;
-}
-
--(void) projectileButtonTapped:(id)sender
-{
-    if(_gameLayer.mode == 1)
-        _gameLayer.mode = 0;
-    else
-        _gameLayer.mode = 1;
-}
-
--(void) numCollectedChanged:(int)numCollected
-{
-    [labelMelonsCount setString:[NSString stringWithFormat:@"melons: %d", numCollected]];
-}
-
--(void) numKillsChanged:(int) numKills
-{
-    [labelKillsCount setString:[NSString stringWithFormat:@"kills: %d", numKills]];
-}
-
--(void) numShurikensChanged:(int) numShurikens
-{
-    [labelShurikensCount setString:[NSString stringWithFormat:@"S: %d", numShurikens]];
-}
-
--(void) numMissilesChanged:(int) numMissiles
-{
-    [labelMissilesCount setString:[NSString stringWithFormat:@"M: %d", numMissiles]];
-}
-
--(void) timerChanged:(int) newTime
-{
-    [labelTimer setString:[NSString stringWithFormat:@"Time: %d", newTime]];
-}
-
-@end
-
-
 
 #pragma mark - HelloWorldLayer
 
@@ -185,7 +72,7 @@
 //    [theScene addChild: theHelloWorldLayer];
     
     // create and add the HUD label/stats layer!
-    HelloWorldHud* hud = [HelloWorldHud node];
+    CoreGameHudLayer* hud = [CoreGameHudLayer node];
     [theScene addChild:hud];
     
     [theScene addChild:[CountdownLayer node]];
@@ -210,15 +97,6 @@
         
         self->apiWrapper = [[DVAPIWrapper alloc] init];
         
-        SBJsonWriter* jwriter = [[SBJsonWriter alloc] init];
-        
-        NSMutableArray* array = [[NSMutableArray alloc] initWithObjects:[NSDate date],
-                                 nil];
-
-        NSString* updatesAsJSON = [jwriter stringWithObject:[NSArray arrayWithArray:array]];
-        
-        NSArray* newArray = [updatesAsJSON JSONValue];
-        int exy = 1;
         
         // test create new game
         //        [self->apiWrapper postCreateNewGameThenCallBlock:^(NSError *error, DVGameStatus *status) {

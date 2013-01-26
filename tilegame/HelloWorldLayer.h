@@ -16,32 +16,9 @@
 #import "Bat.h"
 #import "Player.h"
 #import "Opponent.h"
+#import "CoreGameHudLayer.h"
 
-@class HelloWorldLayer;
-
-// Heads Up Display HUD label / stats layer class declaration (put in separate file in future)
-@interface HelloWorldHud : CCLayer
-{
-    HelloWorldLayer* __unsafe_unretained _gameLayer;  // give the HUD a reference back to the HelloWorldLayer
-    CCLabelTTF* labelMelonsCount;
-    CCLabelTTF* labelKillsCount;
-    CCLabelTTF* labelShurikensCount;
-    CCLabelTTF* labelMissilesCount;
-    CCLabelTTF* labelTimer;
-}
-
-@property (nonatomic, unsafe_unretained) HelloWorldLayer* gameLayer;
-
--(void) projectileButtonTapped:(id)sender;
--(void) numCollectedChanged:(int) numCollected;
--(void) numKillsChanged:(int) numKills;
--(void) numShurikensChanged:(int) numShurikens;
--(void) numMissilesChanged:(int) numMissiles;
--(void) timerChanged:(int) newTime;
-
-
-@end
-
+@class CoreGameHudLayer;
 
 // HelloWorldLayer
 @interface HelloWorldLayer : CCLayer <GKAchievementViewControllerDelegate, GKLeaderboardViewControllerDelegate>
@@ -62,7 +39,7 @@
     
     int _numKills;
     int _numCollected;
-    HelloWorldHud* _hud; // keep a pointer to the HUD labels/stats layer
+    CoreGameHudLayer* _hud; // keep a pointer to the HUD labels/stats layer
     int _mode;  // game mode variable - shooting or moving
     int _numShurikens;
     int _numMissiles;
@@ -85,7 +62,7 @@
 @property (nonatomic, assign) int numKills;
 @property (nonatomic, assign) int numShurikens;
 @property (nonatomic, assign) int numMissiles;
-@property (nonatomic, strong) HelloWorldHud* hud;
+@property (nonatomic, strong) CoreGameHudLayer* hud;
 @property (nonatomic, assign) int mode;
 @property (nonatomic, assign) int timeStepIndex;
 @property (nonatomic, assign) float timer;
