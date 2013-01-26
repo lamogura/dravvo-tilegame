@@ -36,10 +36,11 @@
         // setup a mode menu item
         CCMenuItem* on;
         CCMenuItem* off;
-        on = [CCMenuItemImage itemFromNormalImage:@"projectile-button-on.png"
-                                     selectedImage:@"projectile-button-on.png" target:nil selector:nil];
-        off = [CCMenuItemImage itemFromNormalImage:@"projectile-button-off.png"
-                                      selectedImage:@"projectile-button-off.png" target:nil selector:nil];
+
+        on = [CCMenuItemImage itemWithNormalImage:@"projectile-button-on.png"
+                                     selectedImage:@"projectile-button-on.png"];
+        off = [CCMenuItemImage itemWithNormalImage:@"projectile-button-off.png"
+                                      selectedImage:@"projectile-button-off.png"];
         CCMenuItemToggle *toggleItem = [CCMenuItemToggle itemWithTarget:self
                                                                selector:@selector(projectileButtonTapped:)
                                                                   items:off, on, nil];
@@ -51,7 +52,7 @@
         CGSize winSize = [[CCDirector sharedDirector] winSize];
         
         // initialize label for melons collected count
-        labelMelonsCount = [CCLabelTTF labelWithString:@"melons: 0" dimensions:CGSizeMake(350, 20) alignment:UITextAlignmentRight fontName:@"Verdana-Bold" fontSize:18.0];
+        labelMelonsCount = [CCLabelTTF labelWithString:@"melons: 0" dimensions:CGSizeMake(350, 20) hAlignment:UITextAlignmentRight fontName:@"Verdana-Bold" fontSize:18.0];
         labelMelonsCount.color = ccc3(0, 0, 0);
         int margin = 10;
         labelMelonsCount.position = ccp(winSize.width - (labelMelonsCount.contentSize.width/2)
@@ -60,7 +61,7 @@
         
         // initialize label for kill count
 //        labelKillsCount = [CCLabelTTF labelWithString:@"kills" dimensions:CGSizeMake(50, 20) alignment:UITextAlignmentRight fontName:@"Verdana-Bold" fontSize:18.0];
-        labelKillsCount = [CCLabelTTF labelWithString:@"kills: 0" dimensions:CGSizeMake(350, 20) alignment:UITextAlignmentRight fontName:@"Verdana-Bold" fontSize:18.0];
+        labelKillsCount = [CCLabelTTF labelWithString:@"kills: 0" dimensions:CGSizeMake(350, 20) hAlignment:UITextAlignmentRight fontName:@"Verdana-Bold" fontSize:18.0];
         labelKillsCount.color = ccc3(255, 0, 0);
         margin = 10;
         labelKillsCount.position = ccp(winSize.width - (labelKillsCount.contentSize.width/2) - margin, labelKillsCount.contentSize.height/2 + margin*2 + labelMelonsCount.contentSize.height/2);
@@ -69,7 +70,7 @@
         
         // label for numShurikens
         NSString *theString = [NSString stringWithFormat:@"S: %d", kInitShurikens];
-        labelShurikensCount = [CCLabelTTF labelWithString:theString dimensions:CGSizeMake(100, 20) alignment:UITextAlignmentRight fontName:@"Verdana-Bold" fontSize:18.0];
+        labelShurikensCount = [CCLabelTTF labelWithString:theString dimensions:CGSizeMake(100, 20) hAlignment:UITextAlignmentRight fontName:@"Verdana-Bold" fontSize:18.0];
         labelShurikensCount.color = ccc3(67, 173, 59);
         margin = 10;
         labelShurikensCount.position = ccp(winSize.width - (labelShurikensCount.contentSize.width/2) - margin, winSize.height - labelShurikensCount.contentSize.height/2 - margin);
@@ -77,7 +78,7 @@
 
         // label for numMissiles
         theString = [NSString stringWithFormat:@"M: %d", kInitMissiles];
-        labelMissilesCount = [CCLabelTTF labelWithString:theString dimensions:CGSizeMake(100, 20) alignment:UITextAlignmentRight fontName:@"Verdana-Bold" fontSize:18.0];
+        labelMissilesCount = [CCLabelTTF labelWithString:theString dimensions:CGSizeMake(100, 20) hAlignment:UITextAlignmentRight fontName:@"Verdana-Bold" fontSize:18.0];
         labelMissilesCount.color = ccc3(0, 0, 255);
         margin = 10;
         labelMissilesCount.position = ccp(winSize.width - (labelMissilesCount.contentSize.width/2) - margin*2 - (labelShurikensCount.contentSize.width/2), winSize.height - labelMissilesCount.contentSize.height/2 - margin);
@@ -85,7 +86,7 @@
 
         // label for T-minus time remaining in this round
         theString = [NSString stringWithFormat:@"Time: %d", kTurnLengthSeconds];
-        labelTimer = [CCLabelTTF labelWithString:theString dimensions:CGSizeMake(350, 20) alignment:UITextAlignmentLeft fontName:@"Verdana-Bold" fontSize:18.0];
+        labelTimer = [CCLabelTTF labelWithString:theString dimensions:CGSizeMake(350, 20) hAlignment:UITextAlignmentLeft fontName:@"Verdana-Bold" fontSize:18.0];
         labelTimer.color = ccc3(255, 0, 0);
         margin = 10;
         labelTimer.position = ccp((labelTimer.contentSize.width/2) + margin,
@@ -312,7 +313,7 @@
                 DLog(@"spawn point POINTS...(x,y) = %@",NSStringFromCGPoint(enemyPoint));
                 //                [self addEnemyAtX:x y:y];
                 //[self addEnemyAtX:enemyPoint.x y:enemyPoint.y];
-                Bat *aBat = [[Bat alloc] initWithLayer:self andSpawnAt:enemyPoint withBehavior:kBehavior_default withPlayerOwner:player.playerID];
+                Bat *aBat = [[Bat alloc] initWithLayer:self andSpawnAt:enemyPoint withBehavior:kBehavior_default withPlayerOwner:[NSMutableString stringWithString:player.playerID]];
                 // add the bat to the bats NSMuttableArray
                 [_bats addObject:aBat];
                 //[self addChild:aBat];
@@ -431,7 +432,8 @@
 // registering ourself as the as the listener for touch events, meaning ccTouchBegan and ccTouchEnded will be called back
 -(void) registerWithTouchDispatcher
 {
-    [[CCTouchDispatcher sharedDispatcher] addTargetedDelegate:self priority:0 swallowsTouches:YES];
+    [[[CCDirector sharedDirector] touchDispatcher] addTargetedDelegate:self priority:0 swallowsTouches:YES];
+    //depricated call: [[CCTouchDispatcher sharedDispatcher] addTargetedDelegate:self priority:0 swallowsTouches:YES];
 }
 
 - (BOOL)ccTouchBegan:(UITouch *)touch withEvent:(UIEvent *)event

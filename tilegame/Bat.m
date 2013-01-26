@@ -57,7 +57,7 @@ static int theUniqueIntIDCounter = -1;
         // record an event entry for spawning
         // Should look like:  P1_bat
         
-        ownerAndEntityID = [ownershipPlayerID stringByAppendingFormat:@"_bat"];
+        ownerAndEntityID = [NSString stringWithFormat:@"%@_bat", ownershipPlayerID];
 
         NSString* activityEntry = [NSString stringWithFormat:@"%d spawn %@ %d %d %d",
                                    myLayer.timeStepIndex, ownerAndEntityID, uniqueIntID, (int)sprite.position.x, (int)sprite.position.y];

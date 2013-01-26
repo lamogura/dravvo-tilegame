@@ -12,7 +12,7 @@
 
 -(id) init
 {
-        // instantiate the 
+    return nil;
 }
 
 @end
