@@ -15,10 +15,5 @@
 +(CCScene *) scene;
 @end
 
-@interface NewGameScene : CCScene
-@property (nonatomic, strong) NewGameLayer* layer;
-@end
-
-
 
 

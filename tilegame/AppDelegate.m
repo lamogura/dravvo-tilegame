@@ -90,8 +90,9 @@
 	// Assume that PVR images have premultiplied alpha
 	[CCTexture2D PVRImagesHavePremultipliedAlpha:YES];
 
+    
     // load new game scene if there isnt one currently going
-    NSString* currentGameID = [[NSUserDefaults standardUserDefaults] valueForKey:kCurrentGameIDKey];
+    NSString* currentGameID = nil; //[[NSUserDefaults standardUserDefaults] valueForKey:kCurrentGameIDKey];
     if (currentGameID != nil) {
         DLog(@"Found gameID: %@", currentGameID);
         [director_ pushScene: [HelloWorldLayer scene]];

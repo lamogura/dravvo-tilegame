@@ -11,21 +11,6 @@
 #import "DVMacros.h"
 #import "DVConstants.h"
 
-@implementation NewGameScene
-@synthesize layer = _layer;
-
--(id) init
-{
-    if((self = [super init]))
-    {
-        self.layer = [NewGameLayer node];
-        [self addChild:_layer];
-    }
-    return self;
-}
-
-@end
-
 @implementation NewGameLayer
 
 -(id) init
@@ -41,9 +26,9 @@
                 else {
                     DLog(@"Saving gameID to defaults: %@", status.gameID);
                     [[NSUserDefaults standardUserDefaults] setObject:status.gameID forKey:kCurrentGameIDKey];
+                    [[CCDirector sharedDirector] replaceScene:[HelloWorldLayer scene]];
                 }
             }];
-            [[CCDirector sharedDirector] replaceScene:[HelloWorldLayer scene]];
         }];
         
         //Adding menu items to the CCMenu. Don't forget to include 'nil'
