@@ -93,7 +93,21 @@
 	if( (self=[super init]) ) {
         
         self->apiWrapper = [[DVAPIWrapper alloc] init];
+<<<<<<< Updated upstream
 
+=======
+        
+        SBJsonWriter* jwriter = [[SBJsonWriter alloc] init];
+        
+        NSMutableArray* array = [[NSMutableArray alloc] initWithObjects:[NSDate date],
+                                 nil];
+
+        NSString* updatesAsJSON = [jwriter stringWithObject:[NSArray arrayWithArray:array]];
+        
+        NSArray* newArray = [updatesAsJSON JSONValue];
+        int exy = 1;
+        
+>>>>>>> Stashed changes
         // test create new game
         //        [self->apiWrapper postCreateNewGameThenCallBlock:^(NSError *error, DVGameStatus *status) {
         //            if (error != nil) {
