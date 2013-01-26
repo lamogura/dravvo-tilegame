@@ -12,9 +12,9 @@
 #import "HelloWorldLayer.h"
 #import "NewGameLayer.h"
 #import "DVUtils.h"
-#import "DVConstants.h"
 #import "DVMacros.h"
-#import "LoadingLayer.h"
+#import "DVConstants.h"
+#import "GameLifecycle.h"
 
 @implementation AppController
 
@@ -91,18 +91,9 @@
 	// Assume that PVR images have premultiplied alpha
 	[CCTexture2D PVRImagesHavePremultipliedAlpha:YES];
 
+    // start the game
+    [GameLifecycle startWithDirector:director_];
     
-    // load new game scene if there isnt one currently going
-    NSString* currentGameID = [[NSUserDefaults standardUserDefaults] valueForKey:kCurrentGameIDKey];
-    if (currentGameID != nil) {
-        DLog(@"Found gameID: %@", currentGameID);
-        [director_ pushScene: [LoadingLayer scene]];
-//        [director_ pushScene: [HelloWorldLayer scene]];
-    }
-    else {
-        [director_ pushScene: [NewGameLayer scene]];
-    }
-
 	return YES;
 }
 
