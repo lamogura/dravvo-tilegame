@@ -31,15 +31,7 @@
     // NOTE: what should happen when you try to get a game state for one that doesnt exist in NSUserDefaults ??
     // create a new game if there isnt a current one
     if (currentGameID == nil) {
-        DLog(@"No currentGameID so creating a new game.");
-        [self postCreateNewGameThenCallBlock:^(NSError* error, DVGameStatus* status) {
-            if (error != nil) {
-                block(error, nil);
-            }
-            else {
-                block(nil, status);
-            }
-        }];
+        ULog(@"No currentGameID found.");
     }
     else {
         DLog(@"Fetching status for GameID: %@", currentGameID);

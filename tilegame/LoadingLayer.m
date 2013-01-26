@@ -26,6 +26,16 @@
         
         [menu alignItemsVertically];
         [self addChild:menu];
+        
+        [self->_apiWrapper getGameStatusThenCallBlock:^(NSError *error, DVGameStatus *status) {
+            //TODO: update game with the game status
+            if (error != nil) {
+                ULog([error localizedDescription]);
+            }
+            else {
+                DLog(@"Sucessfully got status for gameID: %@", status.gameID);
+            }
+        }];
     }
     return self;
 }
