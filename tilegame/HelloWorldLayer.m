@@ -23,6 +23,7 @@
 #import "Player.h"
 #import "Opponent.h"
 #import "RoundFinishedScene.h"
+#import "CountdownLayer.h"
 
 @implementation HelloWorldHud
 
@@ -176,15 +177,14 @@
 	
 	// 'layer' is an autorelease object.
 	HelloWorldLayer *layer = [HelloWorldLayer node];
-//    theHelloWorldLayer = [HelloWorldLayer node];
-	
-	// add layer as a child to scene
 	[theScene addChild: layer];
 //    [theScene addChild: theHelloWorldLayer];
     
     // create and add the HUD label/stats layer!
     HelloWorldHud* hud = [HelloWorldHud node];
     [theScene addChild:hud];
+    
+    [theScene addChild:[CountdownLayer node]];
     
     layer.hud = hud;  // store a member var reference to the hud so we can refer back to it to reset the label strings!
     hud.gameLayer = layer;  // 2-way references

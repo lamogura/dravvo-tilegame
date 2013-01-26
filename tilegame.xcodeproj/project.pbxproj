@@ -26,6 +26,7 @@
 		CE54127F16B36FEA00A3F494 /* LoadingLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = CE54127E16B36FEA00A3F494 /* LoadingLayer.m */; };
 		CE54128116B370ED00A3F494 /* loading.png in Resources */ = {isa = PBXBuildFile; fileRef = CE54128016B370ED00A3F494 /* loading.png */; };
 		CE54128416B3A62200A3F494 /* GameLifecycle.m in Sources */ = {isa = PBXBuildFile; fileRef = CE54128316B3A62200A3F494 /* GameLifecycle.m */; };
+		CE54128716B3A9C400A3F494 /* CountdownLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = CE54128616B3A9C400A3F494 /* CountdownLayer.m */; };
 		CE857D8E16B01D5C00947B06 /* AnimateActions.m in Sources */ = {isa = PBXBuildFile; fileRef = CE857D3E16B01D5C00947B06 /* AnimateActions.m */; };
 		CE857D8F16B01D5C00947B06 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = CE857D4016B01D5C00947B06 /* AppDelegate.m */; };
 		CE857D9016B01D5C00947B06 /* bat-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = CE857D4216B01D5C00947B06 /* bat-hd.png */; };
@@ -376,6 +377,8 @@
 		CE54128016B370ED00A3F494 /* loading.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = loading.png; sourceTree = "<group>"; };
 		CE54128216B3A62200A3F494 /* GameLifecycle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GameLifecycle.h; path = tilegame/GameLifecycle.h; sourceTree = "<group>"; };
 		CE54128316B3A62200A3F494 /* GameLifecycle.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GameLifecycle.m; path = tilegame/GameLifecycle.m; sourceTree = "<group>"; };
+		CE54128516B3A9C400A3F494 /* CountdownLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CountdownLayer.h; path = tilegame/CountdownLayer.h; sourceTree = "<group>"; };
+		CE54128616B3A9C400A3F494 /* CountdownLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CountdownLayer.m; path = tilegame/CountdownLayer.m; sourceTree = "<group>"; };
 		CE857D3D16B01D5C00947B06 /* AnimateActions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AnimateActions.h; path = tilegame/AnimateActions.h; sourceTree = "<group>"; };
 		CE857D3E16B01D5C00947B06 /* AnimateActions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AnimateActions.m; path = tilegame/AnimateActions.m; sourceTree = "<group>"; };
 		CE857D3F16B01D5C00947B06 /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = tilegame/AppDelegate.h; sourceTree = "<group>"; };
@@ -891,6 +894,8 @@
 				CE54127E16B36FEA00A3F494 /* LoadingLayer.m */,
 				CE857D6F16B01D5C00947B06 /* NewGameLayer.h */,
 				CE857D7016B01D5C00947B06 /* NewGameLayer.m */,
+				CE54128516B3A9C400A3F494 /* CountdownLayer.h */,
+				CE54128616B3A9C400A3F494 /* CountdownLayer.m */,
 				CE857DCB16B01DAE00947B06 /* Supporting Files */,
 			);
 			name = Tilegame;
@@ -1636,6 +1641,7 @@
 				3F3F40EE16B2AB930080C341 /* HistoricalEvent.m in Sources */,
 				CE54127F16B36FEA00A3F494 /* LoadingLayer.m in Sources */,
 				CE54128416B3A62200A3F494 /* GameLifecycle.m in Sources */,
+				CE54128716B3A9C400A3F494 /* CountdownLayer.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
