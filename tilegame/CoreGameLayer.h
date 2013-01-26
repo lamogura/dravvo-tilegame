@@ -22,7 +22,7 @@
 @class Opponent;
 
 // HelloWorldLayer
-@interface HelloWorldLayer : CCLayer <GKAchievementViewControllerDelegate, GKLeaderboardViewControllerDelegate>
+@interface CoreGameLayer : CCLayer <GKAchievementViewControllerDelegate, GKLeaderboardViewControllerDelegate>
 {
     CCTMXTiledMap* _tileMap;
     // these layers are part of the _tileMap

@@ -12,21 +12,21 @@
 #import "DVMacros.h"
 #import "LoadingLayer.h"
 #import "NewGameLayer.h"
-#import "HelloWorldLayer.h"
+#import "CoreGameLayer.h"
 #import "CountdownLayer.h"
 
 @implementation GameLifecycle
 +(void) startWithDirector:(CCDirectorIOS *)director {
     // load new game scene if there isnt one currently going
-    [director pushScene:[HelloWorldLayer scene]];
-//    NSString* currentGameID = [[NSUserDefaults standardUserDefaults] valueForKey:kCurrentGameIDKey];
-//    if (currentGameID != nil) {
-//        DLog(@"Found gameID: %@", currentGameID);
-//        [director pushScene: [LoadingLayer scene]];
-//        //        [director_ pushScene: [HelloWorldLayer scene]];
-//    }
-//    else {
-//        [director pushScene: [NewGameLayer scene]];
-//    }
+
+    NSString* currentGameID = nil;//[[NSUserDefaults standardUserDefaults] valueForKey:kCurrentGameIDKey];
+    if (currentGameID != nil) {
+        DLog(@"Found gameID: %@", currentGameID);
+        [director pushScene: [CoreGameLayer scene]];
+        //        [director_ pushScene: [HelloWorldLayer scene]];
+    }
+    else {
+        [director pushScene: [NewGameLayer scene]];
+    }
 }
 @end

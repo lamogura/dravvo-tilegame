@@ -8,7 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import "cocos2d.h"
-#import "HelloWorldLayer.h"
+#import "CoreGameLayer.h"
 //#import "Entity.h"
 #import "CCSequence+Helper.h"
 #import "ChangeableObject.h"
@@ -17,12 +17,12 @@
 @interface Opponent : ChangeableObject
 
 @property (nonatomic, retain) CCSprite* opponentSprite;
-@property (nonatomic, retain) HelloWorldLayer* myLayer;
+@property (nonatomic, retain) CoreGameLayer* myLayer;
 @property (nonatomic, assign) int hitPoints;
 @property (nonatomic, assign) NSString* playerID;
 @property (nonatomic, strong) NSMutableArray* playerMinionList;  // player maintains an array of minions
 
--(id)initWithLayer:(HelloWorldLayer*) layer andPlayerID:(NSString*)plyrID andSpawnAt:(CGPoint) spawnPoint;
+-(id)initWithLayer:(CoreGameLayer*) layer andPlayerID:(NSString*)plyrID andSpawnAt:(CGPoint) spawnPoint;
 //-(void)sampleCurrentPosition:(CGPoint) currentPoint;  // don't need this since player should be non-moving during player's turn
 
 // attributes

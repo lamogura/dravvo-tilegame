@@ -8,7 +8,7 @@
 // SEE: http://www.raywenderlich.com/1163/how-to-make-a-tile-based-game-with-cocos2d
 
 // Import the interfaces
-#import "HelloWorldLayer.h"
+#import "CoreGameLayer.h"
 
 // Needed to obtain the Navigation Controller
 #import "AppDelegate.h"
@@ -26,11 +26,11 @@
 #import "RoundFinishedScene.h"
 #import "CountdownLayer.h"
 
-#pragma mark - HelloWorldLayer
+#pragma mark - CoreGameLayer
 
 static BOOL isEnemyPlaybackRound = NO;
 
-@implementation HelloWorldLayer
+@implementation CoreGameLayer
 
 @synthesize tileMap = _tileMap;
 @synthesize background = _background;
@@ -67,7 +67,7 @@ static BOOL isEnemyPlaybackRound = NO;
 	CCScene *theScene = [CCScene node];
 	
 	// 'layer' is an autorelease object.
-	HelloWorldLayer *layer = [HelloWorldLayer node];
+	CoreGameLayer *layer = [CoreGameLayer node];
 	[theScene addChild: layer];
 //    [theScene addChild: theHelloWorldLayer];
     
@@ -379,11 +379,14 @@ static BOOL isEnemyPlaybackRound = NO;
 {
     [NSString stringWithFormat:@"%@_%@",opponent.playerID,kDVChangeableObjectName_bat];
     // here we should make one fat NSDictionary (kDVChangeableObjectName_*) of Arrays of NSDictionarys of all the local history arrays and send it to server
+    NSMutableArray* playerBatsActions = [[NSMutableArray alloc] init];
+    for (Bat* bat in player.playerMinionList) {
+        [playerBatsActions addObject:bat.historicalEventsList_local];
+    }
+    
     historicalEventsDict = [NSDictionary dictionaryWithObjectsAndKeys:
                             player.historicalEventsList_local, player.playerID,
-                            opponent.historicalEventsList_local,opponent.playerID,
-                            player.playerMinionList, [NSString stringWithFormat:@"%@_%@",player.playerID,kDVChangeableObjectName_bat],
-                            opponent.playerMinionList, [NSString stringWithFormat:@"%@_%@",opponent.playerID,kDVChangeableObjectName_bat],
+                            playerBatsActions, [NSString stringWithFormat:@"%@_%@",player.playerID, kDVChangeableObjectName_bat],
                             nil];
     // GO JSON!
     

@@ -8,7 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import "cocos2d.h"
-#import "HelloWorldLayer.h"
+#import "CoreGameLayer.h"
 
 // Heads Up Display HUD label / stats layer class declaration (put in separate file in future)
 @interface CoreGameHudLayer : CCLayer {
@@ -18,7 +18,7 @@
     CCLabelTTF* _labelMissilesCount;
     CCLabelTTF* _labelTimer;
 }
-@property (nonatomic, unsafe_unretained) HelloWorldLayer* gameLayer;
+@property (nonatomic, unsafe_unretained) CoreGameLayer* gameLayer;
 
 -(void) projectileButtonTapped:(id) sender;
 -(void) numCollectedChanged:(int) numCollected;

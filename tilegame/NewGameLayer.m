@@ -7,7 +7,7 @@
 //
 
 #import "NewGameLayer.h"
-#import "HelloWorldLayer.h"
+#import "CoreGameLayer.h"
 #import "DVMacros.h"
 #import "DVConstants.h"
 
@@ -30,7 +30,7 @@
                     DLog(@"Saving gameID to defaults: %@", status.gameID);
                     [[NSUserDefaults standardUserDefaults] setObject:status.gameID forKey:kCurrentGameIDKey];
                     // TODO: add logic where new game is generated locally 
-                    [[CCDirector sharedDirector] replaceScene:[HelloWorldLayer scene]];
+                    [[CCDirector sharedDirector] replaceScene:[CoreGameLayer scene]];
                 }
             }];
         }];

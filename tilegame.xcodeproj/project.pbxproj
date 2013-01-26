@@ -66,7 +66,6 @@
 		CE857DB116B01D5C00947B06 /* DVGameStatus.m in Sources */ = {isa = PBXBuildFile; fileRef = CE857D6716B01D5C00947B06 /* DVGameStatus.m */; };
 		CE857DB216B01D5C00947B06 /* GameOverScene.m in Sources */ = {isa = PBXBuildFile; fileRef = CE857D6A16B01D5C00947B06 /* GameOverScene.m */; };
 		CE857DB316B01D5C00947B06 /* GameStateChanged.m in Sources */ = {isa = PBXBuildFile; fileRef = CE857D6C16B01D5C00947B06 /* GameStateChanged.m */; };
-		CE857DB416B01D5C00947B06 /* HelloWorldLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = CE857D6E16B01D5C00947B06 /* HelloWorldLayer.m */; };
 		CE857DB516B01D5C00947B06 /* NewGameLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = CE857D7016B01D5C00947B06 /* NewGameLayer.m */; };
 		CE857DB616B01D5C00947B06 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = CE857D7116B01D5C00947B06 /* main.m */; };
 		CE857DB816B01D5C00947B06 /* DVAPIWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = CE857D7616B01D5C00947B06 /* DVAPIWrapper.m */; };
@@ -336,6 +335,7 @@
 		CE857FD216B01E0300947B06 /* SBJsonUTF8Stream.m in Sources */ = {isa = PBXBuildFile; fileRef = CE857ED716B01E0300947B06 /* SBJsonUTF8Stream.m */; };
 		CE857FD316B01E0300947B06 /* SBJsonWriter.h in Headers */ = {isa = PBXBuildFile; fileRef = CE857ED816B01E0300947B06 /* SBJsonWriter.h */; };
 		CE857FD416B01E0300947B06 /* SBJsonWriter.m in Sources */ = {isa = PBXBuildFile; fileRef = CE857ED916B01E0300947B06 /* SBJsonWriter.m */; };
+		CEC591A816B3E3C900323F57 /* CoreGameLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = CEC591A716B3E3C900323F57 /* CoreGameLayer.m */; };
 		CED1D86016B2F97C00E87653 /* new_game_button.png in Resources */ = {isa = PBXBuildFile; fileRef = CED1D85F16B2F97C00E87653 /* new_game_button.png */; };
 		DC0C49F6154AB4DD00B4B727 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DC0C49F5154AB4DD00B4B727 /* QuartzCore.framework */; };
 		DC0C49F8154AB4DD00B4B727 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DC0C49F7154AB4DD00B4B727 /* OpenGLES.framework */; };
@@ -428,8 +428,7 @@
 		CE857D6A16B01D5C00947B06 /* GameOverScene.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GameOverScene.m; path = tilegame/GameOverScene.m; sourceTree = "<group>"; };
 		CE857D6B16B01D5C00947B06 /* GameStateChanged.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GameStateChanged.h; path = tilegame/GameStateChanged.h; sourceTree = "<group>"; };
 		CE857D6C16B01D5C00947B06 /* GameStateChanged.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GameStateChanged.m; path = tilegame/GameStateChanged.m; sourceTree = "<group>"; };
-		CE857D6D16B01D5C00947B06 /* HelloWorldLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HelloWorldLayer.h; path = tilegame/HelloWorldLayer.h; sourceTree = "<group>"; };
-		CE857D6E16B01D5C00947B06 /* HelloWorldLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = HelloWorldLayer.m; path = tilegame/HelloWorldLayer.m; sourceTree = "<group>"; };
+		CE857D6D16B01D5C00947B06 /* CoreGameLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CoreGameLayer.h; path = tilegame/CoreGameLayer.h; sourceTree = "<group>"; };
 		CE857D6F16B01D5C00947B06 /* NewGameLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NewGameLayer.h; path = tilegame/NewGameLayer.h; sourceTree = "<group>"; };
 		CE857D7016B01D5C00947B06 /* NewGameLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NewGameLayer.m; path = tilegame/NewGameLayer.m; sourceTree = "<group>"; };
 		CE857D7116B01D5C00947B06 /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = tilegame/main.m; sourceTree = "<group>"; };
@@ -714,6 +713,7 @@
 		CE857ED716B01E0300947B06 /* SBJsonUTF8Stream.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SBJsonUTF8Stream.m; sourceTree = "<group>"; };
 		CE857ED816B01E0300947B06 /* SBJsonWriter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SBJsonWriter.h; sourceTree = "<group>"; };
 		CE857ED916B01E0300947B06 /* SBJsonWriter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SBJsonWriter.m; sourceTree = "<group>"; };
+		CEC591A716B3E3C900323F57 /* CoreGameLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CoreGameLayer.m; path = tilegame/CoreGameLayer.m; sourceTree = "<group>"; };
 		CED1D85F16B2F97C00E87653 /* new_game_button.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = new_game_button.png; sourceTree = "<group>"; };
 		DC0C49F1154AB4DD00B4B727 /* tilegame.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = tilegame.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DC0C49F5154AB4DD00B4B727 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
@@ -891,8 +891,8 @@
 				CE857D6A16B01D5C00947B06 /* GameOverScene.m */,
 				CE857D6B16B01D5C00947B06 /* GameStateChanged.h */,
 				CE857D6C16B01D5C00947B06 /* GameStateChanged.m */,
-				CE857D6D16B01D5C00947B06 /* HelloWorldLayer.h */,
-				CE857D6E16B01D5C00947B06 /* HelloWorldLayer.m */,
+				CE857D6D16B01D5C00947B06 /* CoreGameLayer.h */,
+				CEC591A716B3E3C900323F57 /* CoreGameLayer.m */,
 				CE499F9E16B3D2CE000D9EA0 /* CoreGameHudLayer.h */,
 				CE499F9F16B3D2CE000D9EA0 /* CoreGameHudLayer.m */,
 				CE54127D16B36FE900A3F494 /* LoadingLayer.h */,
@@ -1631,7 +1631,6 @@
 				CE857DB116B01D5C00947B06 /* DVGameStatus.m in Sources */,
 				CE857DB216B01D5C00947B06 /* GameOverScene.m in Sources */,
 				CE857DB316B01D5C00947B06 /* GameStateChanged.m in Sources */,
-				CE857DB416B01D5C00947B06 /* HelloWorldLayer.m in Sources */,
 				CE857DB516B01D5C00947B06 /* NewGameLayer.m in Sources */,
 				CE857DB616B01D5C00947B06 /* main.m in Sources */,
 				CE857DB816B01D5C00947B06 /* DVAPIWrapper.m in Sources */,
@@ -1648,6 +1647,7 @@
 				CE54128416B3A62200A3F494 /* GameLifecycle.m in Sources */,
 				CE54128716B3A9C400A3F494 /* CountdownLayer.m in Sources */,
 				CE499FA016B3D2CE000D9EA0 /* CoreGameHudLayer.m in Sources */,
+				CEC591A816B3E3C900323F57 /* CoreGameLayer.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

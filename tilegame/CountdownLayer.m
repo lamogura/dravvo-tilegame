@@ -7,7 +7,7 @@
 //
 
 #import "CountdownLayer.h"
-#import "HelloWorldLayer.h"
+#import "CoreGameLayer.h"
 #import "DVMacros.h"
 #import "DVConstants.h"
 

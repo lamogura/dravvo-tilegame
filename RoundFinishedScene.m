@@ -7,7 +7,7 @@
 //
 
 #import "GameOverScene.h"
-#import "HelloWorldLayer.h"
+#import "CoreGameLayer.h"
 #import "RoundFinishedScene.h"
 
 @implementation RoundFinishedScene
@@ -57,7 +57,7 @@
 
 - (void)nextRound {
     
-    [[CCDirector sharedDirector] replaceScene:[HelloWorldLayer scene]];
+    [[CCDirector sharedDirector] replaceScene:[CoreGameLayer scene]];
     
 }
 

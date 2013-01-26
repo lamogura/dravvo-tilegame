@@ -17,7 +17,7 @@
 @interface Bat : ChangeableObject <Entity>
 
 //@property (nonatomic, unsafe_unretained) HelloWorldLayer* myLayer;
-@property (nonatomic, strong) HelloWorldLayer* myLayer;
+@property (nonatomic, strong) CoreGameLayer* myLayer;
 @property (nonatomic, strong) CCSprite* sprite;
 @property (nonatomic, assign) int hitPoints;
 @property (nonatomic, assign) int speedInPixelsPerSec;
@@ -33,7 +33,7 @@
 // required METHODS
 +(int)uniqueIntIDCounter;  // static function for providing unique integer IDs to each new instance of each particular entity kind
 
--(id)initWithLayer:(HelloWorldLayer*) layer andSpawnAt:(CGPoint) spawnPoint withBehavior:(int) initBehavior withPlayerOwner:(NSString*) ownerPlayerID;
+-(id)initWithLayer:(CoreGameLayer*) layer andSpawnAt:(CGPoint) spawnPoint withBehavior:(int) initBehavior withPlayerOwner:(NSString*) ownerPlayerID;
 //-(id)initWithSpawnPoint:(CGPoint) spawnPoint withBehavior:(int) initBehavior;
 //-(void)spwan:(CGPoint) spawnPoint;
 // for sampling during real actions

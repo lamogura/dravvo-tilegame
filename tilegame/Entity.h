@@ -11,14 +11,14 @@
 #import <GameKit/GameKit.h>
 //#import "HelloWorldLayer.h"
 
-@class HelloWorldLayer;  // gotta do forward declaration
+@class CoreGameLayer;  // gotta do forward declaration
 
 // Entity's include Bat, Missile, Shuriken, Player?
 // IN the very least, make sure that all previous time step actions and animations are finished before performing the next time step's actions from main
 @protocol Entity // <CCNode> // <NSObject>
 @required
 
-@property (nonatomic, strong) HelloWorldLayer* myLayer;
+@property (nonatomic, strong) CoreGameLayer* myLayer;
 @property (nonatomic, strong) CCSprite* sprite;  // most things with pointers, nonatomic, strong ?
 @property (nonatomic, assign) int hitPoints;
 @property (nonatomic, assign) int speedInPixelsPerSec;
@@ -30,7 +30,7 @@
 
 
 +(int)uniqueIntIDCounter;  // static function for providing unique integer IDs to each new instance of each particular entity kind
--(id)initWithLayer:(HelloWorldLayer*) layer andSpawnAt:(CGPoint) spawnPoint withBehavior:(int) initBehavior withPlayerOwner:(NSString*) ownerPlayerID;
+-(id)initWithLayer:(CoreGameLayer*) layer andSpawnAt:(CGPoint) spawnPoint withBehavior:(int) initBehavior withPlayerOwner:(NSString*) ownerPlayerID;
 //-(id)initWithSpawnPoint:(CGPoint) spawnPoint withBehavior:(int) initBehavior;
 //-(void)spwan:(CGPoint) spawnPoint;
 // for sampling during real actions for later animation on player2's side

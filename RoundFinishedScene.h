@@ -7,14 +7,14 @@
 //
 
 #import "cocos2d.h"
-#import "HelloWorldLayer.h"
+#import "CoreGameLayer.h"
 
 @interface RoundFinishedLayer : CCLayerColor
 {
     CCLabelTTF* _label;
 }
 
-@property (nonatomic, strong) HelloWorldLayer* helloWorldLayer;
+@property (nonatomic, strong) CoreGameLayer* helloWorldLayer;
 @property (nonatomic, strong) CCLabelTTF *label;
 @end
 

@@ -9,7 +9,7 @@
 #import "cocos2d.h"
 
 #import "AppDelegate.h"
-#import "HelloWorldLayer.h"
+#import "CoreGameLayer.h"
 #import "NewGameLayer.h"
 #import "DVUtils.h"
 #import "DVMacros.h"

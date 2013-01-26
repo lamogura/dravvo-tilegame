@@ -7,7 +7,7 @@
 //
 
 #import "Player.h"
-#import "HelloWorldLayer.h"
+#import "CoreGameLayer.h"
 #import "cocos2d.h"
 #import "GameConstants.h"
 #import "DVMacros.h"
@@ -15,9 +15,9 @@
 
 @implementation Player
 
-@synthesize myLayer, isAlive, sprite, playerID, hitPoints, playerMinionList, initialSpawnPoint, historicalEventsList_local;
+@synthesize myLayer, isAlive, sprite, playerID, hitPoints, playerMinionList, initialSpawnPoint;
 
--(id)initWithLayer:(HelloWorldLayer*) layer andPlayerID:(NSString*)plyrID andSpawnAt:(CGPoint) spawnPoint;
+-(id)initWithLayer:(CoreGameLayer*) layer andPlayerID:(NSString*)plyrID andSpawnAt:(CGPoint) spawnPoint;
 {
     self = [super init];
     if(self)
@@ -42,7 +42,7 @@
         
         NSDictionary* activityDictionary = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:myLayer.timeStepIndex], kDVHistKey_TimeStepIndex,  @"spawn", kDVHistKey_Action, playerID, kDVHistKey_OwnerID, playerID, kDVHistKey_EntityType, [NSNumber numberWithInt:-1], kDVHistKey_EntityNumber, [NSNumber numberWithFloat:sprite.position.x], kDVHistKey_CoordX, [NSNumber numberWithFloat:sprite.position.y], kDVHistKey_CoordY, nil];
         // Now put this dictionary onto the object's NSMuttableArray
-        [historicalEventsList_local addObject:activityDictionary];
+        [self.historicalEventsList_local addObject:activityDictionary];
         DLog(@"spawn...%@",activityDictionary);
 
 /*
@@ -63,9 +63,16 @@
 -(void)sampleCurrentPosition
 {
     // Dictionary constructor is delimited with nil
-    NSDictionary* activityDictionary = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:myLayer.timeStepIndex], kDVHistKey_TimeStepIndex,  @"move", kDVHistKey_Action, playerID, kDVHistKey_OwnerID, playerID, kDVHistKey_EntityType, [NSNumber numberWithInt:-1], kDVHistKey_EntityNumber,  [NSNumber numberWithFloat:sprite.position.x], kDVHistKey_CoordX, [NSNumber numberWithFloat:sprite.position.y], kDVHistKey_CoordY, nil];
+    NSDictionary* activityDictionary = [NSDictionary dictionaryWithObjectsAndKeys:
+                                        [NSNumber numberWithInt:myLayer.timeStepIndex], kDVHistKey_TimeStepIndex,
+                                        @"move", kDVHistKey_Action,
+                                        playerID, kDVHistKey_OwnerID,
+                                        playerID, kDVHistKey_EntityType,
+                                        [NSNumber numberWithInt:-1], kDVHistKey_EntityNumber,
+                                        [NSNumber numberWithFloat:sprite.position.x], kDVHistKey_CoordX,
+                                        [NSNumber numberWithFloat:sprite.position.y], kDVHistKey_CoordY, nil];
     // Now put this dictionary onto the object's NSMuttableArray
-    [historicalEventsList_local addObject:activityDictionary];
+    [self.historicalEventsList_local addObject:activityDictionary];
     DLog(@"sample...%@",activityDictionary);
 
 /*
@@ -73,7 +80,7 @@
     NSString* activityEntry = [NSString stringWithFormat:@"%d move %@ -1 %d %d",
                                myLayer.timeStepIndex, playerID, (int)sprite.position.x, (int)sprite.position.y];
     
-    [historicalEventsList_local addObject:activityEntry];
+    [self.historicalEventsList_local addObject:activityEntry];
     DLog(@"sample...%@",activityEntry);
 */
 }
@@ -87,7 +94,7 @@
     // Dictionary constructor is delimited with nil
     NSDictionary* activityDictionary = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:myLayer.timeStepIndex], kDVHistKey_TimeStepIndex,  @"wound", kDVHistKey_Action, playerID, kDVHistKey_OwnerID, playerID, kDVHistKey_EntityType, [NSNumber numberWithInt:-1], kDVHistKey_EntityNumber, [NSNumber numberWithInt:hpLost], kDVHistKey_CoordX, [NSNumber numberWithInt:-1], kDVHistKey_CoordY,  nil];
     // Now put this dictionary onto the object's NSMuttableArray
-    [historicalEventsList_local addObject:activityDictionary];
+    [self.historicalEventsList_local addObject:activityDictionary];
     DLog(@"wound...%@",activityDictionary);
     
 /*
@@ -95,7 +102,7 @@
                                myLayer.timeStepIndex, playerID, hpLost];
     //[Bat uniqueIntIDCounter]
     
-    [historicalEventsList_local addObject:activityEntry];
+    [self.historicalEventsList_local addObject:activityEntry];
     DLog(@"wound...%@",activityEntry);
 */
 }
@@ -128,14 +135,14 @@
     // Dictionary constructor is delimited with nil
     NSDictionary* activityDictionary = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:myLayer.timeStepIndex], kDVHistKey_TimeStepIndex, @"kill", kDVHistKey_Action,  playerID, kDVHistKey_OwnerID, playerID, kDVHistKey_EntityType, [NSNumber numberWithInt:-1], kDVHistKey_EntityNumber, [NSNumber numberWithInt:-1], kDVHistKey_CoordX, [NSNumber numberWithInt:-1], kDVHistKey_CoordY, nil];
     // Now put this dictionary onto the object's NSMuttableArray
-    [historicalEventsList_local addObject:activityDictionary];
+    [self.historicalEventsList_local addObject:activityDictionary];
     DLog(@"kill...%@",activityDictionary);
  
 /*
     NSString* activityEntry = [NSString stringWithFormat:@"%d kill %@ -1 -1 -1",
                                myLayer.timeStepIndex, playerID];
     
-    [historicalEventsList_local addObject:activityEntry];
+    [self.historicalEventsList_local addObject:activityEntry];
     DLog(@"kill...%@",activityEntry);
 */
     // regenerate but remain isAlive = NO until start of next round
@@ -158,7 +165,7 @@
     // Dictionary constructor is delimited with nil
     NSDictionary* activityDictionary = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:myLayer.timeStepIndex], kDVHistKey_TimeStepIndex, @"regenerate", kDVHistKey_Action, playerID, kDVHistKey_OwnerID, playerID, kDVHistKey_EntityType, [NSNumber numberWithInt:-1], kDVHistKey_EntityNumber, [NSNumber numberWithFloat:sprite.position.x], kDVHistKey_CoordX, [NSNumber numberWithFloat:sprite.position.y], kDVHistKey_CoordY,  nil];
     // Now put this dictionary onto the object's NSMuttableArray
-    [historicalEventsList_local addObject:activityDictionary];
+    [self.historicalEventsList_local addObject:activityDictionary];
     DLog(@"regenerate...%@",activityDictionary);
      
 /*
@@ -166,7 +173,7 @@
     // record an event entry for spawning
     NSString* activityEntry = [NSString stringWithFormat:@"%d regenerate %@ -1 %d %d",
                                myLayer.timeStepIndex, playerID, (int)sprite.position.x, (int)sprite.position.y];
-    [historicalEventsList_local addObject:activityEntry];
+    [self.historicalEventsList_local addObject:activityEntry];
     DLog(@"spawn...%@",activityEntry);
 */
     
@@ -183,7 +190,7 @@
     // Dictionary constructor is delimited with nil
     NSDictionary* activityDictionary = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:myLayer.timeStepIndex], kDVHistKey_TimeStepIndex, @"initStats", kDVHistKey_Action, playerID, kDVHistKey_OwnerID, playerID, kDVHistKey_EntityType, [NSNumber numberWithInt:-1], kDVHistKey_EntityNumber, [NSNumber numberWithInt:-1], kDVHistKey_CoordX, [NSNumber numberWithInt:-1], kDVHistKey_CoordY,  nil];
     // Now put this dictionary onto the object's NSMuttableArray
-    [historicalEventsList_local addObject:activityDictionary];
+    [self.historicalEventsList_local addObject:activityDictionary];
     DLog(@"initStats...%@",activityDictionary);
  
  
@@ -192,7 +199,7 @@
                                myLayer.timeStepIndex, playerID];
     //[Bat uniqueIntIDCounter]
     
-    [historicalEventsList_local addObject:activityEntry];
+    [self.historicalEventsList_local addObject:activityEntry];
     DLog(@"initStats...%@",activityEntry);
 */
 }
@@ -201,7 +208,7 @@
 {
     [super performHistoryAtTimeStepIndex:theTimeStepIndex]; // maybe not necessary
     
-    // now cycle through the historicalEventsList_local array, pull all dictionaries for
+    // now cycle through the self.historicalEventsList_local array, pull all dictionaries for
     // if object at the key kDVHistKey_TimeStepIndex == "theTimeStepIndex", then push the action to the actionMutableArray array so actions run in sequence
     // without killing the previous one
     

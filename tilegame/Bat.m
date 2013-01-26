@@ -11,14 +11,14 @@
 #import <GameKit/GameKit.h>
 #import "cocos2d.h"
 #import "SimpleAudioEngine.h"
-#import "HelloWorldLayer.h"
+#import "CoreGameLayer.h"
 #import "DVMacros.h"
 
 static int theUniqueIntIDCounter = -1;
 
 @implementation Bat
 
-@synthesize myLayer, sprite, hitPoints, speedInPixelsPerSec, behavior, previousPosition, ownershipPlayerID, entityType, uniqueIntID, historicalEventsList_local;
+@synthesize myLayer, sprite, hitPoints, speedInPixelsPerSec, behavior, previousPosition, ownershipPlayerID, entityType, uniqueIntID;
 
 +(int)uniqueIntIDCounter  // static function for providing unique integer IDs to each new instance of each particular entity kind
 {
@@ -28,7 +28,7 @@ static int theUniqueIntIDCounter = -1;
 
 // required METHODS
 // init
--(id)initWithLayer:(HelloWorldLayer*) layer andSpawnAt:(CGPoint) spawnPoint withBehavior:(int) initBehavior withPlayerOwner:(NSString*) ownerPlayerID;
+-(id)initWithLayer:(CoreGameLayer*) layer andSpawnAt:(CGPoint) spawnPoint withBehavior:(int) initBehavior withPlayerOwner:(NSString*) ownerPlayerID;
 {
     self = [super init];
     if(self)
@@ -73,7 +73,7 @@ static int theUniqueIntIDCounter = -1;
                                             [NSNumber numberWithFloat:sprite.position.x], kDVHistKey_CoordX,
                                             [NSNumber numberWithFloat:sprite.position.y], kDVHistKey_CoordY, nil];
         // Now put this dictionary onto the object's NSMuttableArray
-        [historicalEventsList_local addObject:activityDictionary];
+        [self.historicalEventsList_local addObject:activityDictionary];
         DLog(@"spawn...%@",activityDictionary);
         
         [myLayer addChild:self];
@@ -89,7 +89,7 @@ static int theUniqueIntIDCounter = -1;
     // Dictionary constructor is delimited with nil
     NSDictionary* activityDictionary = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:myLayer.timeStepIndex], kDVHistKey_TimeStepIndex,  @"move", kDVHistKey_Action, ownershipPlayerID, kDVHistKey_OwnerID, entityType, kDVHistKey_EntityType, [NSNumber numberWithInt:uniqueIntID], kDVHistKey_EntityNumber,  [NSNumber numberWithFloat:sprite.position.x], kDVHistKey_CoordX, [NSNumber numberWithFloat:sprite.position.y], kDVHistKey_CoordY, nil];
     // Now put this dictionary onto the object's NSMuttableArray
-    [historicalEventsList_local addObject:activityDictionary];
+    [self.historicalEventsList_local addObject:activityDictionary];
     DLog(@"sample...%@",activityDictionary);
 
 /*
@@ -97,7 +97,7 @@ static int theUniqueIntIDCounter = -1;
     NSString* activityEntry = [NSString stringWithFormat:@"%d aniMove %@ %d %d %d",
                                myLayer.timeStepIndex, ownerAndEntityID, uniqueIntID, (int)sprite.position.x, (int)sprite.position.y];
 
-    [historicalEventsList_local addObject:activityEntry];
+    [self.historicalEventsList_local addObject:activityEntry];
     DLog(@"sample...%@",activityEntry);
 */
 }
@@ -112,7 +112,7 @@ static int theUniqueIntIDCounter = -1;
     // Dictionary constructor is delimited with nil
     NSDictionary* activityDictionary = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:myLayer.timeStepIndex], kDVHistKey_TimeStepIndex,  @"wound", kDVHistKey_Action, ownershipPlayerID, kDVHistKey_OwnerID, entityType, kDVHistKey_EntityType, [NSNumber numberWithInt:uniqueIntID], kDVHistKey_EntityNumber, [NSNumber numberWithInt:hpLost], kDVHistKey_CoordX, [NSNumber numberWithInt:-1], kDVHistKey_CoordY,  nil];
     // Now put this dictionary onto the object's NSMuttableArray
-    [historicalEventsList_local addObject:activityDictionary];
+    [self.historicalEventsList_local addObject:activityDictionary];
     DLog(@"wound...%@",activityDictionary);
     
 /*
@@ -120,7 +120,7 @@ static int theUniqueIntIDCounter = -1;
                                myLayer.timeStepIndex, ownerAndEntityID, uniqueIntID, hpLost];
     //[Bat uniqueIntIDCounter]
     
-    [historicalEventsList_local addObject:activityEntry];
+    [self.historicalEventsList_local addObject:activityEntry];
     DLog(@"wound...%@",activityEntry);
 */
 
@@ -141,7 +141,7 @@ static int theUniqueIntIDCounter = -1;
   
     NSDictionary* activityDictionary = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:myLayer.timeStepIndex], kDVHistKey_TimeStepIndex, @"kill", kDVHistKey_Action,  ownershipPlayerID, kDVHistKey_OwnerID, entityType, kDVHistKey_EntityType, [NSNumber numberWithInt:uniqueIntID], kDVHistKey_EntityNumber, [NSNumber numberWithInt:-1], kDVHistKey_CoordX, [NSNumber numberWithInt:-1], kDVHistKey_CoordY, nil];
     // Now put this dictionary onto the object's NSMuttableArray
-    [historicalEventsList_local addObject:activityDictionary];
+    [self.historicalEventsList_local addObject:activityDictionary];
     DLog(@"kill...%@",activityDictionary);
 
 
@@ -151,7 +151,7 @@ static int theUniqueIntIDCounter = -1;
                                myLayer.timeStepIndex, ownerAndEntityID, uniqueIntID];
     //[Bat uniqueIntIDCounter]
     
-    [historicalEventsList_local addObject:activityEntry];
+    [self.historicalEventsList_local addObject:activityEntry];
     DLog(@"kill...%@",activityEntry);
 */
 
@@ -287,7 +287,7 @@ static int theUniqueIntIDCounter = -1;
 {
     [super performHistoryAtTimeStepIndex:theTimeStepIndex]; // maybe not necessary
     
-    // now cycle through the historicalEventsList_local array, pull all dictionaries for
+    // now cycle through the self.historicalEventsList_local array, pull all dictionaries for
     // if object at the key kDVHistKey_TimeStepIndex == "theTimeStepIndex", then push the action to the actionMutableArray array so actions run in sequence
     // without killing the previous one
 
