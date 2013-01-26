@@ -18,12 +18,16 @@
 #import "DVConstants.h"
 #import "gameConstants.h"
 #import "CCSequence+Helper.h"
+<<<<<<< Updated upstream
 //#import "Entity.h"
 #import "Bat.h"
 #import "Player.h"
 #import "Opponent.h"
 #import "RoundFinishedScene.h"
 #import "CountdownLayer.h"
+=======
+#import "Libs/SBJSON/SBJson.h"
+>>>>>>> Stashed changes
 
 @implementation HelloWorldHud
 
@@ -205,6 +209,16 @@
         DLog(@"*******************");
         
         self->apiWrapper = [[DVAPIWrapper alloc] init];
+        
+        SBJsonWriter* jwriter = [[SBJsonWriter alloc] init];
+        
+        NSMutableArray* array = [[NSMutableArray alloc] initWithObjects:[NSDate date],
+                                 nil];
+
+        NSString* updatesAsJSON = [jwriter stringWithObject:[NSArray arrayWithArray:array]];
+        
+        NSArray* newArray = [updatesAsJSON JSONValue];
+        int exy = 1;
         
         // test create new game
         //        [self->apiWrapper postCreateNewGameThenCallBlock:^(NSError *error, DVGameStatus *status) {
