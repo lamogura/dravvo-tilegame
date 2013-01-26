@@ -14,6 +14,7 @@
 #import "DVUtils.h"
 #import "DVConstants.h"
 #import "DVMacros.h"
+#import "LoadingLayer.h"
 
 @implementation AppController
 
@@ -98,7 +99,7 @@
         [director_ pushScene: [HelloWorldLayer scene]];
     }
     else {
-        [director_ pushScene: [NewGameLayer scene]];
+        [director_ pushScene: [LoadingLayer scene]];
     }
 
 	return YES;

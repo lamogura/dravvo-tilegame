@@ -23,6 +23,8 @@
 		3F3F40F616B2BF980080C341 /* DMZombie.m4r in Resources */ = {isa = PBXBuildFile; fileRef = 3F3F40F516B2BF980080C341 /* DMZombie.m4r */; };
 		3F3F40F816B2C2490080C341 /* DMLifePack.m4r in Resources */ = {isa = PBXBuildFile; fileRef = 3F3F40F716B2C2490080C341 /* DMLifePack.m4r */; };
 		3F3F40FA16B2C3820080C341 /* DMZombiePain.m4r in Resources */ = {isa = PBXBuildFile; fileRef = 3F3F40F916B2C3820080C341 /* DMZombiePain.m4r */; };
+		CE54127F16B36FEA00A3F494 /* LoadingLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = CE54127E16B36FEA00A3F494 /* LoadingLayer.m */; };
+		CE54128116B370ED00A3F494 /* loading.png in Resources */ = {isa = PBXBuildFile; fileRef = CE54128016B370ED00A3F494 /* loading.png */; };
 		CE857D8E16B01D5C00947B06 /* AnimateActions.m in Sources */ = {isa = PBXBuildFile; fileRef = CE857D3E16B01D5C00947B06 /* AnimateActions.m */; };
 		CE857D8F16B01D5C00947B06 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = CE857D4016B01D5C00947B06 /* AppDelegate.m */; };
 		CE857D9016B01D5C00947B06 /* bat-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = CE857D4216B01D5C00947B06 /* bat-hd.png */; };
@@ -368,6 +370,9 @@
 		3F3F40F516B2BF980080C341 /* DMZombie.m4r */ = {isa = PBXFileReference; lastKnownFileType = file; path = DMZombie.m4r; sourceTree = "<group>"; };
 		3F3F40F716B2C2490080C341 /* DMLifePack.m4r */ = {isa = PBXFileReference; lastKnownFileType = file; path = DMLifePack.m4r; sourceTree = "<group>"; };
 		3F3F40F916B2C3820080C341 /* DMZombiePain.m4r */ = {isa = PBXFileReference; lastKnownFileType = file; path = DMZombiePain.m4r; sourceTree = "<group>"; };
+		CE54127D16B36FE900A3F494 /* LoadingLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LoadingLayer.h; path = tilegame/LoadingLayer.h; sourceTree = "<group>"; };
+		CE54127E16B36FEA00A3F494 /* LoadingLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = LoadingLayer.m; path = tilegame/LoadingLayer.m; sourceTree = "<group>"; };
+		CE54128016B370ED00A3F494 /* loading.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = loading.png; sourceTree = "<group>"; };
 		CE857D3D16B01D5C00947B06 /* AnimateActions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AnimateActions.h; path = tilegame/AnimateActions.h; sourceTree = "<group>"; };
 		CE857D3E16B01D5C00947B06 /* AnimateActions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AnimateActions.m; path = tilegame/AnimateActions.m; sourceTree = "<group>"; };
 		CE857D3F16B01D5C00947B06 /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = tilegame/AppDelegate.h; sourceTree = "<group>"; };
@@ -763,6 +768,7 @@
 		CE857D4116B01D5C00947B06 /* Assets */ = {
 			isa = PBXGroup;
 			children = (
+				CE54128016B370ED00A3F494 /* loading.png */,
 				CED1D85F16B2F97C00E87653 /* new_game_button.png */,
 				CE857D5416B01D5C00947B06 /* Sounds */,
 				3F3F40D416B14BE30080C341 /* bat2.png */,
@@ -876,6 +882,8 @@
 				CE857D6C16B01D5C00947B06 /* GameStateChanged.m */,
 				CE857D6D16B01D5C00947B06 /* HelloWorldLayer.h */,
 				CE857D6E16B01D5C00947B06 /* HelloWorldLayer.m */,
+				CE54127D16B36FE900A3F494 /* LoadingLayer.h */,
+				CE54127E16B36FEA00A3F494 /* LoadingLayer.m */,
 				CE857D6F16B01D5C00947B06 /* NewGameLayer.h */,
 				CE857D7016B01D5C00947B06 /* NewGameLayer.m */,
 				CE857DCB16B01DAE00947B06 /* Supporting Files */,
@@ -1590,6 +1598,7 @@
 				3F3F40F816B2C2490080C341 /* DMLifePack.m4r in Resources */,
 				3F3F40FA16B2C3820080C341 /* DMZombiePain.m4r in Resources */,
 				CED1D86016B2F97C00E87653 /* new_game_button.png in Resources */,
+				CE54128116B370ED00A3F494 /* loading.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1620,6 +1629,7 @@
 				3F3F40E016B18D6F0080C341 /* ChangeableObject.m in Sources */,
 				3F3F40E716B1E3210080C341 /* RoundFinishedScene.m in Sources */,
 				3F3F40EE16B2AB930080C341 /* HistoricalEvent.m in Sources */,
+				CE54127F16B36FEA00A3F494 /* LoadingLayer.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
