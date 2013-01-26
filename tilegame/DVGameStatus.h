@@ -19,6 +19,5 @@
 
 - (id)initWithDictionary:(NSDictionary *)dict;
 - (id)initWithJSONString:(NSString *)jsonString;
-- (id)initWithTurn:(NSString *)turn;
 
 @end

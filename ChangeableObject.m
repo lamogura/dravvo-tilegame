@@ -10,4 +10,18 @@
 
 @implementation ChangeableObject
 
+@synthesize historicalEventsList_local;
+
+- (id)init
+{
+    self = [super init];
+    if (self) {
+        historicalEventsList_local = [[NSMutableArray alloc] init];
+    }
+    return self;
+}
+
+-(void) performHistoryAtTimeStepIndex:(int) theTimeStepIndex {
+    // FIX do shit
+}
 @end

@@ -15,4 +15,6 @@
 
 @property (nonatomic, strong) NSMutableArray* historicalEventsList_local;
 
+-(void) performHistoryAtTimeStepIndex:(int) theTimeStepIndex;
+
 @end

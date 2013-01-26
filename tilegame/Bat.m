@@ -18,7 +18,7 @@ static int theUniqueIntIDCounter = -1;
 
 @implementation Bat
 
-@synthesize myLayer, sprite, hitPoints, speedInPixelsPerSec, behavior, previousPosition, ownershipPlayerID, ownerAndEntityID, uniqueIntID, historicalEventsList_local;
+@synthesize myLayer, sprite, hitPoints, speedInPixelsPerSec, behavior, previousPosition, ownershipPlayerID, entityType, uniqueIntID, historicalEventsList_local;
 
 +(int)uniqueIntIDCounter  // static function for providing unique integer IDs to each new instance of each particular entity kind
 {
@@ -28,11 +28,12 @@ static int theUniqueIntIDCounter = -1;
 
 // required METHODS
 // init
--(id)initWithLayer:(HelloWorldLayer*) layer andSpawnAt:(CGPoint) spawnPoint withBehavior:(int) initBehavior withPlayerOwner:(NSMutableString*) ownerPlayerID;
+-(id)initWithLayer:(HelloWorldLayer*) layer andSpawnAt:(CGPoint) spawnPoint withBehavior:(int) initBehavior withPlayerOwner:(NSString*) ownerPlayerID;
 {
     self = [super init];
     if(self)
     {
+        entityType = @"bat";
         // Assign a uniqueIntIDCounter
         theUniqueIntIDCounter++;
      
@@ -56,14 +57,24 @@ static int theUniqueIntIDCounter = -1;
         
         // record an event entry for spawning
         // Should look like:  P1_bat
+//        NSMutableString* entity = @"bat";
         
-        ownerAndEntityID = [NSString stringWithFormat:@"%@_bat", ownershipPlayerID];
 
-        NSString* activityEntry = [NSString stringWithFormat:@"%d spawn %@ %d %d %d",
-                                   myLayer.timeStepIndex, ownerAndEntityID, uniqueIntID, (int)sprite.position.x, (int)sprite.position.y];
-        [historicalEventsList_local addObject:activityEntry];
-        DLog(@"spawn...%@",activityEntry);
+//        ownerAndEntityID = [ownershipPlayerID stringByAppendingFormat:@"bat"];
+//        ownerAndEntityID = [ownershipPlayerID stringByAppendingString:@"bat"];
+//        [ownershipPlayerID stringByAppendingString:@"bat"];
 
+        NSDictionary* activityDictionary = [NSDictionary dictionaryWithObjectsAndKeys:
+                                            [NSNumber numberWithInt:myLayer.timeStepIndex], kDVHistKey_TimeStepIndex,
+                                            @"spawn", kDVHistKey_Action,
+                                            ownershipPlayerID, kDVHistKey_OwnerID,
+                                            entityType, kDVHistKey_EntityType,
+                                            [NSNumber numberWithInt:uniqueIntID], kDVHistKey_EntityNumber,
+                                            [NSNumber numberWithFloat:sprite.position.x], kDVHistKey_CoordX,
+                                            [NSNumber numberWithFloat:sprite.position.y], kDVHistKey_CoordY, nil];
+        // Now put this dictionary onto the object's NSMuttableArray
+        [historicalEventsList_local addObject:activityDictionary];
+        DLog(@"spawn...%@",activityDictionary);
         
         [myLayer addChild:self];
         
@@ -75,13 +86,20 @@ static int theUniqueIntIDCounter = -1;
 // for sampling during real actions
 -(void)sampleCurrentPosition //:(int) theUniqueIntID // this should be called (callbacked) once every kTimeStepSeconds for later animation on player2's side
 {
+    // Dictionary constructor is delimited with nil
+    NSDictionary* activityDictionary = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:myLayer.timeStepIndex], kDVHistKey_TimeStepIndex,  @"move", kDVHistKey_Action, ownershipPlayerID, kDVHistKey_OwnerID, entityType, kDVHistKey_EntityType, [NSNumber numberWithInt:uniqueIntID], kDVHistKey_EntityNumber,  [NSNumber numberWithFloat:sprite.position.x], kDVHistKey_CoordX, [NSNumber numberWithFloat:sprite.position.y], kDVHistKey_CoordY, nil];
+    // Now put this dictionary onto the object's NSMuttableArray
+    [historicalEventsList_local addObject:activityDictionary];
+    DLog(@"sample...%@",activityDictionary);
+
+/*
     // generate a "move" event string entry from last point to current point with a time differential of kPlaybackTickLengthSeconds
     NSString* activityEntry = [NSString stringWithFormat:@"%d aniMove %@ %d %d %d",
                                myLayer.timeStepIndex, ownerAndEntityID, uniqueIntID, (int)sprite.position.x, (int)sprite.position.y];
 
     [historicalEventsList_local addObject:activityEntry];
     DLog(@"sample...%@",activityEntry);
-
+*/
 }
 
 
@@ -91,13 +109,20 @@ static int theUniqueIntIDCounter = -1;
     hitPoints -= hpLost;
     // we send hpLost in place of the x-coordinate integer holder
 
+    // Dictionary constructor is delimited with nil
+    NSDictionary* activityDictionary = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:myLayer.timeStepIndex], kDVHistKey_TimeStepIndex,  @"wound", kDVHistKey_Action, ownershipPlayerID, kDVHistKey_OwnerID, entityType, kDVHistKey_EntityType, [NSNumber numberWithInt:uniqueIntID], kDVHistKey_EntityNumber, [NSNumber numberWithInt:hpLost], kDVHistKey_CoordX, [NSNumber numberWithInt:-1], kDVHistKey_CoordY,  nil];
+    // Now put this dictionary onto the object's NSMuttableArray
+    [historicalEventsList_local addObject:activityDictionary];
+    DLog(@"wound...%@",activityDictionary);
+    
+/*
     NSString* activityEntry = [NSString stringWithFormat:@"%d wound %@ %d %d -1",
                                myLayer.timeStepIndex, ownerAndEntityID, uniqueIntID, hpLost];
     //[Bat uniqueIntIDCounter]
     
     [historicalEventsList_local addObject:activityEntry];
     DLog(@"wound...%@",activityEntry);
-
+*/
 
 //  There's concurrency problems here so we have to wait for kill to be called from HelloWorldLayer first FIX
 //    if(hitPoints < 1)
@@ -113,15 +138,22 @@ static int theUniqueIntIDCounter = -1;
     //[myLayer.hud numKillsChanged:myLayer.numKills];
 
     // remove the sprite as a CCNode and cleanup
-    [self removeChild:sprite cleanup:YES];
+  
+    NSDictionary* activityDictionary = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:myLayer.timeStepIndex], kDVHistKey_TimeStepIndex, @"kill", kDVHistKey_Action,  ownershipPlayerID, kDVHistKey_OwnerID, entityType, kDVHistKey_EntityType, [NSNumber numberWithInt:uniqueIntID], kDVHistKey_EntityNumber, [NSNumber numberWithInt:-1], kDVHistKey_CoordX, [NSNumber numberWithInt:-1], kDVHistKey_CoordY, nil];
+    // Now put this dictionary onto the object's NSMuttableArray
+    [historicalEventsList_local addObject:activityDictionary];
+    DLog(@"kill...%@",activityDictionary);
 
+
+    [self removeChild:sprite cleanup:YES];
+/*
     NSString* activityEntry = [NSString stringWithFormat:@"%d kill %@ %d -1 -1",
                                myLayer.timeStepIndex, ownerAndEntityID, uniqueIntID];
     //[Bat uniqueIntIDCounter]
     
     [historicalEventsList_local addObject:activityEntry];
     DLog(@"kill...%@",activityEntry);
-
+*/
 
     // remove this bat from the layer's list
     // THIS MIGHT BE FUCKED FIX // not sure if it's OK to remove ourselves from the layer's array
@@ -249,6 +281,16 @@ static int theUniqueIntIDCounter = -1;
             break;
     }
     
+}
+
+-(void) performHistoryAtTimeStepIndex:(int) theTimeStepIndex
+{
+    [super performHistoryAtTimeStepIndex:theTimeStepIndex]; // maybe not necessary
+    
+    // now cycle through the historicalEventsList_local array, pull all dictionaries for
+    // if object at the key kDVHistKey_TimeStepIndex == "theTimeStepIndex", then push the action to the actionMutableArray array so actions run in sequence
+    // without killing the previous one
+
 }
 
 

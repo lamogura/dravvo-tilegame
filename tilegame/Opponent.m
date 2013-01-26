@@ -10,13 +10,16 @@
 
 @implementation Opponent
 
-@synthesize opponentSprite, playerID, myLayer, hitPoints, opponentMinionList;
+@synthesize opponentSprite, playerID, myLayer, hitPoints, playerMinionList;
 
--(id)initWithLayer:(HelloWorldLayer*) layer andPlayerID:(NSString*)plyrID andSpawnAt:(CGPoint) spawnPoint;
+-(id)initWithLayer:(HelloWorldLayer*) layer andPlayerID:(NSString*)plyrID andSpawnAt:(CGPoint) spawnPoint
 {
+    // NOTE: OPPONENT DOES NOT REPORT ON HIS SPAWN!!! Will be spawned locally, then only position changes after
     self = [super init];
     if(self)
     {
+        playerMinionList = [[NSMutableArray alloc] init];
+        
         playerID = plyrID;
         // store the layer we belong to - not sure if this is needed or not
         myLayer = layer;

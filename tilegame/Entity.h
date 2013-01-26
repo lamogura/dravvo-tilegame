@@ -24,13 +24,13 @@
 @property (nonatomic, assign) int speedInPixelsPerSec;
 @property (nonatomic, assign) int behavior;
 @property (nonatomic, assign) CGPoint previousPosition;
-@property (nonatomic, strong) NSMutableString* ownershipPlayerID;
-@property (nonatomic, strong) NSMutableString* ownerAndEntityID;
+@property (nonatomic, strong) NSString* ownershipPlayerID;
+@property (nonatomic, strong) NSString* entityType;
 @property (nonatomic, assign) int uniqueIntID;
 
 
 +(int)uniqueIntIDCounter;  // static function for providing unique integer IDs to each new instance of each particular entity kind
--(id)initWithLayer:(HelloWorldLayer*) layer andSpawnAt:(CGPoint) spawnPoint withBehavior:(int) initBehavior withPlayerOwner:(NSMutableString*) ownerPlayerID;
+-(id)initWithLayer:(HelloWorldLayer*) layer andSpawnAt:(CGPoint) spawnPoint withBehavior:(int) initBehavior withPlayerOwner:(NSString*) ownerPlayerID;
 //-(id)initWithSpawnPoint:(CGPoint) spawnPoint withBehavior:(int) initBehavior;
 //-(void)spwan:(CGPoint) spawnPoint;
 // for sampling during real actions for later animation on player2's side

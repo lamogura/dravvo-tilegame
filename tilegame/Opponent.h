@@ -20,8 +20,7 @@
 @property (nonatomic, retain) HelloWorldLayer* myLayer;
 @property (nonatomic, assign) int hitPoints;
 @property (nonatomic, assign) NSString* playerID;
-@property (nonatomic, strong) NSMutableArray* opponentMinionList;  // player maintains an array of minions
-
+@property (nonatomic, strong) NSMutableArray* playerMinionList;  // player maintains an array of minions
 
 -(id)initWithLayer:(HelloWorldLayer*) layer andPlayerID:(NSString*)plyrID andSpawnAt:(CGPoint) spawnPoint;
 //-(void)sampleCurrentPosition:(CGPoint) currentPoint;  // don't need this since player should be non-moving during player's turn

@@ -23,15 +23,17 @@
 @property (nonatomic, assign) int speedInPixelsPerSec;
 @property (nonatomic, assign) int behavior;
 @property (nonatomic, assign) CGPoint previousPosition;
-@property (nonatomic, strong) NSMutableString* ownershipPlayerID;
-@property (nonatomic, strong) NSMutableString* ownerAndEntityID;
+//@property (nonatomic, strong) NSMutableString* ownershipPlayerID;
+//@property (nonatomic, strong) NSMutableString* ownerAndEntityID;
+@property (nonatomic, strong) NSString* ownershipPlayerID;
+@property (nonatomic, strong) NSString* entityType;
 @property (nonatomic, assign) int uniqueIntID;
 
 
 // required METHODS
 +(int)uniqueIntIDCounter;  // static function for providing unique integer IDs to each new instance of each particular entity kind
 
--(id)initWithLayer:(HelloWorldLayer*) layer andSpawnAt:(CGPoint) spawnPoint withBehavior:(int) initBehavior withPlayerOwner:(NSMutableString*) ownerPlayerID;
+-(id)initWithLayer:(HelloWorldLayer*) layer andSpawnAt:(CGPoint) spawnPoint withBehavior:(int) initBehavior withPlayerOwner:(NSString*) ownerPlayerID;
 //-(id)initWithSpawnPoint:(CGPoint) spawnPoint withBehavior:(int) initBehavior;
 //-(void)spwan:(CGPoint) spawnPoint;
 // for sampling during real actions
@@ -53,6 +55,8 @@
 // each minion has it's own list of animations that can be performed on it, such as exploding, moving, attacking,
 -(void)aniMove:(CGPoint) targetPoint;  // will animate a historical move over time interval kTimeStepSeconds
 -(void)aniExplode:(CGPoint) targetPoint;  // animate it exploding
+
+-(void) performHistoryAtTimeStepIndex:(int) theTimeStepIndex;
 
 -(void) takeActions;
 

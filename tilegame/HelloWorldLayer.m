@@ -26,13 +26,10 @@
 #import "RoundFinishedScene.h"
 #import "CountdownLayer.h"
 
-#import "Libs/SBJSON/SBJson.h"
-
 #pragma mark - HelloWorldLayer
 
-//static HelloWorldLayer* theHelloWorldLayer;
+static BOOL isEnemyPlaybackRound = NO;
 
-// HelloWorldLayer implementation
 @implementation HelloWorldLayer
 
 @synthesize tileMap = _tileMap;
@@ -50,6 +47,8 @@
 @synthesize playerMinionList = _playerMinionList;
 @synthesize player;
 @synthesize timer;
+@synthesize historicalEventsDict;
+@synthesize opponent = _opponent;
 
 //@synthesize bats = _bats;
 //@synthesize isTouchMoveStarted, isTouchEnabled;
@@ -91,6 +90,9 @@
 	// always call "super" init
 	// Apple recommends to re-assign "self" with the "super's" return value
 	if( (self=[super init]) ) {
+        
+        if(!isEnemyPlaybackRound)
+            [self enemyPlayback];
         
         self->apiWrapper = [[DVAPIWrapper alloc] init];
 
@@ -136,7 +138,7 @@
         _mode = 0;  // default game mode = 0, move mode (mode = 1, shoot mode)
         
 //        _enemies = [[NSMutableArray alloc] init];
-        _bats = [[NSMutableArray alloc] init];
+        //_bats = [[NSMutableArray alloc] init];
         _projectiles = [[NSMutableArray alloc] init];
         _missiles = [[NSMutableArray alloc] init];
         [self schedule:@selector(testCollisions:)];
@@ -195,6 +197,7 @@
         {
             if([[spawnPointsDict valueForKey:@"Enemy"] intValue] == 1)
             {
+
                 CGPoint enemySpawnPoint = [self pixelToPoint:
                     ccp([[spawnPointsDict valueForKey:@"x"] intValue],
                         [[spawnPointsDict valueForKey:@"y"] intValue])];
@@ -204,7 +207,10 @@
                                           withBehavior:kBehavior_default
                                        withPlayerOwner:[NSMutableString stringWithString:player.playerID]];
                 // add the bat to the bats NSMuttableArray
-                [_bats addObject:aBat];
+                //[_bats addObject:aBat];
+                
+                [player.playerMinionList addObject:aBat];
+                
                 //[self addChild:aBat];
             }
         }
@@ -253,9 +259,13 @@
 -(void) mainGameLoop:(ccTime)deltaTime
 {
     // update the minions
-    for (Bat *theMinion in _bats) {
+    for (Bat *theMinion in player.playerMinionList) {
         [theMinion realUpdate];
     }
+    
+    // sampleCurrentPositions once every kPlaybackTickLengthSeconds
+//    [self schedule:@selector(sampleCurrentPositions:) interval:kPlaybackTickLengthSeconds];
+    
    
 }
 
@@ -267,7 +277,7 @@
     // player position report
     
     // sample minions
-    for (Bat *theMinion in _bats) {
+    for (Bat *theMinion in player.playerMinionList) {
         [theMinion sampleCurrentPosition];
     }
     
@@ -282,19 +292,134 @@
     _timeStepIndex++;
     if((float)_timeStepIndex * kPlaybackTickLengthSeconds >= kTurnLengthSeconds)
     {
+//        [self unscheduleAllSelectors];  // terminate the game loops and collision detection
         [self roundFinished];
     }
 }
 
+-(void) enemyPlayback
+{
+    _timeStepIndex = 0;
+    
+    // prelod sounds
+    // sound effects pre-load
+    [SimpleAudioEngine sharedEngine].effectsVolume = 1.0;
+    [SimpleAudioEngine sharedEngine].backgroundMusicVolume = 0.70;
+    
+    //        [[SimpleAudioEngine sharedEngine] preloadEffect:@"pickup.caf"];
+    [[SimpleAudioEngine sharedEngine] preloadEffect:@"DMLifePack.m4r"];
+    [[SimpleAudioEngine sharedEngine] preloadEffect:@"hit.caf"];
+    [[SimpleAudioEngine sharedEngine] preloadEffect:@"move.caf"];
+    [[SimpleAudioEngine sharedEngine] preloadEffect:@"missileSound.m4a"];
+    [[SimpleAudioEngine sharedEngine] preloadEffect:@"missileExplode.m4a"];
+    [[SimpleAudioEngine sharedEngine] preloadEffect:@"shurikenSound.m4a"];
+    [[SimpleAudioEngine sharedEngine] preloadEffect:@"DMPlayerDies.m4r"];  // preload creature sounds
+    //        [[SimpleAudioEngine sharedEngine] preloadEffect:@"juliaRoar.m4a"];  // preload creature sounds
+    [[SimpleAudioEngine sharedEngine] preloadEffect:@"DMZombie.m4r"];  // preload creature sounds
+    [[SimpleAudioEngine sharedEngine] preloadEffect:@"DMZombiePain.m4r"];  // preload creature sounds
+    
+    //        [[SimpleAudioEngine sharedEngine] preloadEffect:@"juliaRoar.m4a"];
+    //        [[SimpleAudioEngine sharedEngine] playBackgroundMusic:@"TileMap.caf"];
+    //        [[SimpleAudioEngine sharedEngine] playBackgroundMusic:@"montersoundtrack2.m4a"];
+    [[SimpleAudioEngine sharedEngine] playBackgroundMusic:@"DMMainTheme.m4r"];
+    
+    
+    // load the TileMap and the tile layers
+    self.tileMap = [CCTMXTiledMap tiledMapWithTMXFile:@"TileMap.tmx"];
+    self.background = [_tileMap layerNamed:@"Background"];
+    self.meta = [_tileMap layerNamed:@"Meta"];
+    self.foreground = [_tileMap layerNamed:@"Foreground"];
+    self.destruction = [_tileMap layerNamed:@"Destruction"];
+    _meta.visible = NO;
+
+    [self addChild:_tileMap z:-1];
+    
+    timer = (float) kTurnLengthSeconds;
+    // schedule the playback loops
+    
+    [self schedule:@selector(enemyPlaybackLoop:) interval:kPlaybackTickLengthSeconds];
+    isEnemyPlaybackRound = NO;
+}
+
+-(void) enemyPlaybackLoop:(ccTime)deltaTime
+{
+    // FIX for multiplayer, need a function to have previously filled all the local arrays with the needed goods
+    // loop through the player and each player's minionsList, calling 
+/*
+    NSMutableArray *minionsToDelete = [[NSMutableArray alloc] init];
+    for(Bat *theMinion in player.playerMinionList)
+    {
+        [theMinion performHistoryAtTimeStepIndex: _timeStepIndex];
+        if(theMinion == nil)
+            [targetsToDelete addObject:theMinion];
+    }
+    
+
+    // if the minion was just killed, delete it from the player list
+    for (Bat *theMinion in player.playerMinionList) {
+        if(theMinion == nil)
+
+        [[SimpleAudioEngine sharedEngine] playEffect:@"DMZombiePain.m4r"];
+        // _numKills += 1; // only in case of oppononet's minions
+        // [_hud numKillsChanged:_numKills];
+        [player.playerMinionList removeObject:theMinion];
+        }
+    }
+*/
+    // normally would put opponent here, then player next
+//    [opponent performHistory: atTimeStepIndex: _timeStepIndex]; // instantiate opponent in layer's init
+
+    // sample player
+//    [player performHistoryAtTimeStepIndex: atTimeStepIndex: _timeStepIndex];
+
+    _timeStepIndex++;
+}
+
 -(void) roundFinished
 {
+    [NSString stringWithFormat:@"%@_%@",opponent.playerID,kDVChangeableObjectName_bat];
+    // here we should make one fat NSDictionary (kDVChangeableObjectName_*) of Arrays of NSDictionarys of all the local history arrays and send it to server
+    historicalEventsDict = [NSDictionary dictionaryWithObjectsAndKeys:
+                            player.historicalEventsList_local, player.playerID,
+                            opponent.historicalEventsList_local,opponent.playerID,
+                            player.playerMinionList, [NSString stringWithFormat:@"%@_%@",player.playerID,kDVChangeableObjectName_bat],
+                            opponent.playerMinionList, [NSString stringWithFormat:@"%@_%@",opponent.playerID,kDVChangeableObjectName_bat],
+                            nil];
+    // GO JSON!
+    
     // unschedule the loops and everything (collision detection, etc)
     // [self unscheduleAllSelectors];
     
     // DEBUG
     // now try re-playing all the historical activities from the list
     
+    isEnemyPlaybackRound = YES;  // DEBUG
     
+/*
+    // should force kill all the projectiles so they don't keep going off infinitly
+    for (CCSprite *projectile in _projectiles) {
+        // FIX LATER - need to add [projectile kill] so that a historical record is made of killing all projectile entities
+        [_projectiles removeObject:projectile];
+        [self removeChild:projectile cleanup:YES];
+    }
+
+    for (CCSprite *missile in _missiles) {
+        // FIX LATER - need to add [projectile kill] so that a historical record is made of killing all projectile entities
+        [_missiles removeObject:missile];  // remove our reference to this shuriken from the projectiles array of sprite objects
+        [self removeChild:missile cleanup:YES];
+    }
+*/
+     
+    // FIX for now, remove all sprites too so we can playback Player1's turn for DEBUG
+    
+    
+    // [self enemyPlayback];
+    [self->apiWrapper postUpdateGameWithUpdates:historicalEventsDict ThenCallBlock:^(NSError *error) {
+        if (error != nil) {
+            ULog([error localizedDescription]);
+        }
+        DLog(@"success");
+    }];
     
     // transition to a waiting for opponent scene, ideally displaying current stats (maybe keep HUD up)
     GameOverScene *gameOverScene = [GameOverScene node];
@@ -668,7 +793,7 @@
     
     // iterate through enemies, see if any intersect with current projectile
     NSMutableArray *targetsToDelete = [[NSMutableArray alloc] init];
-    for (Bat *target in _bats) {
+    for (Bat *target in player.playerMinionList) {
         // enemy down!
         if(CGRectIntersectsRect(explosionArea, target.sprite.boundingBox))
         {
@@ -688,7 +813,7 @@
             [target kill];
             _numKills += 1;
             [_hud numKillsChanged:_numKills];
-            [_bats removeObject:target];
+            [player.playerMinionList removeObject:target];
             // [self removeChild:target cleanup:YES];
         }
     }
@@ -728,7 +853,7 @@
 {
     // First, see if lose condition is met locally
     // itterate over the enemies to see if any of them are in contact with player (dead)
-    for (Bat *target in _bats) {
+    for (Bat *target in player.playerMinionList) {
         CGRect targetRect = target.sprite.boundingBox; //CGRectMake(
                             //           target.position.x - (target.contentSize.width/2),
                             //           target.position.y - (target.contentSize.height/2),
@@ -748,7 +873,7 @@
         NSMutableArray *targetsToDelete = [[NSMutableArray alloc] init];
         
         // iterate through enemies, see if any intersect with current projectile
-        for (Bat *target in _bats) {
+        for (Bat *target in player.playerMinionList) {
             // enemy down!
             if(CGRectIntersectsRect(projectile.boundingBox, target.sprite.boundingBox))
             {
@@ -769,7 +894,7 @@
                 [target kill];
                 _numKills += 1;
                 [_hud numKillsChanged:_numKills];
-                [_bats removeObject:target];
+                [player.playerMinionList removeObject:target];
                 [self removeChild:target cleanup:YES];
             }
         }        
@@ -796,7 +921,7 @@
     [player wound:2];
     [player kill];
 
-    [self scheduleOnce:@selector(roundFinished) delay:3.0];
+    // [self scheduleOnce:@selector(roundFinished) delay:3.0];
 
 //    GameOverScene *gameOverScene = [GameOverScene node];
 //    [gameOverScene.layer.label setString:@"You Lose!"];

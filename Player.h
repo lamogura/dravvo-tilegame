@@ -26,7 +26,8 @@
 -(void)wound:(int) hpLost;
 -(void)kill; // possibly animate a death then remove this minion
 -(void)regenerate;
--(void)initializeStats;
+-(void)initStats;
+-(void) performHistoryAtTimeStepIndex:(int) theTimeStepIndex;
 
 
 @end

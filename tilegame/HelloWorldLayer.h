@@ -19,6 +19,7 @@
 #import "CoreGameHudLayer.h"
 
 @class CoreGameHudLayer;
+@class Opponent;
 
 // HelloWorldLayer
 @interface HelloWorldLayer : CCLayer <GKAchievementViewControllerDelegate, GKLeaderboardViewControllerDelegate>
@@ -33,7 +34,7 @@
 //    NSMutableArray* _enemies;
     NSMutableArray* _projectiles;
     NSMutableArray* _missiles;
-    NSMutableArray* _bats;
+//    NSMutableArray* _bats;
     NSMutableArray* _actionRecordDictionaries;
     NSMutableArray* _playerMinionList;
     
@@ -48,6 +49,7 @@
     NSMutableArray* myToucharray;
     int _timeStepIndex; // should count up to 10 or 20, to get to a 10 second round
     Player* player;
+    Opponent* opponent;
     
     DVAPIWrapper* apiWrapper;
 }
@@ -68,6 +70,8 @@
 @property (nonatomic, assign) float timer;
 @property (nonatomic, strong) NSMutableArray* playerMinionList;
 @property (nonatomic, strong) Player* player;
+@property (nonatomic, strong) NSMutableDictionary* historicalEventsDict;
+@property (nonatomic, strong) Opponent* opponent;
 
 //@property (nonatomic, strong) NSMutableArray* bats;
 
@@ -91,5 +95,7 @@
 -(CGPoint) pixelToPoint:(CGPoint) pixelPoint;
 -(CGSize) pixelToPointSize:(CGSize) pixelSize;
 -(void) roundFinished;
+-(void) enemyPlayback;
+-(void) enemyPlaybackLoop:(ccTime)deltaTime;
 
 @end

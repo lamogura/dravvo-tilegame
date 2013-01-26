@@ -18,14 +18,6 @@
 @synthesize lastUpdates;
 @synthesize isGameOver;
 
-- (id)initWithTurn:(NSString *)turn {
-    self = [super init];
-    if (self) {
-        self.nextTurn = turn;
-    }
-    return self;
-}
-
 - (id)initWithDictionary:(NSDictionary *) dict {
     self = [super init];
     if (self) {

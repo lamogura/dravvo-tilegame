@@ -7,12 +7,18 @@
 //
 
 // dictionary keys for the historicalEventsList
-#define kTimeStepIndex @"TimeStepIndex"
-#define kAction @"Action"
-#define kEntityType @"EntityType"
-#define kEntityNumber @"EntityNumber"
-#define kCoordX @"CoordX"
-#define kCoordY @"CoordY"
+#define kDVHistKey_TimeStepIndex @"TimeStepIndex"
+#define kDVHistKey_Action @"Action"
+#define kDVHistKey_OwnerID @"OwnerID"
+#define kDVHistKey_EntityType @"EntityType"
+#define kDVHistKey_EntityNumber @"EntityNumber"
+#define kDVHistKey_CoordX @"CoordX"
+#define kDVHistKey_CoordY @"CoordY"
+
+// ChangeableObject Name Constants (used as key for the historical dictionary)
+#define kDVChangeableObjectName_bat @"bat"
+//#define kDVChangeableObjectName_player @"player"
+//#define kDVChangeableObjectName_opponent @"opponent"
 
 
 #define kTickLengthSeconds 0.10  // length of a single tick in seconds (time between mainGameLoop callbacks)
