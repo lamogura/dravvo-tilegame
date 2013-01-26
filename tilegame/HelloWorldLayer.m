@@ -93,8 +93,7 @@
 	if( (self=[super init]) ) {
         
         self->apiWrapper = [[DVAPIWrapper alloc] init];
-       
-       
+
         // test create new game
         //        [self->apiWrapper postCreateNewGameThenCallBlock:^(NSError *error, DVGameStatus *status) {
         //            if (error != nil) {
