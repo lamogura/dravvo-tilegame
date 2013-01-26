@@ -29,6 +29,7 @@
                 else {
                     DLog(@"Saving gameID to defaults: %@", status.gameID);
                     [[NSUserDefaults standardUserDefaults] setObject:status.gameID forKey:kCurrentGameIDKey];
+                    // TODO: add logic where new game is generated locally 
                     [[CCDirector sharedDirector] replaceScene:[HelloWorldLayer scene]];
                 }
             }];

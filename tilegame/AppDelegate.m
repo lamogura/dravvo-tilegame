@@ -93,13 +93,14 @@
 
     
     // load new game scene if there isnt one currently going
-    NSString* currentGameID = nil; //[[NSUserDefaults standardUserDefaults] valueForKey:kCurrentGameIDKey];
+    NSString* currentGameID = [[NSUserDefaults standardUserDefaults] valueForKey:kCurrentGameIDKey];
     if (currentGameID != nil) {
         DLog(@"Found gameID: %@", currentGameID);
-        [director_ pushScene: [HelloWorldLayer scene]];
+        [director_ pushScene: [LoadingLayer scene]];
+//        [director_ pushScene: [HelloWorldLayer scene]];
     }
     else {
-        [director_ pushScene: [LoadingLayer scene]];
+        [director_ pushScene: [NewGameLayer scene]];
     }
 
 	return YES;
