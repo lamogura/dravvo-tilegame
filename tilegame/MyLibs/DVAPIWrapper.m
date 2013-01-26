@@ -23,7 +23,7 @@
 @implementation DVAPIWrapper
 
 #pragma mark - API Functions
-- (void) getGameStatusThenCallBlock:(void (^)(NSError *, DVGameStatus *))block {
+- (void) getGameStatusThenCallBlock:(void (^)(NSError* error, DVGameStatus* status))block {
     
     NSString* currentGameID = [[NSUserDefaults standardUserDefaults] stringForKey:kCurrentGameIDKey];
     
@@ -85,7 +85,7 @@
     }
 }
 
-- (void) postCreateNewGameThenCallBlock:(void (^)(NSError *, DVGameStatus *))block {
+- (void) postCreateNewGameThenCallBlock:(void (^)(NSError* error, DVGameStatus* status))block {
     
     NSString *deviceToken = [[NSUserDefaults standardUserDefaults] stringForKey:kDeviceToken];
     DLog(@"Loaded deviceToken from defaults: %@", deviceToken);
@@ -137,7 +137,7 @@
     [downloader.connection start]; // setup to have to start manually
 }
 
-- (void) postUpdateGameWithUpdates:(NSDictionary *)updates ThenCallBlock:(void (^)(NSError *))block {
+- (void) postUpdateGameWithUpdates:(NSDictionary *)updates ThenCallBlock:(void (^)(NSError* error))block {
     
     NSString* gameID = [[NSUserDefaults standardUserDefaults] stringForKey:kCurrentGameIDKey];
     NSString *deviceToken = [[NSUserDefaults standardUserDefaults] stringForKey:kDeviceToken];
