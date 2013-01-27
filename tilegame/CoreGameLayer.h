@@ -55,7 +55,7 @@
 
 // change related consts if you ever any of these properties used in KVO
 @property (nonatomic, assign) float roundTimer; // time left in current round
-#define kDVNumTimerKVO @"timer"
+#define kDVNumTimerKVO @"roundTimer"
 
 // call back functions
 -(void) mainGameLoop:(ccTime)deltaTime;
