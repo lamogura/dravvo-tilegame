@@ -23,7 +23,10 @@
         CCMenuItemToggle* itemToggle = [CCMenuItemToggle
                                         itemWithItems:[NSArray arrayWithObjects:off, on, nil]
                                         block:^(id sender) {
-                                            layer.playerMode = layer.playerMode == DVPlayerMode_Moving ? DVPlayerMode_Shooting : DVPlayerMode_Moving;
+                                            if (layer.player.mode == DVPlayerMode_Moving)
+                                                layer.player.mode = DVPlayerMode_Shooting;
+                                            else
+                                                layer.player.mode = DVPlayerMode_Moving;
                                         }];
         CCMenu *toggleMenu = [CCMenu menuWithItems:itemToggle, nil];
         toggleMenu.position = ccp(100, 32);
@@ -86,7 +89,7 @@
         [self addChild:_labelMissiles];
         
         // timer
-        _labelTimer = [CCLabelTTF labelWithString:[NSString stringWithFormat:kHUDStringFormat_Timer, (int)layer.timer]
+        _labelTimer = [CCLabelTTF labelWithString:[NSString stringWithFormat:kHUDStringFormat_Timer, (int)layer.roundTimer]
                                        dimensions:CGSizeMake(350, 20)
                                        hAlignment:UITextAlignmentLeft
                                          fontName:@"Verdana-Bold"

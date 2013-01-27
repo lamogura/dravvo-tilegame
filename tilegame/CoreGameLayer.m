@@ -28,39 +28,21 @@
 
 #pragma mark - CoreGameLayer
 
-static BOOL isEnemyPlaybackRound = NO;
+static BOOL _isEnemyPlaybackRound = NO;
 
 @implementation CoreGameLayer
 
-@synthesize tileMap = _tileMap;
-@synthesize background = _background;
-@synthesize meta = _meta;
-@synthesize foreground = _foreground;
-@synthesize destruction = _destruction;
+@synthesize hud = _hud;
+@synthesize timeStepIndex = _timeStepIndex;
+@synthesize player = _player;
+@synthesize historicalEventsDict = _historicalEventsDict;
 
 @synthesize numCollected = _numCollected;
 @synthesize numKills = _numKills;
 @synthesize numShurikens = _numShurikens;
 @synthesize numMissiles = _numMissiles;
-@synthesize timer = _timer;
 
-@synthesize hud = _hud;
-@synthesize playerMode = _playerMode;
-@synthesize timeStepIndex = _timeStepIndex;
-@synthesize playerMinionList = _playerMinionList;
-@synthesize player;
-
-@synthesize historicalEventsDict;
-//@synthesize opponent = _opponent;
-
-//@synthesize bats = _bats;
-//@synthesize isTouchMoveStarted, isTouchEnabled;
-/*
-+(HelloWorldLayer*) helloWorldLayerGetter
-{
-    return theHelloWorldLayer;
-}
-*/
+@synthesize roundTimer = _roundTimer;
 
 // Helper class method that creates a Scene with the HelloWorldLayer as the only child.
 // What calls this class??
@@ -87,103 +69,52 @@ static BOOL isEnemyPlaybackRound = NO;
 	return theScene;
 }
 
-// on "init" you need to initialize your instance
+#pragma mark - Game Lifecycle
+
 -(id) init
 {
-	// always call "super" init
-	// Apple recommends to re-assign "self" with the "super's" return value
-	if( (self=[super init]) ) {
+	if(self=[super init]) {
         
-        if(!isEnemyPlaybackRound)
-            [self enemyPlayback];
-        
+        // init the wrapper class for the api
         self->_apiWrapper = [[DVAPIWrapper alloc] init];
-        [self->_apiWrapper getGameStatusThenCallBlock:^(NSError *error, DVGameStatus *status) {
-            if (error != nil) {
-                ULog([error localizedDescription]);
-            }
-            else {
-                DLog(@"%@", status.lastUpdates);
-            }
-        }];
-
-        // test create new game
-        //        [self->apiWrapper postCreateNewGameThenCallBlock:^(NSError *error, DVGameStatus *status) {
-        //            if (error != nil) {
-        //                ULog([error localizedDescription]);
-        //            }
-        //            else {
-        //                [[NSUserDefaults standardUserDefaults] setObject:[status gameID] forKey:kCurrentGameIDKey];
-        //                DLog(@"CREATED NEW GAME, saved GameID '%@'to NSUserDefaults", [status gameID]);
-        //            }
-        //        }];
         
-        // test getting current game's status
-        //        [self->apiWrapper getGameStatusThenCallBlock:^(NSError *error, DVGameStatus *status) {
-        //            if (error != nil) {
-        //                ULog([error localizedDescription]);
-        //            }
-        //            else {
-        //                DLog(@"GOT GAME STATUS");
-        //            }
-        //        }];
-        
-        // test sending game update
-        //        NSDictionary* updates = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:5], @"melonsEaten", [NSNumber numberWithInt:2], @"enemiesKilled", [NSNumber numberWithInt:6], @"starsThrown", @"false", kIsGameOver, nil];
-        //        [self->apiWrapper postUpdateGameWithUpdates:updates ThenCallBlock:^(NSError* error) {
-        //            if (error != nil) {
-        //                ULog([error localizedDescription]);
-        //            }
-        //            else {
-        //                DLog(@"UPDATED GAME GAME STATUS");
-        //            }
-        //        }];
-                
-        _timeStepIndex = 0;
+        _timeStepIndex = 0; // step index for caching events
         self.isTouchEnabled = YES;  // set THIS LAYER as touch enabled so user can move character around with callbacks
-		isSwipe = NO;
-        myToucharray =[[NSMutableArray alloc ] init]; // store the touches for missile launching
+		_isSwipe = NO; // what does this do?
+        _touches = [[NSMutableArray alloc ] init]; // store the touches for missile launching
+        self.roundTimer = (float) kTurnLengthSeconds;
         
         // init game stats
         self.numShurikens = kInitShurikens;
         self.numMissiles = kInitMissiles;
         self.numKills = self.numCollected = 0;
 
-        self.playerMode = DVPlayerMode_Moving;
+        self.player.mode = DVPlayerMode_Moving;
         
-//        _enemies = [[NSMutableArray alloc] init];
-        //_bats = [[NSMutableArray alloc] init];
-        _projectiles = [[NSMutableArray alloc] init];
-        _missiles = [[NSMutableArray alloc] init];
-        [self schedule:@selector(testCollisions:)];
+        _shurikens = [[NSMutableArray alloc] init];
+        _missiles =  [[NSMutableArray alloc] init];
         
         // sound effects pre-load
-        [SimpleAudioEngine sharedEngine].effectsVolume = 1.0;
         [SimpleAudioEngine sharedEngine].backgroundMusicVolume = 0.70;
-        
-//        [[SimpleAudioEngine sharedEngine] preloadEffect:@"pickup.caf"];
+        [[SimpleAudioEngine sharedEngine] playBackgroundMusic:@"DMMainTheme.m4r"];
+
+        [SimpleAudioEngine sharedEngine].effectsVolume = 1.0;
         [[SimpleAudioEngine sharedEngine] preloadEffect:@"DMLifePack.m4r"];
         [[SimpleAudioEngine sharedEngine] preloadEffect:@"hit.caf"];
         [[SimpleAudioEngine sharedEngine] preloadEffect:@"move.caf"];
         [[SimpleAudioEngine sharedEngine] preloadEffect:@"missileSound.m4a"];
         [[SimpleAudioEngine sharedEngine] preloadEffect:@"missileExplode.m4a"];
         [[SimpleAudioEngine sharedEngine] preloadEffect:@"shurikenSound.m4a"];
-        [[SimpleAudioEngine sharedEngine] preloadEffect:@"DMPlayerDies.m4r"];  // preload creature sounds
-//        [[SimpleAudioEngine sharedEngine] preloadEffect:@"juliaRoar.m4a"];  // preload creature sounds
-        [[SimpleAudioEngine sharedEngine] preloadEffect:@"DMZombie.m4r"];  // preload creature sounds
-        [[SimpleAudioEngine sharedEngine] preloadEffect:@"DMZombiePain.m4r"];  // preload creature sounds
+        [[SimpleAudioEngine sharedEngine] preloadEffect:@"DMPlayerDies.m4r"];
+        [[SimpleAudioEngine sharedEngine] preloadEffect:@"DMZombie.m4r"];
+        [[SimpleAudioEngine sharedEngine] preloadEffect:@"DMZombiePain.m4r"];
         
-//        [[SimpleAudioEngine sharedEngine] preloadEffect:@"juliaRoar.m4a"];
-//        [[SimpleAudioEngine sharedEngine] playBackgroundMusic:@"TileMap.caf"];
-//        [[SimpleAudioEngine sharedEngine] playBackgroundMusic:@"montersoundtrack2.m4a"];
-        [[SimpleAudioEngine sharedEngine] playBackgroundMusic:@"DMMainTheme.m4r"];
-
         // load the TileMap and the tile layers
-        self.tileMap = [CCTMXTiledMap tiledMapWithTMXFile:@"TileMap.tmx"];
-        self.background = [_tileMap layerNamed:@"Background"];
-        self.meta = [_tileMap layerNamed:@"Meta"];
-        self.foreground = [_tileMap layerNamed:@"Foreground"];
-        self.destruction = [_tileMap layerNamed:@"Destruction"];
+        _tileMap = [CCTMXTiledMap tiledMapWithTMXFile:@"TileMap.tmx"];
+        _background = [_tileMap layerNamed:@"Background"];
+        _meta = [_tileMap layerNamed:@"Meta"];
+        _foreground = [_tileMap layerNamed:@"Foreground"];
+        _destruction = [_tileMap layerNamed:@"Destruction"];
         _meta.visible = NO;
         
         // get the objectGroup objects layer from the tileMap, it contains spawn point objects for player and enemy sprites
@@ -199,7 +130,7 @@ static BOOL isEnemyPlaybackRound = NO;
                 [[spawnPointsDict valueForKey:@"y"] intValue])];
 
         // IF we are the host, playerID gets P1; if we were invited to a game, we get P2
-        player = [[Player alloc] initInLayer:self atSpawnPoint:playerSpawnPoint];
+        _player = [[Player alloc] initInLayer:self atSpawnPoint:playerSpawnPoint];
         
         // draw the enemy sprites
         // iterate through tileMap dictionary objects, finding all enemy spawn points
@@ -216,71 +147,115 @@ static BOOL isEnemyPlaybackRound = NO;
                     ccp([[spawnPointsDict valueForKey:@"x"] intValue],
                         [[spawnPointsDict valueForKey:@"y"] intValue])];
 
-                Bat *aBat = [[Bat alloc] initInLayer:self
-                                        atSpawnPoint:enemySpawnPoint
-                                        withBehavior:DVCreatureBehaviorDefault
-                                             ownedBy:player];
-                // add the bat to the bats NSMuttableArray
-                //[_bats addObject:aBat];
+                Bat *bat = [[Bat alloc] initInLayer:self
+                                       atSpawnPoint:enemySpawnPoint
+                                       withBehavior:DVCreatureBehaviorDefault
+                                            ownedBy:_player];
                 
-                [player.playerMinionList addObject:aBat];
-                
-                //[self addChild:aBat];
+                [self.player.minions addObject:bat]; // just in case KVO is used in future
             }
         }
 
         // set the view position focused on player
-
-        [self setViewpointCenter:player.sprite.position];
-        
+        [self setViewpointCenter:_player.sprite.position];
         [self addChild:_tileMap z:-1];
-
-        self.timer = (float) kTurnLengthSeconds;
-        // start up the main game loops
-        [self schedule:@selector(mainGameLoop:) interval:kTickLengthSeconds];
-        [self schedule:@selector(sampleCurrentPositions:) interval:kReplayTickLengthSeconds];
-                
-        /*
-        // DEBUG section
-        // test CCSequence helper category
-        CCSprite* missile = [CCSprite spriteWithFile:@"missile.png"];
-        id actionMoveDone = [CCCallFuncN actionWithTarget:self selector:@selector(missileMoveFinished:)];
-        missile.position = _player.position;
-        [self addChild:missile];
-        
-        // iphone coords is 320 x 480
-        id actionMove1 = [CCMoveTo actionWithDuration:4.0 position:ccp(1, 1)];
-        id actionMove2 = [CCMoveTo actionWithDuration:1.0 position:ccp(319, 479)];
-        id actionMove3 = [CCMoveTo actionWithDuration:1.0 position:ccp(100, 100)];
-        id actionMove4 = [CCMoveTo actionWithDuration:4.0 position:_player.position];
-        NSMutableArray* actionArray = [[NSMutableArray alloc] initWithCapacity:1];
-        [actionArray addObject:actionMove1];
-        [actionArray addObject:actionMove2];
-        [actionArray addObject:actionMove3];
-        [actionArray addObject:actionMove4];
-        [actionArray addObject:actionMoveDone];
-        CCSequence *seq = [CCSequence actionMutableArray: actionArray];
-        
-        [missile runAction:seq];
-        // COOL! end DEBUG
-        */
-        
-        
+        [self startRound];
     }
 	return self;
 }
 
+-(void) startRound {
+    // turn on all the event loops
+    [self schedule:@selector(testCollisions:)];
+    [self schedule:@selector(mainGameLoop:) interval:kTickLengthSeconds];
+    [self schedule:@selector(sampleCurrentPositions:) interval:kReplayTickLengthSeconds];
+}
+
+-(void) roundFinished
+{
+    ////    [NSString stringWithFormat:@"%@_%@",opponent.playerID,kDVChangeableObjectName_bat];
+    ////    // here we should make one fat NSDictionary (kDVChangeableObjectName_*) of Arrays of NSDictionarys of all the local history arrays and send it to server
+    ////    NSMutableArray* playerBatsActions = [[NSMutableArray alloc] init];
+    ////    for (Bat* bat in player.playerMinionList) {
+    ////        [playerBatsActions addObject:bat.historicalEventsList_local];
+    ////    }
+    ////
+    ////    historicalEventsDict = [NSDictionary dictionaryWithObjectsAndKeys:
+    ////                            player.historicalEventsList_local, player.playerID,
+    ////                            playerBatsActions, [NSString stringWithFormat:@"%@_%@",player.playerID, kDVChangeableObjectName_bat],
+    ////                            nil];
+    //    // GO JSON!
+    //
+    //    // unschedule the loops and everything (collision detection, etc)
+    //    // [self unscheduleAllSelectors];
+    //
+    //    // DEBUG
+    //    // now try re-playing all the historical activities from the list
+    //
+    //    _isEnemyPlaybackRound = YES;  // DEBUG
+    //
+    ///*
+    //    // should force kill all the projectiles so they don't keep going off infinitly
+    //    for (CCSprite *projectile in _projectiles) {
+    //        // FIX LATER - need to add [projectile kill] so that a historical record is made of killing all projectile entities
+    //        [_projectiles removeObject:projectile];
+    //        [self removeChild:projectile cleanup:YES];
+    //    }
+    //
+    //    for (CCSprite *missile in _missiles) {
+    //        // FIX LATER - need to add [projectile kill] so that a historical record is made of killing all projectile entities
+    //        [_missiles removeObject:missile];  // remove our reference to this shuriken from the projectiles array of sprite objects
+    //        [self removeChild:missile cleanup:YES];
+    //    }
+    //*/
+    //
+    //    // FIX for now, remove all sprites too so we can playback Player1's turn for DEBUG
+    //
+    //
+    //    // [self enemyPlayback];
+    //    [self->_apiWrapper postUpdateGameWithUpdates:_historicalEventsDict ThenCallBlock:^(NSError *error) {
+    //        if (error != nil) {
+    //            ULog([error localizedDescription]);
+    //        }
+    //        DLog(@"success");
+    //    }];
+    //
+    
+    [self unscheduleAllSelectors];
+    
+    // transition to a waiting for opponent scene, ideally displaying current stats (maybe keep HUD up)
+    GameOverScene *gameOverScene = [GameOverScene node];
+    [gameOverScene.layer.label setString:@"Round Finished!"];
+    [[CCDirector sharedDirector] replaceScene:gameOverScene];
+}
+
+- (void) win {
+    GameOverScene *gameOverScene = [GameOverScene node];
+    [gameOverScene.layer.label setString:@"You Win!"];
+    [[CCDirector sharedDirector] replaceScene:gameOverScene];
+}
+
+- (void) lose {
+    // delete the player, re-init and re-spawn him back at the beginning,
+    // then idle him there until turn is finished (no moving or attacking allowed)
+    
+    [self.player takeDamage:2];
+    [self.player kill];
+    
+    // [self scheduleOnce:@selector(roundFinished) delay:3.0];
+    
+    //    GameOverScene *gameOverScene = [GameOverScene node];
+    //    [gameOverScene.layer.label setString:@"You Lose!"];
+    //    [[CCDirector sharedDirector] replaceScene:gameOverScene];
+}
+
+#pragma mark - Callbacks
 -(void) mainGameLoop:(ccTime)deltaTime
 {
     // update the minions
-    for (Bat *theMinion in player.playerMinionList) {
+    for (Bat *theMinion in _player.minions) {
         [theMinion realUpdate];
     }
-    
-    // sampleCurrentPositions once every kPlaybackTickLengthSeconds
-//    [self schedule:@selector(sampleCurrentPositions:) interval:kPlaybackTickLengthSeconds];
-    
-   
 }
 
 // at the end of the tick, we find out where the sprites travelled to and then we insert the "move" activity to the SECOND index
@@ -288,71 +263,69 @@ static BOOL isEnemyPlaybackRound = NO;
 -(void) sampleCurrentPositions:(ccTime)deltaTime
 {
     // get the reports before incrementing _timeStepIndex
-    // player position report
-    
-    // sample minions
-    for (Bat *theMinion in player.playerMinionList) {
-        [theMinion sampleCurrentPosition];
-    }
     
     // sample player
-    [player sampleCurrentPosition];
+    [_player sampleCurrentPosition];
     
-    self.timer -= kReplayTickLengthSeconds;
-    // update the label every second
-//    if((int)self.timer % 1 == 0)  // FIX cheating by hardcoding for now, fix this to allow time periods to change just in constants
-//        [_hud timerChanged:timer];
+    // sample minions
+    for (EntityNode *minion in _player.minions)
+    {
+        [minion sampleCurrentPosition];
+    }
+
+    // TODO sample the other entities
     
+    self.roundTimer -= kReplayTickLengthSeconds;
+
     _timeStepIndex++;
     if((float)_timeStepIndex * kReplayTickLengthSeconds >= kTurnLengthSeconds)
     {
-//        [self unscheduleAllSelectors];  // terminate the game loops and collision detection
         [self roundFinished];
     }
 }
 
 -(void) enemyPlayback
 {
-    _timeStepIndex = 0;
-    
-    // prelod sounds
-    // sound effects pre-load
-    [SimpleAudioEngine sharedEngine].effectsVolume = 1.0;
-    [SimpleAudioEngine sharedEngine].backgroundMusicVolume = 0.70;
-    
-    //        [[SimpleAudioEngine sharedEngine] preloadEffect:@"pickup.caf"];
-    [[SimpleAudioEngine sharedEngine] preloadEffect:@"DMLifePack.m4r"];
-    [[SimpleAudioEngine sharedEngine] preloadEffect:@"hit.caf"];
-    [[SimpleAudioEngine sharedEngine] preloadEffect:@"move.caf"];
-    [[SimpleAudioEngine sharedEngine] preloadEffect:@"missileSound.m4a"];
-    [[SimpleAudioEngine sharedEngine] preloadEffect:@"missileExplode.m4a"];
-    [[SimpleAudioEngine sharedEngine] preloadEffect:@"shurikenSound.m4a"];
-    [[SimpleAudioEngine sharedEngine] preloadEffect:@"DMPlayerDies.m4r"];  // preload creature sounds
-    //        [[SimpleAudioEngine sharedEngine] preloadEffect:@"juliaRoar.m4a"];  // preload creature sounds
-    [[SimpleAudioEngine sharedEngine] preloadEffect:@"DMZombie.m4r"];  // preload creature sounds
-    [[SimpleAudioEngine sharedEngine] preloadEffect:@"DMZombiePain.m4r"];  // preload creature sounds
-    
-    //        [[SimpleAudioEngine sharedEngine] preloadEffect:@"juliaRoar.m4a"];
-    //        [[SimpleAudioEngine sharedEngine] playBackgroundMusic:@"TileMap.caf"];
-    //        [[SimpleAudioEngine sharedEngine] playBackgroundMusic:@"montersoundtrack2.m4a"];
-    [[SimpleAudioEngine sharedEngine] playBackgroundMusic:@"DMMainTheme.m4r"];
-    
-    
-    // load the TileMap and the tile layers
-    self.tileMap = [CCTMXTiledMap tiledMapWithTMXFile:@"TileMap.tmx"];
-    self.background = [_tileMap layerNamed:@"Background"];
-    self.meta = [_tileMap layerNamed:@"Meta"];
-    self.foreground = [_tileMap layerNamed:@"Foreground"];
-    self.destruction = [_tileMap layerNamed:@"Destruction"];
-    _meta.visible = NO;
-
-    [self addChild:_tileMap z:-1];
-    
-    self.timer = (float) kTurnLengthSeconds;
-    // schedule the playback loops
-    
-    [self schedule:@selector(enemyPlaybackLoop:) interval:kReplayTickLengthSeconds];
-    isEnemyPlaybackRound = NO;
+//    _timeStepIndex = 0;
+//    
+//    // prelod sounds
+//    // sound effects pre-load
+//    [SimpleAudioEngine sharedEngine].effectsVolume = 1.0;
+//    [SimpleAudioEngine sharedEngine].backgroundMusicVolume = 0.70;
+//    
+//    //        [[SimpleAudioEngine sharedEngine] preloadEffect:@"pickup.caf"];
+//    [[SimpleAudioEngine sharedEngine] preloadEffect:@"DMLifePack.m4r"];
+//    [[SimpleAudioEngine sharedEngine] preloadEffect:@"hit.caf"];
+//    [[SimpleAudioEngine sharedEngine] preloadEffect:@"move.caf"];
+//    [[SimpleAudioEngine sharedEngine] preloadEffect:@"missileSound.m4a"];
+//    [[SimpleAudioEngine sharedEngine] preloadEffect:@"missileExplode.m4a"];
+//    [[SimpleAudioEngine sharedEngine] preloadEffect:@"shurikenSound.m4a"];
+//    [[SimpleAudioEngine sharedEngine] preloadEffect:@"DMPlayerDies.m4r"];  // preload creature sounds
+//    //        [[SimpleAudioEngine sharedEngine] preloadEffect:@"juliaRoar.m4a"];  // preload creature sounds
+//    [[SimpleAudioEngine sharedEngine] preloadEffect:@"DMZombie.m4r"];  // preload creature sounds
+//    [[SimpleAudioEngine sharedEngine] preloadEffect:@"DMZombiePain.m4r"];  // preload creature sounds
+//    
+//    //        [[SimpleAudioEngine sharedEngine] preloadEffect:@"juliaRoar.m4a"];
+//    //        [[SimpleAudioEngine sharedEngine] playBackgroundMusic:@"TileMap.caf"];
+//    //        [[SimpleAudioEngine sharedEngine] playBackgroundMusic:@"montersoundtrack2.m4a"];
+//    [[SimpleAudioEngine sharedEngine] playBackgroundMusic:@"DMMainTheme.m4r"];
+//    
+//    
+//    // load the TileMap and the tile layers
+//    self.tileMap = [CCTMXTiledMap tiledMapWithTMXFile:@"TileMap.tmx"];
+//    self.background = [_tileMap layerNamed:@"Background"];
+//    self.meta = [_tileMap layerNamed:@"Meta"];
+//    self.foreground = [_tileMap layerNamed:@"Foreground"];
+//    self.destruction = [_tileMap layerNamed:@"Destruction"];
+//    _meta.visible = NO;
+//
+//    [self addChild:_tileMap z:-1];
+//    
+//    self.roundTimer = (float) kTurnLengthSeconds;
+//    // schedule the playback loops
+//    
+//    [self schedule:@selector(enemyPlaybackLoop:) interval:kReplayTickLengthSeconds];
+//    _isEnemyPlaybackRound = NO;
 }
 
 -(void) enemyPlaybackLoop:(ccTime)deltaTime
@@ -389,62 +362,70 @@ static BOOL isEnemyPlaybackRound = NO;
 //    _timeStepIndex++;
 }
 
--(void) roundFinished
+-(void) testCollisions:(ccTime) dt
 {
-//    [NSString stringWithFormat:@"%@_%@",opponent.playerID,kDVChangeableObjectName_bat];
-//    // here we should make one fat NSDictionary (kDVChangeableObjectName_*) of Arrays of NSDictionarys of all the local history arrays and send it to server
-//    NSMutableArray* playerBatsActions = [[NSMutableArray alloc] init];
-//    for (Bat* bat in player.playerMinionList) {
-//        [playerBatsActions addObject:bat.historicalEventsList_local];
-//    }
-//    
-//    historicalEventsDict = [NSDictionary dictionaryWithObjectsAndKeys:
-//                            player.historicalEventsList_local, player.playerID,
-//                            playerBatsActions, [NSString stringWithFormat:@"%@_%@",player.playerID, kDVChangeableObjectName_bat],
-//                            nil];
-    // GO JSON!
-    
-    // unschedule the loops and everything (collision detection, etc)
-    // [self unscheduleAllSelectors];
-    
-    // DEBUG
-    // now try re-playing all the historical activities from the list
-    
-    isEnemyPlaybackRound = YES;  // DEBUG
-    
-/*
-    // should force kill all the projectiles so they don't keep going off infinitly
-    for (CCSprite *projectile in _projectiles) {
-        // FIX LATER - need to add [projectile kill] so that a historical record is made of killing all projectile entities
-        [_projectiles removeObject:projectile];
-        [self removeChild:projectile cleanup:YES];
-    }
-
-    for (CCSprite *missile in _missiles) {
-        // FIX LATER - need to add [projectile kill] so that a historical record is made of killing all projectile entities
-        [_missiles removeObject:missile];  // remove our reference to this shuriken from the projectiles array of sprite objects
-        [self removeChild:missile cleanup:YES];
-    }
-*/
-     
-    // FIX for now, remove all sprites too so we can playback Player1's turn for DEBUG
-    
-    
-    // [self enemyPlayback];
-    [self->_apiWrapper postUpdateGameWithUpdates:historicalEventsDict ThenCallBlock:^(NSError *error) {
-        if (error != nil) {
-            ULog([error localizedDescription]);
+    // First, see if lose condition is met locally
+    // itterate over the enemies to see if any of them are in contact with player (dead)
+    for (Bat *target in _player.minions) {
+        CGRect targetRect = target.sprite.boundingBox; //CGRectMake(
+        //           target.position.x - (target.contentSize.width/2),
+        //           target.position.y - (target.contentSize.height/2),
+        //           target.contentSize.width,
+        //           target.contentSize.height );
+        
+        if (CGRectContainsPoint(targetRect, _player.sprite.position)) {
+            [self lose];
         }
-        DLog(@"success");
-    }];
+    }
     
-    // transition to a waiting for opponent scene, ideally displaying current stats (maybe keep HUD up)
-    GameOverScene *gameOverScene = [GameOverScene node];
-    [gameOverScene.layer.label setString:@"Round Finished!"];
-    [[CCDirector sharedDirector] replaceScene:gameOverScene];
+    // shurikens hitting enemies?
+    NSMutableArray* shurikensToDelete = [[NSMutableArray alloc] init];
+    
+    for (CCSprite *shuriken in _shurikens) {
+        
+        NSMutableArray *targetsToDelete = [[NSMutableArray alloc] init];
+        
+        // iterate through enemies, see if any intersect with current projectile
+        for (Bat *target in _player.minions) {
+            // enemy down!
+            if(CGRectIntersectsRect(shuriken.boundingBox, target.sprite.boundingBox))
+            {
+                [target takeDamage:1];
+                //                self.numKills += 1;
+                //                [_hud numKillsChanged:_numKills];
+                [targetsToDelete addObject:target];
+                //                [[SimpleAudioEngine sharedEngine] playEffect:@"juliaRoar.m4a"];
+            }
+        }
+        
+        // delete all hit enemies
+        for (Bat *target in targetsToDelete) {
+            if(target.hitPoints < 1)
+            {
+                [[SimpleAudioEngine sharedEngine] playEffect:@"DMZombie.m4r"];
+                
+                [target kill];
+                self.numKills += 1;
+                //                [_hud numKillsChanged:_numKills];
+                [self.player.minions removeObject:target];
+                [self removeChild:target cleanup:YES];
+            }
+        }
+        if (targetsToDelete.count > 0) {
+            // add the projectile to the list of ones to remove
+            [shurikensToDelete addObject:shuriken];
+        }
+    }
+    
+    // remove all the projectiles that hit.
+    for (CCSprite *shuriken in shurikensToDelete) {
+        [_shurikens removeObject:shuriken];
+        [self removeChild:shuriken cleanup:YES];
+    }
+    // Finally, destroy all BACKGROUND layer tiles that were here
 }
 
-
+#pragma mark - Helpers
 - (void) setViewpointCenter:(CGPoint) position
 {
     CGSize winSize = [[CCDirector sharedDirector] winSize];
@@ -458,18 +439,6 @@ static BOOL isEnemyPlaybackRound = NO;
     CGPoint centerOfView = ccp(winSize.width/2, winSize.height/2);
     CGPoint viewPoint = ccpSub(centerOfView, actualPosition);
     self.position = viewPoint;
-}
-
-// registering ourself as the as the listener for touch events, meaning ccTouchBegan and ccTouchEnded will be called back
--(void) registerWithTouchDispatcher
-{
-    [[[CCDirector sharedDirector] touchDispatcher] addTargetedDelegate:self priority:0 swallowsTouches:YES];
-    //depricated call: [[CCTouchDispatcher sharedDispatcher] addTargetedDelegate:self priority:0 swallowsTouches:YES];
-}
-
-- (BOOL)ccTouchBegan:(UITouch *)touch withEvent:(UIEvent *)event
-{
-    return YES;
 }
 
 -(void) setPlayerPosition:(CGPoint) position
@@ -500,9 +469,9 @@ static BOOL isEnemyPlaybackRound = NO;
                 // removing from both meta layer AND foreground means we can no longer see OR "collect" the item
                 [_meta removeTileAt:tileCoord];
                 [_foreground removeTileAt:tileCoord];
-
+                
                 self.numCollected++;
-//                [_hud numCollectedChanged:_numCollected];
+                //                [_hud numCollectedChanged:_numCollected];
                 
                 // check win condition then end game if win
                 // put the number of melons on your map in place of the '2'
@@ -512,19 +481,47 @@ static BOOL isEnemyPlaybackRound = NO;
         }
     }
     
-    player.sprite.position = position;
+    self.player.sprite.position = position;
 }
 
-- (void) win {
-    GameOverScene *gameOverScene = [GameOverScene node];
-    [gameOverScene.layer.label setString:@"You Win!"];
-    [[CCDirector sharedDirector] replaceScene:gameOverScene];
+// there are iOS coordinates coresponding to the pixels starting with 0,0 at BOTTOM left corner...
+// then there are tile index coordinates starting from 0,0 at TOP left corner
+// we will need the tile coordinate for some purposes:
+-(CGPoint) tileCoordForPosition:(CGPoint) position
+{
+    int x = position.x / [self pixelToPointSize:_tileMap.tileSize].width;
+    // gotta flip in y-direction
+    int y = ((_tileMap.mapSize.height * [self pixelToPointSize:_tileMap.tileSize].height) - position.y) / [self pixelToPointSize:_tileMap.tileSize].height;
+    return ccp(x,y);
 }
+
+-(CGPoint) pixelToPoint:(CGPoint) pixelPoint{
+    return ccpMult(pixelPoint, 1/CC_CONTENT_SCALE_FACTOR());
+}
+
+-(CGSize) pixelToPointSize:(CGSize) pixelSize{
+    return CGSizeMake((pixelSize.width / CC_CONTENT_SCALE_FACTOR()), (pixelSize.height / CC_CONTENT_SCALE_FACTOR()));
+}
+
+#pragma mark - Touch Handling
+// registering ourself as the as the listener for touch events, meaning ccTouchBegan and ccTouchEnded will be called back
+-(void) registerWithTouchDispatcher
+{
+    [[[CCDirector sharedDirector] touchDispatcher] addTargetedDelegate:self priority:0 swallowsTouches:YES];
+    //depricated call: [[CCTouchDispatcher sharedDispatcher] addTargetedDelegate:self priority:0 swallowsTouches:YES];
+}
+
+- (BOOL)ccTouchBegan:(UITouch *)touch withEvent:(UIEvent *)event
+{
+    return YES;
+}
+
+
 
 
  - (void)ccTouchMoved:(UITouch *)touch withEvent:(UIEvent *)event
 {
-    isSwipe = YES;
+    _isSwipe = YES;
     
     // otherwise, test for can test for another kind of move gesture
 
@@ -548,11 +545,11 @@ static BOOL isEnemyPlaybackRound = NO;
 {
     // if move mode
     
-    if((isSwipe == YES) && (_numMissiles > 0))
+    if((_isSwipe == YES) && (_numMissiles > 0))
     {
         DLog(@"GOT MISSILES");
         
-        isSwipe = NO; // finger swipe bool for touchesMoved callback
+        _isSwipe = NO; // finger swipe bool for touchesMoved callback
      
         CGPoint touchLocation = [touch locationInView: [touch view]];
         touchLocation = [[CCDirector sharedDirector] convertToGL: touchLocation];
@@ -563,7 +560,7 @@ static BOOL isEnemyPlaybackRound = NO;
         CCSprite* missile = [CCSprite spriteWithFile:@"missile.png"];
         // draw a line between player and last touch
         
-        missile.position = player.sprite.position;
+        missile.position = _player.sprite.position;
         [self addChild:missile];
         
         // send it on a line from player position to new_location
@@ -573,7 +570,7 @@ static BOOL isEnemyPlaybackRound = NO;
         int realX, realY;
 
         // Are we shooting to the left or right?
-        CGPoint diff = ccpSub(touchLocation, player.sprite.position);
+        CGPoint diff = ccpSub(touchLocation, _player.sprite.position);
         realX = missile.position.x + diff.x;
         realY = missile.position.y + diff.y;
 /*
@@ -615,7 +612,7 @@ static BOOL isEnemyPlaybackRound = NO;
         self.numMissiles--;
 //        [_hud numMissilesChanged:_numMissiles];
     }
-    else if(self.playerMode == DVPlayerMode_Moving)
+    else if(_player.mode == DVPlayerMode_Moving)
     {
         CGPoint touchLocation = [touch locationInView: [touch view]];
         touchLocation = [[CCDirector sharedDirector] convertToGL: touchLocation];
@@ -626,7 +623,7 @@ static BOOL isEnemyPlaybackRound = NO;
         //CGSize tileSize = [self pixelToPointSize:tileMap.tileSize];
         
         // this just moves sprite by the one tile of pixels
-        CGPoint playerPos = player.sprite.position;
+        CGPoint playerPos = _player.sprite.position;
         CGPoint diff = ccpSub(touchLocation, playerPos);
         if (abs(diff.x) > abs(diff.y)) {
             if (diff.x > 0) {
@@ -653,67 +650,54 @@ static BOOL isEnemyPlaybackRound = NO;
             [self setPlayerPosition:playerPos];
         }
         
-        [self setViewpointCenter:player.sprite.position];
+        [self setViewpointCenter:_player.sprite.position];
     }
     // else if throw shuriken mode
-    else if (self.playerMode == DVPlayerMode_Shooting && self.numShurikens > 0) {
+    else if (_player.mode == DVPlayerMode_Shooting && self.numShurikens > 0) {
         // Find where the touch point is
         CGPoint touchLocation = [touch locationInView:[touch view]];
         touchLocation = [[CCDirector sharedDirector] convertToGL:touchLocation];
         touchLocation = [self convertToNodeSpace:touchLocation];
         
         // Create a projectile and put it at the player's location
-        CCSprite* projectile = [CCSprite spriteWithFile:@"Projectile.png"];
-        projectile.position = player.sprite.position;
-        [self addChild:projectile];
+        CCSprite* shuriken = [CCSprite spriteWithFile:@"Projectile.png"];
+        shuriken.position = _player.sprite.position;
+        [self addChild:shuriken];
         
         // Determine where we want to shoot the projectile to
         int realX;
         
         // Are we shooting to the left or right?
-        CGPoint diff = ccpSub(touchLocation, player.sprite.position);
+        CGPoint diff = ccpSub(touchLocation, _player.sprite.position);
         if(diff.x > 0)
-            realX = (_tileMap.mapSize.width * [self pixelToPointSize:_tileMap.tileSize].width) + (projectile.contentSize.width/2);
+            realX = (_tileMap.mapSize.width * [self pixelToPointSize:_tileMap.tileSize].width) + (shuriken.contentSize.width/2);
         else
-            realX = -(_tileMap.mapSize.width * [self pixelToPointSize:_tileMap.tileSize].width) - (projectile.contentSize.width/2);
+            realX = -(_tileMap.mapSize.width * [self pixelToPointSize:_tileMap.tileSize].width) - (shuriken.contentSize.width/2);
         
         float ratio = (float) diff.y / (float) diff.x;
-        int realY = ((realX - projectile.position.x) * ratio) + projectile.position.y;
+        int realY = ((realX - shuriken.position.x) * ratio) + shuriken.position.y;
         CGPoint realDest = ccp(realX, realY);
         
         // Determine the length of how far we're shooting
-        int offRealX = realX - projectile.position.x;
-        int offRealY = realY - projectile.position.y;
+        int offRealX = realX - shuriken.position.x;
+        int offRealY = realY - shuriken.position.y;
         float length = sqrtf((offRealX*offRealX) + (offRealY*offRealY));
         float velocity = 480/1; // 480pixels/1sec
         float realMoveDuration = length/velocity;
         
         // Move projectile to actual endpoint
-        id actionMoveDone = [CCCallFuncN actionWithTarget:self selector:@selector(projectileMoveFinished:)];
-        [projectile runAction:[CCSequence actionOne:
-                               [CCMoveTo actionWithDuration:realMoveDuration position:realDest]
-                                                two:actionMoveDone]];
+        id actionMoveDone = [CCCallFuncN actionWithTarget:self selector:@selector(shurikenMoveFinished:)];
+        [shuriken runAction:[CCSequence actionOne:
+                             [CCMoveTo actionWithDuration:realMoveDuration position:realDest]
+                                              two:actionMoveDone]];
         [[SimpleAudioEngine sharedEngine] playEffect:@"shurikenSound.m4a"];
         // we need to keep a reference to each shuriken so we can delete it if it makes a collision with a target
-        [_projectiles addObject:projectile];
+        [_shurikens addObject:shuriken];
 
         self.numShurikens--;
-//        [_hud numShurikensChanged:_numShurikens];
-
     }
-    
 }
 
-// there are iOS coordinates coresponding to the pixels starting with 0,0 at BOTTOM left corner...
-// then there are tile index coordinates starting from 0,0 at TOP left corner
-// we will need the tile coordinate for some purposes:
--(CGPoint) tileCoordForPosition:(CGPoint) position
-{
-    int x = position.x / [self pixelToPointSize:_tileMap.tileSize].width;
-    // gotta flip in y-direction
-    int y = ((_tileMap.mapSize.height * [self pixelToPointSize:_tileMap.tileSize].height) - position.y) / [self pixelToPointSize:_tileMap.tileSize].height;
-    return ccp(x,y);
-}
 
 /*
 -(void) addEnemyAtX:(int)x y:(int)y
@@ -732,7 +716,7 @@ static BOOL isEnemyPlaybackRound = NO;
 {
     //immediately before creating the actions in animateEnemy
     //rotate to face the player
-    CGPoint diff = ccpSub(player.sprite.position, enemy.position);
+    CGPoint diff = ccpSub(_player.sprite.position, enemy.position);
     float angleRadians = atanf((float)diff.y / (float)diff.x);
     float angleDegrees = CC_RADIANS_TO_DEGREES(angleRadians);
     float cocosAngle = -1 * angleDegrees;
@@ -748,7 +732,7 @@ static BOOL isEnemyPlaybackRound = NO;
     // ccpMult, ccpSub multiplies, subtracts two point coordinates (vectors) to give one resulting point
     // ccpNormalize calculates a unit vector given 2 point coordinates,...
     // and gives a hypotenous of length 1 with appropriate x,y
-    id actionMove = [CCMoveBy actionWithDuration:actualDuration position:ccpMult(ccpNormalize(ccpSub(player.sprite.position,enemy.position)), 10)];
+    id actionMove = [CCMoveBy actionWithDuration:actualDuration position:ccpMult(ccpNormalize(ccpSub(_player.sprite.position,enemy.position)), 10)];
     id actionMoveDone = [CCCallFuncN actionWithTarget:self selector:@selector(enemyMoveFinished:)];
     [enemy runAction:[CCSequence actions:actionMove, actionMoveDone, nil]];
 }
@@ -763,12 +747,12 @@ static BOOL isEnemyPlaybackRound = NO;
     [self animateEnemy: enemy];
 }
 
--(void) projectileMoveFinished:(id) sender
+-(void) shurikenMoveFinished:(id) sender
 {
     CCSprite* sprite = (CCSprite*) sender;
     [self removeChild:sprite cleanup:YES];
     
-    [_projectiles removeObject:sprite];  // remove our reference to this shuriken from the projectiles array of sprite objects
+    [_shurikens removeObject:sprite];  // remove our reference to this shuriken from the projectiles array of sprite objects
 }
 
 -(void) missileMoveFinished:(id) sender
@@ -791,7 +775,7 @@ static BOOL isEnemyPlaybackRound = NO;
     [self addChild:explosion];
  
     // Move projectile to actual endpoint
-    id actionMoveDone = [CCCallFuncN actionWithTarget:self selector:@selector(projectileMoveFinished:)];
+    id actionMoveDone = [CCCallFuncN actionWithTarget:self selector:@selector(shurikenMoveFinished:)];
 
 //    [explosion runAction:CC]
     id scaleUpAction =  [CCEaseInOut actionWithAction:[CCScaleTo actionWithDuration:1 scaleX:2.0 scaleY:2.5] rate:2.0];
@@ -802,7 +786,7 @@ static BOOL isEnemyPlaybackRound = NO;
     CGRect explosionArea = CGRectMake(explosion.position.x - (explosion.contentSize.width/2)*2, explosion.position.y - (explosion.contentSize.height/2)*2, explosion.contentSize.width*2, explosion.contentSize.height*2);
 
     // First, if the explosion hit YOU then you're dead
-    if(CGRectIntersectsRect(explosionArea, player.sprite.boundingBox))
+    if(CGRectIntersectsRect(explosionArea, _player.sprite.boundingBox))
     {
         [self lose];
         // [self schedule:@selector(lose) interval:0.75];
@@ -811,7 +795,7 @@ static BOOL isEnemyPlaybackRound = NO;
     
     // iterate through enemies, see if any intersect with current projectile
     NSMutableArray *targetsToDelete = [[NSMutableArray alloc] init];
-    for (Bat *target in player.playerMinionList) {
+    for (Bat *target in _player.minions) {
         // enemy down!
         if(CGRectIntersectsRect(explosionArea, target.sprite.boundingBox))
         {
@@ -831,7 +815,7 @@ static BOOL isEnemyPlaybackRound = NO;
             [target kill];
             self.numKills += 1;
 //            [_hud numKillsChanged:_numKills];
-            [player.playerMinionList removeObject:target];
+            [_player.minions removeObject:target];
             // [self removeChild:target cleanup:YES];
         }
     }
@@ -866,94 +850,6 @@ static BOOL isEnemyPlaybackRound = NO;
     [self removeChild:sprite cleanup:YES];
 
 }
-
--(void) testCollisions:(ccTime) dt
-{
-    // First, see if lose condition is met locally
-    // itterate over the enemies to see if any of them are in contact with player (dead)
-    for (Bat *target in player.playerMinionList) {
-        CGRect targetRect = target.sprite.boundingBox; //CGRectMake(
-                            //           target.position.x - (target.contentSize.width/2),
-                            //           target.position.y - (target.contentSize.height/2),
-                            //           target.contentSize.width,
-                            //           target.contentSize.height );
-        
-        if (CGRectContainsPoint(targetRect, player.sprite.position)) {
-            [self lose];
-        }
-    }
-    
-    // shurikens hitting enemies?
-    NSMutableArray* projectilesToDelete = [[NSMutableArray alloc] init];
-    
-    for (CCSprite *projectile in _projectiles) {
-        
-        NSMutableArray *targetsToDelete = [[NSMutableArray alloc] init];
-        
-        // iterate through enemies, see if any intersect with current projectile
-        for (Bat *target in player.playerMinionList) {
-            // enemy down!
-            if(CGRectIntersectsRect(projectile.boundingBox, target.sprite.boundingBox))
-            {
-                [target takeDamage:1];
-//                self.numKills += 1;
-//                [_hud numKillsChanged:_numKills];
-                [targetsToDelete addObject:target];
-//                [[SimpleAudioEngine sharedEngine] playEffect:@"juliaRoar.m4a"];
-            }
-        }
-        
-        // delete all hit enemies
-        for (Bat *target in targetsToDelete) {
-            if(target.hitPoints < 1)
-            {
-                [[SimpleAudioEngine sharedEngine] playEffect:@"DMZombie.m4r"];
-
-                [target kill];
-                self.numKills += 1;
-//                [_hud numKillsChanged:_numKills];
-                [player.playerMinionList removeObject:target];
-                [self removeChild:target cleanup:YES];
-            }
-        }        
-        if (targetsToDelete.count > 0) {
-            // add the projectile to the list of ones to remove
-            [projectilesToDelete addObject:projectile];
-        }
-    }
-    
-    // remove all the projectiles that hit.
-    for (CCSprite *projectile in projectilesToDelete) {
-        [_projectiles removeObject:projectile];
-        [self removeChild:projectile cleanup:YES];
-    }
-    
-    // Finally, destroy all BACKGROUND layer tiles that were here
-
-}
-
-- (void) lose {
-    // delete the player, re-init and re-spawn him back at the beginning,
-    // then idle him there until turn is finished (no moving or attacking allowed)
-
-    [player takeDamage:2];
-    [player kill];
-
-    // [self scheduleOnce:@selector(roundFinished) delay:3.0];
-
-//    GameOverScene *gameOverScene = [GameOverScene node];
-//    [gameOverScene.layer.label setString:@"You Lose!"];
-//    [[CCDirector sharedDirector] replaceScene:gameOverScene];
-}
-
-// NEW
--(CGPoint) pixelToPoint:(CGPoint) pixelPoint{
-    return ccpMult(pixelPoint, 1/CC_CONTENT_SCALE_FACTOR());
-}
--(CGSize) pixelToPointSize:(CGSize) pixelSize{
-    return CGSizeMake((pixelSize.width / CC_CONTENT_SCALE_FACTOR()), (pixelSize.height / CC_CONTENT_SCALE_FACTOR()));
-}
-// END
 
 // on "dealloc" you need to release all your retained objects
 

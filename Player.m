@@ -17,7 +17,8 @@ static int _nextPlayer = kDVPlayerOne;
 
 @implementation Player
 
-@synthesize playerMinionList = _playerMinionList;
+@synthesize minions = _playerMinionList;
+@synthesize mode = _mode;
 
 +(int)nextUniqueID {
     if (_nextPlayer == kDVPlayerOne) {
@@ -33,7 +34,8 @@ static int _nextPlayer = kDVPlayerOne;
     {
         self.uniqueID = [Player nextUniqueID];
         self->_playerMinionList = [[NSMutableArray alloc] init];
-
+        self.mode = DVPlayerMode_Moving;
+        
         // set Player's initial stats
         [self initStats];
         
@@ -43,8 +45,6 @@ static int _nextPlayer = kDVPlayerOne;
         [self cacheStateForEvent:DVEvent_Spawn];
 
         [self addChild:self.sprite];
-        // is this enough to display it?
-        
         [self.gameLayer addChild:self];
     }
     return self;
