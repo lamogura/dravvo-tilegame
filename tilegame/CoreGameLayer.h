@@ -18,6 +18,12 @@
 //#import "Opponent.h"
 #import "CoreGameHudLayer.h"
 
+// maybe not needed
+typedef enum {
+    DVPlayerMode_Moving,
+    DVPlayerMode_Shooting,
+} DVPlayerMode;
+
 @class CoreGameHudLayer;
 @class Player;
 
@@ -60,14 +66,22 @@
 @property (nonatomic, strong) CCTMXLayer* foreground;
 @property (nonatomic, strong) CCTMXLayer* destruction;
 //@property (nonatomic, strong) CCSprite* player;
+
+// change const if you ever rename this because they are used in KVO
 @property (nonatomic, assign) int numCollected;
+#define kDVNumMelonsKVO @"numCollected"
 @property (nonatomic, assign) int numKills;
+#define kDVNumKillsKVO @"numKills"
 @property (nonatomic, assign) int numShurikens;
+#define kDVNumShurikensKVO @"numShurikens"
 @property (nonatomic, assign) int numMissiles;
-@property (nonatomic, strong) CoreGameHudLayer* hud;
-@property (nonatomic, assign) int mode;
-@property (nonatomic, assign) int timeStepIndex;
+#define kDVNumMisslesKVO @"numMissiles"
 @property (nonatomic, assign) float timer;
+#define kDVNumTimerKVO @"timer"
+
+@property (nonatomic, strong) CoreGameHudLayer* hud;
+@property (nonatomic, assign) DVPlayerMode playerMode;
+@property (nonatomic, assign) int timeStepIndex;
 @property (nonatomic, strong) NSMutableArray* playerMinionList;
 @property (nonatomic, strong) Player* player;
 @property (nonatomic, strong) NSMutableDictionary* historicalEventsDict;

@@ -11,122 +11,112 @@
 
 @implementation CoreGameHudLayer
 
-@synthesize gameLayer = _gameLayer;
-
--(id) init
+-(id) initWithCoreGameLayer:(CoreGameLayer *)layer
 {
     if((self = [super init]))
     {        
-        // setup a mode menu item
-        CCMenuItem* on;
-        CCMenuItem* off;
-        
-        on = [CCMenuItemImage itemWithNormalImage:@"projectile-button-on.png"
-                                    selectedImage:@"projectile-button-on.png"];
-        off = [CCMenuItemImage itemWithNormalImage:@"projectile-button-off.png"
-                                     selectedImage:@"projectile-button-off.png"];
-        
-        CCMenuItemToggle *toggleItem = [CCMenuItemToggle itemWithTarget:self
-                                                               selector:@selector(projectileButtonTapped:)
-                                                                  items:off, on, nil];
-        CCMenu *toggleMenu = [CCMenu menuWithItems:toggleItem, nil];
+        // setup shuriken toggle button
+        CCMenuItem* on = [CCMenuItemImage itemWithNormalImage:@"projectile-button-on.png"
+                                                selectedImage:@"projectile-button-on.png"];
+        CCMenuItem* off = [CCMenuItemImage itemWithNormalImage:@"projectile-button-off.png"
+                                                 selectedImage:@"projectile-button-off.png"];
+        CCMenuItemToggle* itemToggle = [CCMenuItemToggle
+                                        itemWithItems:[NSArray arrayWithObjects:off, on, nil]
+                                        block:^(id sender) {
+                                            layer.playerMode = layer.playerMode == DVPlayerMode_Moving ? DVPlayerMode_Shooting : DVPlayerMode_Moving;
+                                        }];
+        CCMenu *toggleMenu = [CCMenu menuWithItems:itemToggle, nil];
         toggleMenu.position = ccp(100, 32);
+        
         [self addChild:toggleMenu];  // add the toggle menu to the HUD layer
         
-        
+        // init all the labels and setup KVO
         CGSize winSize = [[CCDirector sharedDirector] winSize];
-        
-        // initialize label for melons collected count
-        _labelMelonsCount = [CCLabelTTF labelWithString:@"melons: 0"
-                                             dimensions:CGSizeMake(350, 20)
-                                             hAlignment:UITextAlignmentRight
-                                               fontName:@"Verdana-Bold"
-                                               fontSize:18.0];
-        _labelMelonsCount.color = ccc3(0, 0, 0);
+
+        // melsons
+        _labelMelons = [CCLabelTTF labelWithString:[NSString stringWithFormat:kHUDStringFormat_Melons, layer.numCollected]
+                                        dimensions:CGSizeMake(350, 20)
+                                        hAlignment:UITextAlignmentRight
+                                          fontName:@"Verdana-Bold"
+                                          fontSize:18.0];
+        [layer addObserver:self forKeyPath:kDVNumMelonsKVO options:NSKeyValueObservingOptionNew context:nil];
+        _labelMelons.color = ccc3(0, 0, 0);
         int margin = 10;
-        _labelMelonsCount.position = ccp(winSize.width - (_labelMelonsCount.contentSize.width/2) - margin,
-                                         _labelMelonsCount.contentSize.height/2 + margin);
-        [self addChild:_labelMelonsCount];
+        _labelMelons.position = ccp(winSize.width - (_labelMelons.contentSize.width/2) - margin,
+                                    _labelMelons.contentSize.height/2 + margin);
+        [self addChild:_labelMelons];
         
-        // initialize label for kill count
-        _labelKillsCount = [CCLabelTTF labelWithString:@"kills: 0"
-                                            dimensions:CGSizeMake(350, 20)
-                                            hAlignment:UITextAlignmentRight
-                                              fontName:@"Verdana-Bold"
-                                              fontSize:18.0];
-        _labelKillsCount.color = ccc3(255, 0, 0);
+        // kills
+        _labelKills = [CCLabelTTF labelWithString:[NSString stringWithFormat:kHUDStringFormat_Kills, layer.numKills]
+                                       dimensions:CGSizeMake(350, 20)
+                                       hAlignment:UITextAlignmentRight
+                                         fontName:@"Verdana-Bold"
+                                         fontSize:18.0];
+        [layer addObserver:self forKeyPath:kDVNumKillsKVO options:NSKeyValueObservingOptionNew context:nil];
+        _labelKills.color = ccc3(255, 0, 0);
         margin = 10;
-        _labelKillsCount.position = ccp(winSize.width - (_labelKillsCount.contentSize.width/2) - margin,
-                                        _labelKillsCount.contentSize.height/2 + margin*2 + _labelMelonsCount.contentSize.height/2);
-        [self addChild:_labelKillsCount];
+        _labelKills.position = ccp(winSize.width - (_labelKills.contentSize.width/2) - margin,
+                                   _labelKills.contentSize.height/2 + margin*2 + _labelKills.contentSize.height/2);
+        [self addChild:_labelKills];
         
-        // label for numShurikens
-        _labelShurikensCount = [CCLabelTTF labelWithString:[NSString stringWithFormat:@"S: %d", kInitShurikens]
-                                                dimensions:CGSizeMake(100, 20)
-                                                hAlignment:UITextAlignmentRight
-                                                  fontName:@"Verdana-Bold"
-                                                  fontSize:18.0];
-        _labelShurikensCount.color = ccc3(67, 173, 59);
+        // shurikens
+        _labelShurikens = [CCLabelTTF labelWithString:[NSString stringWithFormat:kHUDStringFormat_Shurikens, layer.numShurikens]
+                                           dimensions:CGSizeMake(100, 20)
+                                           hAlignment:UITextAlignmentRight
+                                             fontName:@"Verdana-Bold"
+                                             fontSize:18.0];
+        [layer addObserver:self forKeyPath:kDVNumShurikensKVO options:NSKeyValueObservingOptionNew context:nil];
+        _labelShurikens.color = ccc3(67, 173, 59);
         margin = 10;
-        _labelShurikensCount.position = ccp(winSize.width - (_labelShurikensCount.contentSize.width/2) - margin,
-                                            winSize.height - _labelShurikensCount.contentSize.height/2 - margin);
-        [self addChild:_labelShurikensCount];
+        _labelShurikens.position = ccp(winSize.width - (_labelShurikens.contentSize.width/2) - margin,
+                                       winSize.height - _labelShurikens.contentSize.height/2 - margin);
+        [self addChild:_labelShurikens];
         
-        // label for numMissiles
-        _labelMissilesCount = [CCLabelTTF labelWithString:[NSString stringWithFormat:@"M: %d", kInitMissiles]
-                                               dimensions:CGSizeMake(100, 20)
-                                               hAlignment:UITextAlignmentRight
-                                                 fontName:@"Verdana-Bold"
-                                                 fontSize:18.0];
-        _labelMissilesCount.color = ccc3(0, 0, 255);
+        // missles
+        _labelMissiles = [CCLabelTTF labelWithString:[NSString stringWithFormat:kHUDStringFormat_Missles, layer.numMissiles]
+                                          dimensions:CGSizeMake(100, 20)
+                                          hAlignment:UITextAlignmentRight
+                                            fontName:@"Verdana-Bold"
+                                            fontSize:18.0];
+        [layer addObserver:self forKeyPath:kDVNumMisslesKVO options:NSKeyValueObservingOptionNew context:nil];
+        _labelMissiles.color = ccc3(0, 0, 255);
         margin = 10;
-        _labelMissilesCount.position = ccp(winSize.width - (_labelMissilesCount.contentSize.width/2) - margin*2 - (_labelShurikensCount.contentSize.width/2),
-                                           winSize.height - _labelMissilesCount.contentSize.height/2 - margin);
-        [self addChild:_labelMissilesCount];
+        _labelMissiles.position = ccp(winSize.width - (_labelMissiles.contentSize.width/2) - margin*2 - (_labelMissiles.contentSize.width/2),
+                                      winSize.height - _labelMissiles.contentSize.height/2 - margin);
+        [self addChild:_labelMissiles];
         
-        // label for T-minus time remaining in this round
-        _labelTimer = [CCLabelTTF labelWithString:[NSString stringWithFormat:@"Time: %d", kTurnLengthSeconds]
+        // timer
+        _labelTimer = [CCLabelTTF labelWithString:[NSString stringWithFormat:kHUDStringFormat_Timer, (int)layer.timer]
                                        dimensions:CGSizeMake(350, 20)
                                        hAlignment:UITextAlignmentLeft
                                          fontName:@"Verdana-Bold"
                                          fontSize:18.0];
+        [layer addObserver:self forKeyPath:kDVNumTimerKVO options:NSKeyValueObservingOptionNew context:nil];
         _labelTimer.color = ccc3(255, 0, 0);
         margin = 10;
         _labelTimer.position = ccp((_labelTimer.contentSize.width/2) + margin,
-                                  winSize.height - _labelTimer.contentSize.height/2 - margin);
+                                   winSize.height - _labelTimer.contentSize.height/2 - margin);
         [self addChild:_labelTimer];
     }
     return self;
 }
 
--(void) projectileButtonTapped:(id)sender
-{
-    _gameLayer.mode = _gameLayer.mode == 1 ? 0 : 1;
-}
-
--(void) numCollectedChanged:(int)numCollected
-{
-    [_labelMelonsCount setString:[NSString stringWithFormat:@"melons: %d", numCollected]];
-}
-
--(void) numKillsChanged:(int) numKills
-{
-    [_labelKillsCount setString:[NSString stringWithFormat:@"kills: %d", numKills]];
-}
-
--(void) numShurikensChanged:(int) numShurikens
-{
-    [_labelShurikensCount setString:[NSString stringWithFormat:@"S: %d", numShurikens]];
-}
-
--(void) numMissilesChanged:(int) numMissiles
-{
-    [_labelMissilesCount setString:[NSString stringWithFormat:@"M: %d", numMissiles]];
-}
-
--(void) timerChanged:(int) newTime
-{
-    [_labelTimer setString:[NSString stringWithFormat:@"Time: %d", newTime]];
+-(void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
+    if ([keyPath isEqualToString:kDVNumMelonsKVO]) {
+        [_labelMelons setString:[NSString stringWithFormat:kHUDStringFormat_Melons, [[change objectForKey:NSKeyValueChangeNewKey] intValue]]];
+    }
+    else if ([keyPath isEqualToString:kDVNumKillsKVO]) {
+        [_labelKills setString:[NSString stringWithFormat:kHUDStringFormat_Kills, [[change objectForKey:NSKeyValueChangeNewKey] intValue]]];
+    }
+    else if ([keyPath isEqualToString:kDVNumMisslesKVO]) {
+        [_labelMissiles setString:[NSString stringWithFormat:kHUDStringFormat_Missles, [[change objectForKey:NSKeyValueChangeNewKey] intValue]]];
+    }
+    else if ([keyPath isEqualToString:kDVNumShurikensKVO]) {
+        [_labelShurikens setString:[NSString stringWithFormat:kHUDStringFormat_Shurikens, [[change objectForKey:NSKeyValueChangeNewKey] intValue]]];
+    }
+    else if ([keyPath isEqualToString:kDVNumTimerKVO]) {
+        [_labelTimer setString:[NSString stringWithFormat:kHUDStringFormat_Timer, (int)[[change objectForKey:NSKeyValueChangeNewKey] floatValue]]];
+    }
 }
 
 @end

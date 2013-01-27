@@ -37,16 +37,19 @@ static BOOL isEnemyPlaybackRound = NO;
 @synthesize meta = _meta;
 @synthesize foreground = _foreground;
 @synthesize destruction = _destruction;
+
 @synthesize numCollected = _numCollected;
 @synthesize numKills = _numKills;
 @synthesize numShurikens = _numShurikens;
 @synthesize numMissiles = _numMissiles;
+@synthesize timer = _timer;
+
 @synthesize hud = _hud;
-@synthesize mode = _mode;
+@synthesize playerMode = _playerMode;
 @synthesize timeStepIndex = _timeStepIndex;
 @synthesize playerMinionList = _playerMinionList;
 @synthesize player;
-@synthesize timer;
+
 @synthesize historicalEventsDict;
 //@synthesize opponent = _opponent;
 
@@ -72,14 +75,14 @@ static BOOL isEnemyPlaybackRound = NO;
 //    [theScene addChild: theHelloWorldLayer];
     
     // create and add the HUD label/stats layer!
-    CoreGameHudLayer* hud = [CoreGameHudLayer node];
+    
+    CoreGameHudLayer* hud = [[CoreGameHudLayer alloc] initWithCoreGameLayer:layer];
     [theScene addChild:hud];
     
     [theScene addChild:[CountdownLayer node]];
     
     layer.hud = hud;  // store a member var reference to the hud so we can refer back to it to reset the label strings!
-    hud.gameLayer = layer;  // 2-way references
-	
+
 	// return the scene
 	return theScene;
 }
@@ -141,9 +144,12 @@ static BOOL isEnemyPlaybackRound = NO;
 		isSwipe = NO;
         myToucharray =[[NSMutableArray alloc ] init]; // store the touches for missile launching
         
-        _numShurikens = kInitShurikens;
-        _numMissiles = kInitMissiles;
-        _mode = 0;  // default game mode = 0, move mode (mode = 1, shoot mode)
+        // init game stats
+        self.numShurikens = kInitShurikens;
+        self.numMissiles = kInitMissiles;
+        self.numKills = self.numCollected = 0;
+
+        self.playerMode = DVPlayerMode_Moving;
         
 //        _enemies = [[NSMutableArray alloc] init];
         //_bats = [[NSMutableArray alloc] init];
@@ -229,7 +235,7 @@ static BOOL isEnemyPlaybackRound = NO;
         
         [self addChild:_tileMap z:-1];
 
-        timer = (float) kTurnLengthSeconds;
+        self.timer = (float) kTurnLengthSeconds;
         // start up the main game loops
         [self schedule:@selector(mainGameLoop:) interval:kTickLengthSeconds];
         [self schedule:@selector(sampleCurrentPositions:) interval:kReplayTickLengthSeconds];
@@ -292,10 +298,10 @@ static BOOL isEnemyPlaybackRound = NO;
     // sample player
     [player sampleCurrentPosition];
     
-    timer -= kReplayTickLengthSeconds;
+    self.timer -= kReplayTickLengthSeconds;
     // update the label every second
-    if((int)timer % 1 == 0)  // FIX cheating by hardcoding for now, fix this to allow time periods to change just in constants
-        [_hud timerChanged:timer];
+//    if((int)self.timer % 1 == 0)  // FIX cheating by hardcoding for now, fix this to allow time periods to change just in constants
+//        [_hud timerChanged:timer];
     
     _timeStepIndex++;
     if((float)_timeStepIndex * kReplayTickLengthSeconds >= kTurnLengthSeconds)
@@ -342,7 +348,7 @@ static BOOL isEnemyPlaybackRound = NO;
 
     [self addChild:_tileMap z:-1];
     
-    timer = (float) kTurnLengthSeconds;
+    self.timer = (float) kTurnLengthSeconds;
     // schedule the playback loops
     
     [self schedule:@selector(enemyPlaybackLoop:) interval:kReplayTickLengthSeconds];
@@ -496,7 +502,7 @@ static BOOL isEnemyPlaybackRound = NO;
                 [_foreground removeTileAt:tileCoord];
 
                 self.numCollected++;
-                [_hud numCollectedChanged:_numCollected];
+//                [_hud numCollectedChanged:_numCollected];
                 
                 // check win condition then end game if win
                 // put the number of melons on your map in place of the '2'
@@ -607,9 +613,9 @@ static BOOL isEnemyPlaybackRound = NO;
         // we need to keep a reference to each shuriken so we can delete it if it makes a collision with a target
         [_missiles addObject:missile];
         self.numMissiles--;
-        [_hud numMissilesChanged:_numMissiles];
+//        [_hud numMissilesChanged:_numMissiles];
     }
-    else if(_mode == 0)
+    else if(self.playerMode == DVPlayerMode_Moving)
     {
         CGPoint touchLocation = [touch locationInView: [touch view]];
         touchLocation = [[CCDirector sharedDirector] convertToGL: touchLocation];
@@ -650,7 +656,7 @@ static BOOL isEnemyPlaybackRound = NO;
         [self setViewpointCenter:player.sprite.position];
     }
     // else if throw shuriken mode
-    else if (self.numShurikens > 0) {
+    else if (self.playerMode == DVPlayerMode_Shooting && self.numShurikens > 0) {
         // Find where the touch point is
         CGPoint touchLocation = [touch locationInView:[touch view]];
         touchLocation = [[CCDirector sharedDirector] convertToGL:touchLocation];
@@ -690,8 +696,9 @@ static BOOL isEnemyPlaybackRound = NO;
         [[SimpleAudioEngine sharedEngine] playEffect:@"shurikenSound.m4a"];
         // we need to keep a reference to each shuriken so we can delete it if it makes a collision with a target
         [_projectiles addObject:projectile];
+
         self.numShurikens--;
-        [_hud numShurikensChanged:_numShurikens];
+//        [_hud numShurikensChanged:_numShurikens];
 
     }
     
@@ -822,8 +829,8 @@ static BOOL isEnemyPlaybackRound = NO;
         {
             [[SimpleAudioEngine sharedEngine] playEffect:@"DMZombiePain.m4r"];
             [target kill];
-            _numKills += 1;
-            [_hud numKillsChanged:_numKills];
+            self.numKills += 1;
+//            [_hud numKillsChanged:_numKills];
             [player.playerMinionList removeObject:target];
             // [self removeChild:target cleanup:YES];
         }
@@ -903,8 +910,8 @@ static BOOL isEnemyPlaybackRound = NO;
                 [[SimpleAudioEngine sharedEngine] playEffect:@"DMZombie.m4r"];
 
                 [target kill];
-                _numKills += 1;
-                [_hud numKillsChanged:_numKills];
+                self.numKills += 1;
+//                [_hud numKillsChanged:_numKills];
                 [player.playerMinionList removeObject:target];
                 [self removeChild:target cleanup:YES];
             }
