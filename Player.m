@@ -19,6 +19,10 @@ static int _nextPlayer = kDVPlayerOne;
 
 @synthesize minions = _playerMinionList;
 @synthesize mode = _mode;
+@synthesize numMelons = _numMelonsCollected;
+@synthesize numKills = _numKills;
+@synthesize numShurikens = _numShurikens;
+@synthesize numMissiles = _numMissiles;
 
 +(int)nextUniqueID {
     if (_nextPlayer == kDVPlayerOne) {
@@ -46,6 +50,22 @@ static int _nextPlayer = kDVPlayerOne;
 
         [self addChild:self.sprite];
         [self.gameLayer addChild:self];
+    }
+    return self;
+}
+
+-(id)initInLayer:(CoreGameLayer *)layer atSpawnPoint:(CGPoint)spawnPoint withShurikens:(int)numShurikens withMissles:(int)numMissles {
+    if (self = [self initInLayer:layer atSpawnPoint:spawnPoint]) {
+        self.numShurikens = numShurikens;
+        self.numMissiles = numMissles;
+    }
+    return self;
+}
+
+-(id)initInLayer:(CoreGameLayer *)layer atSpawnPoint:(CGPoint)spawnPoint withShurikens:(int)numShurikens withMissles:(int)numMissles withKills:(int)numKills withMelons:(int)numMelons {
+    if (self = [self initInLayer:layer atSpawnPoint:spawnPoint withShurikens:numShurikens withMissles:numMissles]) {
+        self.numKills = numKills;
+        self.numMelons = numMelons;
     }
     return self;
 }

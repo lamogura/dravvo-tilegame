@@ -37,36 +37,23 @@ static BOOL _isEnemyPlaybackRound = NO;
 @synthesize player = _player;
 @synthesize historicalEventsDict = _historicalEventsDict;
 
-@synthesize numCollected = _numCollected;
-@synthesize numKills = _numKills;
-@synthesize numShurikens = _numShurikens;
-@synthesize numMissiles = _numMissiles;
-
 @synthesize roundTimer = _roundTimer;
 
 // Helper class method that creates a Scene with the HelloWorldLayer as the only child.
 // What calls this class??
 +(CCScene *) scene
 {
-	// 'scene' is an autorelease object.
-	CCScene *theScene = [CCScene node];
-	
-	// 'layer' is an autorelease object.
+	CCScene *scene = [CCScene node];
 	CoreGameLayer *layer = [CoreGameLayer node];
-	[theScene addChild: layer];
-//    [theScene addChild: theHelloWorldLayer];
-    
-    // create and add the HUD label/stats layer!
-    
     CoreGameHudLayer* hud = [[CoreGameHudLayer alloc] initWithCoreGameLayer:layer];
-    [theScene addChild:hud];
-    
-    [theScene addChild:[CountdownLayer node]];
     
     layer.hud = hud;  // store a member var reference to the hud so we can refer back to it to reset the label strings!
+    
+ 	[scene addChild:layer];
+    [scene addChild:hud];
+    [scene addChild:[CountdownLayer node]];
 
-	// return the scene
-	return theScene;
+	return scene;
 }
 
 #pragma mark - Game Lifecycle
@@ -83,13 +70,6 @@ static BOOL _isEnemyPlaybackRound = NO;
 		_isSwipe = NO; // what does this do?
         _touches = [[NSMutableArray alloc ] init]; // store the touches for missile launching
         self.roundTimer = (float) kTurnLengthSeconds;
-        
-        // init game stats
-        self.numShurikens = kInitShurikens;
-        self.numMissiles = kInitMissiles;
-        self.numKills = self.numCollected = 0;
-
-        self.player.mode = DVPlayerMode_Moving;
         
         _shurikens = [[NSMutableArray alloc] init];
         _missiles =  [[NSMutableArray alloc] init];
@@ -129,8 +109,10 @@ static BOOL _isEnemyPlaybackRound = NO;
             ccp([[spawnPointsDict valueForKey:@"x"] intValue],
                 [[spawnPointsDict valueForKey:@"y"] intValue])];
 
-        // IF we are the host, playerID gets P1; if we were invited to a game, we get P2
-        _player = [[Player alloc] initInLayer:self atSpawnPoint:playerSpawnPoint];
+        _player = [[Player alloc] initInLayer:self
+                                 atSpawnPoint:playerSpawnPoint
+                                withShurikens:kInitShurikens
+                                  withMissles:kInitMissiles];
         
         // draw the enemy sprites
         // iterate through tileMap dictionary objects, finding all enemy spawn points
@@ -391,7 +373,7 @@ static BOOL _isEnemyPlaybackRound = NO;
             if(CGRectIntersectsRect(shuriken.boundingBox, target.sprite.boundingBox))
             {
                 [target takeDamage:1];
-                //                self.numKills += 1;
+                //                self.player.numKills += 1;
                 //                [_hud numKillsChanged:_numKills];
                 [targetsToDelete addObject:target];
                 //                [[SimpleAudioEngine sharedEngine] playEffect:@"juliaRoar.m4a"];
@@ -405,7 +387,7 @@ static BOOL _isEnemyPlaybackRound = NO;
                 [[SimpleAudioEngine sharedEngine] playEffect:@"DMZombie.m4r"];
                 
                 [target kill];
-                self.numKills += 1;
+                self.player.numKills += 1;
                 //                [_hud numKillsChanged:_numKills];
                 [self.player.minions removeObject:target];
                 [self removeChild:target cleanup:YES];
@@ -470,12 +452,12 @@ static BOOL _isEnemyPlaybackRound = NO;
                 [_meta removeTileAt:tileCoord];
                 [_foreground removeTileAt:tileCoord];
                 
-                self.numCollected++;
+                self.player.numMelons++;
                 //                [_hud numCollectedChanged:_numCollected];
                 
                 // check win condition then end game if win
                 // put the number of melons on your map in place of the '2'
-                if (_numCollected == kMaxMelons)
+                if (self.player.numMelons == kMaxMelons)
                     [self win];
             }
         }
@@ -516,9 +498,6 @@ static BOOL _isEnemyPlaybackRound = NO;
     return YES;
 }
 
-
-
-
  - (void)ccTouchMoved:(UITouch *)touch withEvent:(UIEvent *)event
 {
     _isSwipe = YES;
@@ -540,12 +519,11 @@ static BOOL _isEnemyPlaybackRound = NO;
  
 }
 
-
 - (void)ccTouchEnded:(UITouch *)touch withEvent:(UIEvent *)event
 {
     // if move mode
     
-    if((_isSwipe == YES) && (_numMissiles > 0))
+    if((_isSwipe == YES) && (self.player.numMissiles > 0))
     {
         DLog(@"GOT MISSILES");
         
@@ -609,7 +587,7 @@ static BOOL _isEnemyPlaybackRound = NO;
         [[SimpleAudioEngine sharedEngine] playEffect:@"missileSound.m4a"];
         // we need to keep a reference to each shuriken so we can delete it if it makes a collision with a target
         [_missiles addObject:missile];
-        self.numMissiles--;
+        self.player.numMissiles--;
 //        [_hud numMissilesChanged:_numMissiles];
     }
     else if(_player.mode == DVPlayerMode_Moving)
@@ -653,7 +631,7 @@ static BOOL _isEnemyPlaybackRound = NO;
         [self setViewpointCenter:_player.sprite.position];
     }
     // else if throw shuriken mode
-    else if (_player.mode == DVPlayerMode_Shooting && self.numShurikens > 0) {
+    else if (_player.mode == DVPlayerMode_Shooting && self.player.numShurikens > 0) {
         // Find where the touch point is
         CGPoint touchLocation = [touch locationInView:[touch view]];
         touchLocation = [[CCDirector sharedDirector] convertToGL:touchLocation];
@@ -694,7 +672,7 @@ static BOOL _isEnemyPlaybackRound = NO;
         // we need to keep a reference to each shuriken so we can delete it if it makes a collision with a target
         [_shurikens addObject:shuriken];
 
-        self.numShurikens--;
+        self.player.numShurikens--;
     }
 }
 
@@ -736,7 +714,6 @@ static BOOL _isEnemyPlaybackRound = NO;
     id actionMoveDone = [CCCallFuncN actionWithTarget:self selector:@selector(enemyMoveFinished:)];
     [enemy runAction:[CCSequence actions:actionMove, actionMoveDone, nil]];
 }
-
 
 // callback that starts another iteration of enemy movement.
 // we know which sprite called us here because sender is a CCSprite - the sprite that just finished animating
@@ -800,7 +777,7 @@ static BOOL _isEnemyPlaybackRound = NO;
         if(CGRectIntersectsRect(explosionArea, target.sprite.boundingBox))
         {
             [target takeDamage:2];
-//            self.numKills += 1;
+//            self.player.numKills += 1;
 //            [_hud numKillsChanged:_numKills];
             [targetsToDelete addObject:target];
 //            [[SimpleAudioEngine sharedEngine] playEffect:@"juliaRoar.m4a"];
@@ -813,7 +790,7 @@ static BOOL _isEnemyPlaybackRound = NO;
         {
             [[SimpleAudioEngine sharedEngine] playEffect:@"DMZombiePain.m4r"];
             [target kill];
-            self.numKills += 1;
+            self.player.numKills += 1;
 //            [_hud numKillsChanged:_numKills];
             [_player.minions removeObject:target];
             // [self removeChild:target cleanup:YES];

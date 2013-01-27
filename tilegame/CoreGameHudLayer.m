@@ -37,12 +37,12 @@
         CGSize winSize = [[CCDirector sharedDirector] winSize];
 
         // melsons
-        _labelMelons = [CCLabelTTF labelWithString:[NSString stringWithFormat:kHUDStringFormat_Melons, layer.numCollected]
+        _labelMelons = [CCLabelTTF labelWithString:[NSString stringWithFormat:kHUDStringFormat_Melons, layer.player.numMelons]
                                         dimensions:CGSizeMake(350, 20)
                                         hAlignment:UITextAlignmentRight
                                           fontName:@"Verdana-Bold"
                                           fontSize:18.0];
-        [layer addObserver:self forKeyPath:kDVNumMelonsKVO options:NSKeyValueObservingOptionNew context:nil];
+        [layer.player addObserver:self forKeyPath:kDVNumMelonsKVO options:NSKeyValueObservingOptionNew context:nil];
         _labelMelons.color = ccc3(0, 0, 0);
         int margin = 10;
         _labelMelons.position = ccp(winSize.width - (_labelMelons.contentSize.width/2) - margin,
@@ -50,12 +50,12 @@
         [self addChild:_labelMelons];
         
         // kills
-        _labelKills = [CCLabelTTF labelWithString:[NSString stringWithFormat:kHUDStringFormat_Kills, layer.numKills]
+        _labelKills = [CCLabelTTF labelWithString:[NSString stringWithFormat:kHUDStringFormat_Kills, layer.player.numKills]
                                        dimensions:CGSizeMake(350, 20)
                                        hAlignment:UITextAlignmentRight
                                          fontName:@"Verdana-Bold"
                                          fontSize:18.0];
-        [layer addObserver:self forKeyPath:kDVNumKillsKVO options:NSKeyValueObservingOptionNew context:nil];
+        [layer.player addObserver:self forKeyPath:kDVNumKillsKVO options:NSKeyValueObservingOptionNew context:nil];
         _labelKills.color = ccc3(255, 0, 0);
         margin = 10;
         _labelKills.position = ccp(winSize.width - (_labelKills.contentSize.width/2) - margin,
@@ -63,12 +63,12 @@
         [self addChild:_labelKills];
         
         // shurikens
-        _labelShurikens = [CCLabelTTF labelWithString:[NSString stringWithFormat:kHUDStringFormat_Shurikens, layer.numShurikens]
+        _labelShurikens = [CCLabelTTF labelWithString:[NSString stringWithFormat:kHUDStringFormat_Shurikens, layer.player.numShurikens]
                                            dimensions:CGSizeMake(100, 20)
                                            hAlignment:UITextAlignmentRight
                                              fontName:@"Verdana-Bold"
                                              fontSize:18.0];
-        [layer addObserver:self forKeyPath:kDVNumShurikensKVO options:NSKeyValueObservingOptionNew context:nil];
+        [layer.player addObserver:self forKeyPath:kDVNumShurikensKVO options:NSKeyValueObservingOptionNew context:nil];
         _labelShurikens.color = ccc3(67, 173, 59);
         margin = 10;
         _labelShurikens.position = ccp(winSize.width - (_labelShurikens.contentSize.width/2) - margin,
@@ -76,12 +76,12 @@
         [self addChild:_labelShurikens];
         
         // missles
-        _labelMissiles = [CCLabelTTF labelWithString:[NSString stringWithFormat:kHUDStringFormat_Missles, layer.numMissiles]
+        _labelMissiles = [CCLabelTTF labelWithString:[NSString stringWithFormat:kHUDStringFormat_Missles, layer.player.numMissiles]
                                           dimensions:CGSizeMake(100, 20)
                                           hAlignment:UITextAlignmentRight
                                             fontName:@"Verdana-Bold"
                                             fontSize:18.0];
-        [layer addObserver:self forKeyPath:kDVNumMisslesKVO options:NSKeyValueObservingOptionNew context:nil];
+        [layer.player addObserver:self forKeyPath:kDVNumMisslesKVO options:NSKeyValueObservingOptionNew context:nil];
         _labelMissiles.color = ccc3(0, 0, 255);
         margin = 10;
         _labelMissiles.position = ccp(winSize.width - (_labelMissiles.contentSize.width/2) - margin*2 - (_labelMissiles.contentSize.width/2),

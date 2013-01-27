@@ -53,20 +53,9 @@
 
 @property (nonatomic, strong) NSMutableDictionary* historicalEventsDict;
 
-// FIX move this into the player class
-@property (nonatomic, assign) int numCollected;
-@property (nonatomic, assign) int numKills;
-@property (nonatomic, assign) int numShurikens; // FIX should be able just to count objects in array
-@property (nonatomic, assign) int numMissiles; // FIX should be able just to count objects in array
-
-@property (nonatomic, assign) float roundTimer; // time left in current round
-
 // change related consts if you ever any of these properties used in KVO
-#define kDVNumMelonsKVO     @"numCollected"
-#define kDVNumKillsKVO      @"numKills"
-#define kDVNumShurikensKVO  @"numShurikens"
-#define kDVNumMisslesKVO    @"numMissiles"
-#define kDVNumTimerKVO      @"timer"
+@property (nonatomic, assign) float roundTimer; // time left in current round
+#define kDVNumTimerKVO @"timer"
 
 // call back functions
 -(void) mainGameLoop:(ccTime)deltaTime;

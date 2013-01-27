@@ -12,7 +12,6 @@
 //#define kDVChangeableObjectName_player @"player"
 //#define kDVChangeableObjectName_opponent @"opponent"
 
-
 #define kTickLengthSeconds 0.10  // length of a single tick in seconds (time between mainGameLoop callbacks)
 #define kTurnLengthSeconds 10  // length of a players entire turn in seconds, before passing to next player's turn
 
