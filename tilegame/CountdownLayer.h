@@ -9,16 +9,17 @@
 #import "cocos2d.h"
 #import "DVAPIWrapper.h"
 
-#define kCountdownFrom 3
 #define kLabelFormat @"%d"
 
 @interface CountdownLayer : CCLayerColor {
     id _labelAction;
+    void (^_block)(id);
 }
 
 @property (nonatomic, assign) int countdownCount;
 @property (nonatomic, strong) CCLabelTTF* label;
 
+-(id) initWithCountdownFrom:(int)countFrom AndCallBlockWhenCountdownFinished:(void(^)(id status))block;
 -(void) updateLabel:(ccTime) delta;
 +(CCScene *) scene;
 

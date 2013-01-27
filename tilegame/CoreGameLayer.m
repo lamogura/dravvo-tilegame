@@ -51,8 +51,12 @@ static BOOL _isEnemyPlaybackRound = NO;
     
  	[scene addChild:layer];
     [scene addChild:hud];
-    [scene addChild:[CountdownLayer node]];
+    
+    CountdownLayer* cdlayer = [[CountdownLayer alloc] initWithCountdownFrom:3 AndCallBlockWhenCountdownFinished:^(id status) {
+        [layer startRound];
+    }];
 
+    [scene addChild:cdlayer];
 	return scene;
 }
 
@@ -69,6 +73,8 @@ static BOOL _isEnemyPlaybackRound = NO;
         self.isTouchEnabled = YES;  // set THIS LAYER as touch enabled so user can move character around with callbacks
 		_isSwipe = NO; // what does this do?
         _touches = [[NSMutableArray alloc ] init]; // store the touches for missile launching
+
+        _roundHasStarted = NO; // wait for startRound()
         self.roundTimer = (float) kTurnLengthSeconds;
         
         _shurikens = [[NSMutableArray alloc] init];
@@ -141,12 +147,14 @@ static BOOL _isEnemyPlaybackRound = NO;
         // set the view position focused on player
         [self setViewpointCenter:_player.sprite.position];
         [self addChild:_tileMap z:-1];
-        [self startRound];
+//        [self startRound];
     }
 	return self;
 }
 
 -(void) startRound {
+    _roundHasStarted = YES; // turn on touch processing
+    
     // turn on all the event loops
     [self schedule:@selector(testCollisions:)];
     [self schedule:@selector(mainGameLoop:) interval:kTickLengthSeconds];
@@ -521,7 +529,8 @@ static BOOL _isEnemyPlaybackRound = NO;
 
 - (void)ccTouchEnded:(UITouch *)touch withEvent:(UIEvent *)event
 {
-    // if move mode
+    if (_roundHasStarted != YES)
+        return;
     
     if((_isSwipe == YES) && (self.player.numMissiles > 0))
     {

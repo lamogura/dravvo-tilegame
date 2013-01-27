@@ -15,10 +15,11 @@
 @synthesize countdownCount = _countdownCount;
 @synthesize label = _label;
 
--(id) init
+-(id) initWithCountdownFrom:(int)countFrom AndCallBlockWhenCountdownFinished:(void(^)(id status))block;
 {
-    if( (self=[super initWithColor:ccc4(255,255,255,0)] )) {
-        self.countdownCount = kCountdownFrom;
+    if(self=[super initWithColor:ccc4(255,255,255,0)]) {
+        self.countdownCount = countFrom;
+        _block = block; // save block to call later when cowntdown done
         self.label = [CCLabelTTF labelWithString:[NSString stringWithFormat:kLabelFormat, self.countdownCount] fontName:@"Arial" fontSize:58];
         
         CGSize winSize = [[CCDirector sharedDirector] winSize];
@@ -30,7 +31,6 @@
         [self addChild:self.label];
         [self.label runAction:self->_labelAction];
         [self schedule:@selector(updateLabel:) interval:1];
-//        id scaleUpAction = [CCEaseInOut actionWithAction:[CCScaleTo actionWithDuration:1 scaleX:3.0 scaleY:3.0] rate:1.0];
     }
     return self;
 }
@@ -39,6 +39,7 @@
     if (--self.countdownCount <= 0) {
         [self unschedule:_cmd];
         [self.parent removeChild:self cleanup:YES];
+        _block(nil);
     }
     self.label.scale = 1.0;
     self.label.string = [NSString stringWithFormat:kLabelFormat, self.countdownCount];

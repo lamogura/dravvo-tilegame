@@ -35,6 +35,8 @@
     NSMutableArray* _shurikens;
     NSMutableArray* _missiles;
 
+    BOOL _roundHasStarted; // NO touches processed until startRound()
+    
     // touches ivars
     BOOL _isSwipe;
     BOOL _didTouchMoveStart;
