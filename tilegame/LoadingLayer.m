@@ -27,13 +27,16 @@
         [menu alignItemsVertically];
         [self addChild:menu];
         
-        [self->_apiWrapper getGameStatusThenCallBlock:^(NSError *error, DVGameStatus *status) {
+        [self->_apiWrapper getGameStatusThenCallBlock:^(NSError *error, DVServerGameData *gameData) {
             //TODO: update game with the game status
             if (error != nil) {
                 ULog([error localizedDescription]);
             }
             else {
-                DLog(@"Sucessfully got status for gameID: %@", status.gameID);
+                DLog(@"Sucessfully got status for gameID: %@", gameData.gameID);
+                // now instantiate another layer but this time with the dict to load the opponent's last turn
+                [CoreGameLayer setServerGameData:gameData];  // store the current update in GameCoreLayer's static for safe keeping
+                [[CCDirector sharedDirector] replaceScene:[CoreGameLayer scene:DVBeginNextTurn]];
             }
         }];
     }

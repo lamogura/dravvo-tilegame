@@ -12,9 +12,6 @@
 
 //#import "CoreGameLayer.h"
 
-// sampling rate and playback rate
-#define kReplayTickLengthSeconds 0.5
-
 // keys for eventHistory dictionary
 #define kDVEventKey_TimeStepIndex @"TimeStepIndex"
 #define kDVEventKey_EventType @"EventType"
@@ -24,6 +21,10 @@
 #define kDVEventKey_CoordX @"CoordX"
 #define kDVEventKey_CoordY @"CoordY"
 #define kDVEventKey_HPChange @"HPChange"
+
+// entityTypes defined in the respective sub-class's constructors
+#define kEntityTypePlayer @"player"
+#define kEntityTypeBat @"bat"
 
 // possible events
 typedef enum {
@@ -48,15 +49,20 @@ typedef enum {
 @property (nonatomic, assign) BOOL isAlive;
 @property (nonatomic, assign) CGPoint spawnPoint;
 @property (nonatomic, strong) NSString* entityType;
-@property (nonatomic, copy) NSMutableArray* eventHistory;
+@property (nonatomic, strong) NSMutableArray* actionsToBePlayed;
+//@property (nonatomic, copy) NSMutableArray* eventHistory;
 
+
++(NSMutableArray*) eventHistory;  // returns the entire event history static getter method
++(void) animateDeathForEntityType:(NSString*) theEntityType at:(CGPoint) deathPoint;  // TO DO Takes a position and an EntityType
 // optional
 -(id)initInLayer:(CoreGameLayer *)layer atSpawnPoint:(CGPoint)spawnPoint;
--(void)replayEventsAtTimeIndex:(int)index;
+-(id)initInLayerWithoutCache:(CoreGameLayer *)layer atSpawnPoint:(CGPoint)spawnPoint;
+//-(void)replayEventsAtTimeIndex:(int)index;
 -(NSMutableDictionary *)cacheStateForEvent:(DVEventType)event;
 
 // required - will throw an error if not overridden
-+(int)nextUniqueID;  // static function for providing unique integer IDs to each new instance of each particular entity kind
+//+(int)nextUniqueID;  // static function for providing unique integer IDs to each new instance of each particular entity kind
 -(void)sampleCurrentPosition; 
 
 // State changes like decreasing HP or killing a creature
@@ -71,9 +77,11 @@ typedef enum {
 
 // List of historical animations that simluate past actions without any environment state changes, for later animation re-play on player2's side
 // each minion has it's own list of animations that can be performed on it, such as exploding, moving, attacking,
--(void)replayMoveTo:(CGPoint)targetPoint;  // will animate a historical move over time interval kTimeStepSeconds
--(void)aniExplode:(CGPoint) targetPoint;  // animate it exploding TODO this should move to weapon
+-(void)animateExplode:(CGPoint) targetPoint;  // animate it exploding TODO this should move to weapon
+-(void)animateMove:(CGPoint) targetPoint;  // will animate a historical move over time interval kTimeStepSeconds
+-(void)animateTakeDamage:(int)damagePoints;
+-(void)animateKill;
 
--(void)takeActions;
+-(void)playActionsInSequence;  // plays all the actions in sequence FOR EACH entity object
 
 @end

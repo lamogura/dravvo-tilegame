@@ -22,15 +22,19 @@
                                         selectedImage:nil
                                         disabledImage:nil
                                         block:^(id sender) {
-            [self->_apiWrapper postCreateNewGameThenCallBlock:^(NSError *error, DVGameStatus *status) {
+            [self->_apiWrapper postCreateNewGameThenCallBlock:^(NSError *error, DVServerGameData *status) {
                 if (error != nil) {
                     ULog([error localizedDescription]);
                 }
                 else {
                     DLog(@"Saving gameID to defaults: %@", status.gameID);
                     [[NSUserDefaults standardUserDefaults] setObject:status.gameID forKey:kCurrentGameIDKey];
-                    // TODO: add logic where new game is generated locally 
-                    [[CCDirector sharedDirector] replaceScene:[CoreGameLayer scene]];
+                    // TODO: add logic where new game is generated locally
+                    
+                    // In this case, we are the HOST of the new game, so we get playerID = 1, GUEST will get 2
+                    [CoreGameLayer setPlayerID:1];
+                    
+                    [[CCDirector sharedDirector] replaceScene:[CoreGameLayer scene:DVNewGameAsHost]];
                 }
             }];
         }];

@@ -11,7 +11,7 @@
 #import "DVAPIWrapper.h"
 #import "DVDownloader.h"
 #import "DVConstants.h"
-#import "DVGameStatus.h"
+#import "DVServerGameData.h"
 #import "DVMacros.h"
 
 @interface DVAPIWrapper()  {
@@ -23,7 +23,7 @@
 @implementation DVAPIWrapper
 
 #pragma mark - API Functions
-- (void) getGameStatusThenCallBlock:(void (^)(NSError* error, DVGameStatus* status))block {
+- (void) getGameStatusThenCallBlock:(void (^)(NSError* error, DVServerGameData* status))block {
     
     NSString* currentGameID = [[NSUserDefaults standardUserDefaults] stringForKey:kCurrentGameIDKey];
     
@@ -64,7 +64,7 @@
                     NSError *error = [NSError errorWithDomain:kDVAPIWrapperErrorDomain code:0 userInfo:@{NSLocalizedDescriptionKey : NSLocalizedString(errorMessage, @"")}];
                     block(error, nil);
                 } else {
-                    DVGameStatus *status = [[DVGameStatus alloc] initWithDictionary:[resp objectForKey:kDVAPIGameKey]];
+                    DVServerGameData *status = [[DVServerGameData alloc] initWithDictionary:[resp objectForKey:kDVAPIGameKey]];
                     block(nil, status);
                 }
             }
@@ -77,7 +77,7 @@
     }
 }
 
-- (void) postCreateNewGameThenCallBlock:(void (^)(NSError* error, DVGameStatus* status))block {
+- (void) postCreateNewGameThenCallBlock:(void (^)(NSError* error, DVServerGameData* status))block {
     
     NSString *deviceToken = [[NSUserDefaults standardUserDefaults] stringForKey:kDeviceToken];
     DLog(@"Loaded deviceToken from defaults: %@", deviceToken);
@@ -117,7 +117,7 @@
                 NSError *error = [NSError errorWithDomain:kDVAPIWrapperErrorDomain code:0 userInfo:@{NSLocalizedDescriptionKey : NSLocalizedString(errorMessage, @"")}];
                 block(error, nil);
             } else {
-                DVGameStatus *status = [[DVGameStatus alloc] initWithDictionary:[resp objectForKey:kDVAPIGameKey]];
+                DVServerGameData *status = [[DVServerGameData alloc] initWithDictionary:[resp objectForKey:kDVAPIGameKey]];
                 block(nil, status);
             }
         }

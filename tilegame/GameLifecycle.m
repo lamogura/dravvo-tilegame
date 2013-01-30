@@ -19,14 +19,14 @@
 +(void) startWithDirector:(CCDirectorIOS *)director {
     // load new game scene if there isnt one currently going
 
-    NSString* currentGameID = [[NSUserDefaults standardUserDefaults] valueForKey:kCurrentGameIDKey];
-    if (currentGameID != nil) {
-        DLog(@"Found gameID: %@", currentGameID);
-        [director pushScene: [CoreGameLayer scene]];
-        //        [director_ pushScene: [HelloWorldLayer scene]];
-    }
-    else {
-        [director pushScene: [NewGameLayer scene]];
-    }
+//    NSString* currentGameID = [[NSUserDefaults standardUserDefaults] valueForKey:kCurrentGameIDKey];
+//    if (currentGameID != nil) {
+//        DLog(@"Found gameID: %@", currentGameID);
+        [director pushScene: [CoreGameLayer scene:DVNewGameAsHost]];  // FIX replace with  [director pushScene:[CoreGameLayer scene:DVBeginNextTurn]];
+//    }
+//    else {
+//        [director pushScene: [NewGameLayer scene]];
+//    }
+    
 }
 @end

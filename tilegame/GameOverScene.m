@@ -48,9 +48,8 @@
 }
 
 - (void)gameOverDone {
-    
-    [[CCDirector sharedDirector] replaceScene:[CoreGameLayer scene]];
-    
+    // FIX should show report of points and stats!
+    [[CCDirector sharedDirector] replaceScene:[CoreGameLayer scene:DVNewGameAsHost]];  // try re-starting another game automatically
 }
 
 

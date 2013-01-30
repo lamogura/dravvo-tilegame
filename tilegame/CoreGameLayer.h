@@ -18,6 +18,14 @@
 //#import "Opponent.h"
 #import "CoreGameHudLayer.h"
 
+// possible initialization methods of CoreGameLayer
+typedef enum {
+    DVNewGameAsHost,  // a new game is started with you as the host
+    DVNewGameAsGuest,  // a new game is started with you as the guest: I. Guest Player's initialization, II. playback, III. Guest player's move
+    DVBeginNextTurn,  // start with playback, then player's move
+    DVResume,  // Player closed the app before the JSON update could be sent to server - continue from where left off if possible
+} DVCoreLayerInitType;
+
 @class CoreGameHudLayer;
 @class Player;
 
@@ -45,12 +53,18 @@
     DVAPIWrapper* _apiWrapper; // api wrapper for server calls
 }
 
++(void) setServerGameData:(DVServerGameData*) gameData; // static storing last gameData update
++(void) setPlayerID:(int)setID;
++(int) playerID; // returns the unique player ID - set on game startup depending on host or guest
 // returns a CCScene that contains the HelloWorldLayer as the only child
-+(CCScene *) scene;
++(CCScene *) scene:(DVCoreLayerInitType) initType;
+
+-(id) initWithInitType:(DVCoreLayerInitType) initType;
 
 @property (nonatomic, strong) CoreGameHudLayer* hud;
 @property (nonatomic, assign) int timeStepIndex; // should count up to 10 or 20, to get to a 10 second round
 @property (nonatomic, strong) Player* player; // always the local player
+@property (nonatomic, strong) Player* opponent; // always the local player
 //@property (nonatomic, strong) Player* opponent;
 
 @property (nonatomic, strong) NSMutableDictionary* historicalEventsDict;
@@ -62,7 +76,6 @@
 // call back functions
 -(void) mainGameLoop:(ccTime)deltaTime;
 -(void) sampleCurrentPositions:(ccTime)deltaTime; // scheduled callback
--(void) enemyPlaybackLoop:(ccTime)deltaTime;
 
 // entity actions finished
 -(void) shurikenMoveFinished:(id) sender;
@@ -82,10 +95,13 @@
 -(void) missileExplodes:(CGPoint) hitLocation;
 
 // lifecycle functions
+-(void) audioInitAndPlay;
+-(void) reloadGameState;
+-(void) saveGameState;
 -(void) startRound;
 -(void) win;
 -(void) lose;
 -(void) roundFinished;
--(void) enemyPlayback;
+-(void) enemyPlaybackLoop:(int)lastArrayIndex;
 
 @end

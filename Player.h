@@ -29,7 +29,8 @@ typedef enum {
 
 @interface Player : EntityNode
 
-@property (nonatomic, readonly) NSMutableArray* minions;
+//@property (nonatomic, readonly) NSMutableArray* minions;
+@property (nonatomic, copy) NSMutableDictionary* minions;
 @property (nonatomic, assign) DVPlayerMode mode;
 
 // change related consts if you ever any of these properties used in KVO
@@ -37,10 +38,11 @@ typedef enum {
 @property (nonatomic, assign) int numKills;
 @property (nonatomic, assign) int numShurikens; // FIX should be able just to count objects in array
 @property (nonatomic, assign) int numMissiles; // FIX should be able just to count objects in array
+@property (nonatomic, strong) Player* enemyPlayer;  // later, upgrade this to a list of enemyPlayers FIX for > 2 multiplay
 
 // constructors
--(id)initInLayer:(CoreGameLayer *)layer atSpawnPoint:(CGPoint)spawnPoint;
--(id)initInLayer:(CoreGameLayer *)layer atSpawnPoint:(CGPoint)spawnPoint withShurikens:(int)numShurikens withMissles:(int)numMissles;
--(id)initInLayer:(CoreGameLayer *)layer atSpawnPoint:(CGPoint)spawnPoint withShurikens:(int)numShurikens withMissles:(int)numMissles withKills:(int)numKills withMelons:(int)numMelons;
+-(id)initInLayer:(CoreGameLayer *)layer atSpawnPoint:(CGPoint)spawnPoint withUniqueIntID:(int)intID;
+-(id)initInLayer:(CoreGameLayer *)layer atSpawnPoint:(CGPoint)spawnPoint withUniqueIntID:(int)intID withShurikens:(int)numShurikens withMissles:(int)numMissles;
+-(id)initInLayer:(CoreGameLayer *)layer atSpawnPoint:(CGPoint)spawnPoint withUniqueIntID:(int)intID withShurikens:(int)numShurikens withMissles:(int)numMissles withKills:(int)numKills withMelons:(int)numMelons;
 
 @end

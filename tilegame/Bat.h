@@ -14,7 +14,6 @@
 //#import "ReplayableEvents.h"
 #import "CreatureNode.h"
 
-#define kEntityTypeBat @"bat"
 #define kEntityBatHitPoints 1
 #define kEntityBatSpeedPPS 33
 

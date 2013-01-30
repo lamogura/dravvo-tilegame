@@ -16,6 +16,16 @@
 @synthesize owner = _owner;
 @synthesize entityType = _entityType;
 
+-(id)initInLayerWithoutCache:(CoreGameLayer *)layer atSpawnPoint:(CGPoint)spawnPoint withBehavior:(DVCreatureBehavior)behavior ownedBy:(EntityNode *)owner
+{
+    if (self = [super initInLayerWithoutCache:layer atSpawnPoint:spawnPoint]) {
+        self->_behavior = behavior;
+        self->_owner = owner;
+    }
+    return self;
+
+}
+
 -(id)initInLayer:(CoreGameLayer *)layer atSpawnPoint:(CGPoint)spawnPoint withBehavior:(DVCreatureBehavior)behavior ownedBy:(EntityNode *)owner
 {
     if (self = [super initInLayer:layer atSpawnPoint:spawnPoint]) {
@@ -28,9 +38,15 @@
 -(NSMutableDictionary *)cacheStateForEvent:(DVEventType)event {
     NSMutableDictionary* eventData = [super cacheStateForEvent:event];
     [eventData addEntriesFromDictionary:[NSDictionary dictionaryWithObjectsAndKeys:
-                                         [NSString stringWithFormat:@"P%d", self.owner.uniqueID+1], kDVEventKey_OwnerID,
-                                         nil]];
+                                         [NSNumber numberWithInt:self.owner.uniqueID], kDVEventKey_OwnerID,
+                                         nil]];  // was self.owner.uniqueID + 1
     return eventData;
+}
+
+// push all animations onto the NSMuttable Actions array
+-(void)animateMove:(CGPoint) targetPoint  // will animate a historical move over time interval kTimeStepSeconds
+{
+    [super animateMove:targetPoint];
 }
 
 @end

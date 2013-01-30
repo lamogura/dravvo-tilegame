@@ -26,51 +26,65 @@
    eJztl70OgzAMhNN2qpj6t7UIMbRb3//xmg6RoghDHDtxkG74hADJ8fkMTkbn3Aiy+XSQgxUzA4v83gwdrXslN7e1OGmMJR177E9NP0rrrFE3q76v5cfd86hQ/ynif3/wHAs5Zeh4el6K9Qkap+QqYcjQoZHzli81dIS4rb+PM/H821AHZ2ZSM5TSwYUzpyXzKtRqEuhY82iO1tDsF0qzRMeWH1s6pD5Qa0p1DETMWh6k71Id3LlRW0euptI1L55rxG0lpnYPaepoHTNA7W0k/2uL85D23mYvtOhpCb2cw7h5WOa95Km1z9br9+ZRq5x6rLtV/Xr0GwAAAAAAAAAAAGCv/ADNwiMZ
   </data>
  </layer>
- <objectgroup name="Objects" width="50" height="50">
-  <object name="SpawnPoint" x="224" y="752" width="39" height="42"/>
-  <object name="EnemySpawn1" x="777" y="212" width="39" height="42">
+ <objectgroup name="MinionSpawnPoints" width="50" height="50">
+  <object name="SpawnPoint_minion0" x="113" y="345" width="39" height="42">
    <properties>
-    <property name="Enemy" value="1"/>
+    <property name="EntityType" value="bat"/>
+    <property name="Owner" value="1"/>
    </properties>
   </object>
-  <object name="EnemySpawn2" x="1553" y="327" width="39" height="42">
+  <object name="SpawnPoint_minion1" x="144" y="588" width="39" height="42">
    <properties>
-    <property name="Enemy" value="1"/>
+    <property name="EntityType" value="bat"/>
+    <property name="Owner" value="1"/>
    </properties>
   </object>
-  <object name="EnemySpawn3" x="2659" y="243" width="39" height="42">
+  <object name="SpawnPoint_minion2" x="87" y="837" width="39" height="42">
    <properties>
-    <property name="Enemy" value="1"/>
+    <property name="EntityType" value="bat"/>
+    <property name="Owner" value="1"/>
    </properties>
   </object>
-  <object name="EnemySpawn4" x="874" y="761" width="39" height="42">
+  <object name="SpawnPoint_minion3" x="126" y="1034" width="39" height="42">
    <properties>
-    <property name="Enemy" value="1"/>
+    <property name="EntityType" value="bat"/>
+    <property name="Owner" value="1"/>
    </properties>
   </object>
-  <object name="EnemySpawn5" x="1690" y="797" width="39" height="42">
+  <object name="SpawnPoint_minion4" x="80" y="1206" width="39" height="42">
    <properties>
-    <property name="Enemy" value="1"/>
+    <property name="EntityType" value="bat"/>
+    <property name="Owner" value="1"/>
    </properties>
   </object>
-  <object name="EnemySpawn6" x="2417" y="843" width="39" height="42">
+  <object name="SpawnPoint_minion5" x="2953" y="134" width="39" height="42">
    <properties>
-    <property name="Enemy" value="1"/>
+    <property name="EntityType" value="bat"/>
+    <property name="Owner" value="2"/>
    </properties>
   </object>
-  <object name="EnemySpawn7" x="1002" y="1370" width="39" height="42">
+  <object name="SpawnPoint_minion6" x="3099" y="234" width="39" height="42">
    <properties>
-    <property name="Enemy" value="1"/>
+    <property name="EntityType" value="bat"/>
+    <property name="Owner" value="2"/>
    </properties>
   </object>
-  <object name="EnemySpawn8" x="1847" y="1282" width="39" height="42">
+  <object name="SpawnPoint_minion7" x="2984" y="600" width="39" height="42">
    <properties>
-    <property name="Enemy" value="1"/>
+    <property name="EntityType" value="bat"/>
+    <property name="Owner" value="2"/>
    </properties>
   </object>
-  <object name="EnemySpawn9" x="2253" y="1549" width="39" height="42">
+  <object name="SpawnPoint_minion8" x="3035" y="964" width="39" height="42">
    <properties>
-    <property name="Enemy" value="1"/>
+    <property name="EntityType" value="bat"/>
+    <property name="Owner" value="2"/>
+   </properties>
+  </object>
+  <object name="SpawnPoint_minion9" x="2999" y="1252" width="39" height="42">
+   <properties>
+    <property name="EntityType" value="bat"/>
+    <property name="Owner" value="2"/>
    </properties>
   </object>
  </objectgroup>
@@ -84,4 +98,16 @@
    eJzt1t0OgCAIgFFfid7/4bptpgsUlOV3trZuAvEnKQUWsnsA6Mq2NtJ5H42jiZFtDlYbrf/0eWuRYp8X7R59xpbJR5vPS30ePWJH7z/Pf8dljLHrbH3lPaGOqJya7+sY3nV4r0cv3s46IvecR0/ibWQuZu6MFWc6IoflHqS3efPuCXb5Sx1W2WvOMr6I/j1Kpp4rS/6WE8aUscZI3N8AAAAAAABr3Jj8E1s=
   </data>
  </layer>
+ <objectgroup name="PlayerSpawnPoints" width="50" height="50">
+  <object name="SpawnPoint0" x="300" y="764" width="39" height="45">
+   <properties>
+    <property name="Owner" value="1"/>
+   </properties>
+  </object>
+  <object name="SpawnPoint1" x="2953" y="379" width="52" height="61">
+   <properties>
+    <property name="Owner" value="2"/>
+   </properties>
+  </object>
+ </objectgroup>
 </map>

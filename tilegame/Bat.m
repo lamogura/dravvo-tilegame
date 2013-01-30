@@ -25,6 +25,30 @@ static int _uniqueIDCounter = 0;
     return _uniqueIDCounter++;
 }
 
+-(id)initInLayerWithoutCache:(CoreGameLayer *)layer atSpawnPoint:(CGPoint)spawnPoint withBehavior:(DVCreatureBehavior)behavior ownedBy:(EntityNode *)player
+{
+    if(self = [super initInLayer:layer atSpawnPoint:spawnPoint withBehavior:behavior ownedBy:(EntityNode *)player])
+    {
+        self.entityType = kEntityTypeBat;
+        self.uniqueID = [Bat nextUniqueID];
+        
+        // set bat's stats
+        self.hitPoints = kEntityBatHitPoints;
+        self.speedInPixelsPerSec = kEntityBatSpeedPPS;
+        
+        if(self.owner.uniqueID == 2)
+            self.sprite = [CCSprite spriteWithFile:@"batRed.png"];
+        else
+            self.sprite = [CCSprite spriteWithFile:@"batGreen.png"];
+        self.sprite.position = self.previousPosition = spawnPoint;
+        [self addChild:self.sprite];
+        
+        [self.gameLayer addChild:self];
+    }
+    return self;
+   
+}
+
 -(id)initInLayer:(CoreGameLayer *)layer atSpawnPoint:(CGPoint)spawnPoint withBehavior:(DVCreatureBehavior)behavior ownedBy:(EntityNode *)player
 {
     if(self = [super initInLayer:layer atSpawnPoint:spawnPoint withBehavior:behavior ownedBy:(EntityNode *)player])
@@ -36,7 +60,10 @@ static int _uniqueIDCounter = 0;
         self.hitPoints = kEntityBatHitPoints;
         self.speedInPixelsPerSec = kEntityBatSpeedPPS;
     
-        self.sprite = [CCSprite spriteWithFile:@"bat2.png"];
+        if(self.owner.uniqueID == 2)
+            self.sprite = [CCSprite spriteWithFile:@"batRed.png"];
+        else
+            self.sprite = [CCSprite spriteWithFile:@"batGreen.png"];
         self.sprite.position = self.previousPosition = spawnPoint;
         [self addChild:self.sprite];
         
@@ -91,9 +118,9 @@ static int _uniqueIDCounter = 0;
             break;
         case DVCreatureBehaviorDefault:
         {
-            //rotate to face the player
+            //rotate to face the opponent
             CoreGameLayer* layer = (CoreGameLayer *)self.gameLayer;
-            CGPoint diff = ccpSub(layer.player.sprite.position, self.sprite.position);
+            CGPoint diff = ccpSub(layer.opponent.sprite.position, self.sprite.position);
             float angleRadians = atanf((float)diff.y / (float)diff.x);
             float angleDegrees = CC_RADIANS_TO_DEGREES(angleRadians);
             float cocosAngle = -1 * angleDegrees;
@@ -111,11 +138,14 @@ static int _uniqueIDCounter = 0;
             // ccpNormalize calculates a unit vector given 2 point coordinates,...
             // and gives a hypotenous of length 1 with appropriate x,y
             //            id actionMove = [CCMoveBy actionWithDuration:actualDuration position:ccpMult(ccpNormalize(ccpSub(myLayer.player.position,sprite.position)), 10)];
-            id actionMove = [CCMoveBy actionWithDuration:kTickLengthSeconds position:ccpMult(ccpNormalize(ccpSub(layer.player.sprite.position,self.sprite.position)), distancePixels)];
+            id actionMove = [CCMoveBy actionWithDuration:kTickLengthSeconds position:ccpMult(ccpNormalize(ccpSub(layer.opponent.sprite.position,self.sprite.position)), distancePixels)];
             // callback to this method again! If the entity has changed it's behavior, then a different case will be implemented
 //            id actionMoveDone = [CCCallFuncN actionWithTarget:self selector:@selector(takeActions)];
 //            [sprite runAction:[CCSequence actions:actionMove, nil]];
+            
             [self.sprite runAction:actionMove];
+            
+            
         }
             break;
         default:
@@ -136,64 +166,24 @@ static int _uniqueIDCounter = 0;
 
 -(void)realExplode:(CGPoint) targetPoint
 {
-    
+
 }
 
-
-
-// for later animation re-play on player2's side
-// each minion has it's own list of animations that can be performed on it, such as exploding, moving, attacking,
--(void)aniMove:(CGPoint) targetPoint  // will animate a historical move over time interval kTimeStepSeconds
+/*  // calls made in EntityNode class
+-(void)animateTakeDamage:(int)damagePoints
 {
-    
-}
--(void)aniExplode:(CGPoint) targetPoint  // animate it exploding
-{
-    
 }
 
--(void) takeActions
+-(void)animateKill
 {
-    // Actions depend on behavior setting
-    // behavior must = kBehavior_idle in the case of re-playing opponent's last actions
-    // begin doing shit with this entity (moving, attacking, etc)
-    switch (self.behavior) {
-        case DVCreatureBehaviorIdle:
-            // do nothing but idle at sprite's location
-            break;
-        case DVCreatureBehaviorDefault:
-        {
-            //rotate to face the player
-            CoreGameLayer* layer = (CoreGameLayer *)self.gameLayer;
-            CGPoint diff = ccpSub(layer.player.sprite.position, self.sprite.position);
-            float angleRadians = atanf((float)diff.y / (float)diff.x);
-            float angleDegrees = CC_RADIANS_TO_DEGREES(angleRadians);
-            float cocosAngle = -1 * angleDegrees;
-            if(diff.x < 0)
-                cocosAngle += 180;
-            self.sprite.rotation = cocosAngle;
-            
-            // 10 pixels per 0.3 seconds -> speed = 33 pixels / second
-            int distancePixels = 10;
-            ccTime actualDuration = (float) distancePixels / self.speedInPixelsPerSec; //  0.3; //  v = d / t; t = d / v
-            
-//            actualDuration = 0.3;
-            // create the actions
-            // ccpMult, ccpSub multiplies, subtracts two point coordinates (vectors) to give one resulting point
-            // ccpNormalize calculates a unit vector given 2 point coordinates,...
-            // and gives a hypotenous of length 1 with appropriate x,y
-//            id actionMove = [CCMoveBy actionWithDuration:actualDuration position:ccpMult(ccpNormalize(ccpSub(myLayer.player.position,sprite.position)), 10)];
-            id actionMove = [CCMoveBy actionWithDuration:actualDuration position:ccpMult(ccpNormalize(ccpSub(layer.player.sprite.position, self.sprite.position)), distancePixels)];
-            // callback to this method again! If the entity has changed it's behavior, then a different case will be implemented
-            id actionMoveDone = [CCCallFuncN actionWithTarget:self selector:@selector(takeActions)];
-            [self.sprite runAction:[CCSequence actions:actionMove, actionMoveDone, nil]];
-        }
-            break;
-        default:
-            break;
-    }
-    
 }
+*/
+
+-(void)animateExplode:(CGPoint) targetPoint  // animate it exploding
+{
+
+}
+
 
 @end
 

@@ -23,28 +23,61 @@
 #import "Bat.h"
 #import "Player.h"
 #import "Opponent.h"
-#import "RoundFinishedScene.h"
+//#import "RoundFinishedScene.h"
 #import "CountdownLayer.h"
-
+#import "LoadingLayer.h"
+#import "EntityNode.h"
+@class EntityNode;
 #pragma mark - CoreGameLayer
 
 static BOOL _isEnemyPlaybackRound = NO;
+static int _playerID;
+static DVServerGameData* _serverGameData;
 
 @implementation CoreGameLayer
 
 @synthesize hud = _hud;
 @synthesize timeStepIndex = _timeStepIndex;
 @synthesize player = _player;
+@synthesize opponent = _opponent;
 @synthesize historicalEventsDict = _historicalEventsDict;
 
 @synthesize roundTimer = _roundTimer;
 
++(void) setServerGameData:(DVServerGameData*) gameData  // static to store last game data update
+{
+    if(_serverGameData == nil)
+        _serverGameData = [[DVServerGameData alloc] init];
+    _serverGameData = gameData;
+}
+
++(void) setPlayerID:(int)setID
+{
+    _playerID = setID;
+}
+
++(int) playerID
+{
+    return _playerID;
+
+}
+
 // Helper class method that creates a Scene with the HelloWorldLayer as the only child.
 // What calls this class??
-+(CCScene *) scene
++(CCScene *) scene:(DVCoreLayerInitType) initType
 {
 	CCScene *scene = [CCScene node];
-	CoreGameLayer *layer = [CoreGameLayer node];
+    CoreGameLayer *layer;
+    
+    if(initType == DVNewGameAsHost)
+    {
+        layer = [CoreGameLayer node];  // regular init
+    }
+    else
+    {
+        layer = [[CoreGameLayer alloc] initWithInitType:initType];
+    }
+
     CoreGameHudLayer* hud = [[CoreGameHudLayer alloc] initWithCoreGameLayer:layer];
     
     layer.hud = hud;  // store a member var reference to the hud so we can refer back to it to reset the label strings!
@@ -59,6 +92,33 @@ static BOOL _isEnemyPlaybackRound = NO;
     [scene addChild:cdlayer];
 	return scene;
 }
+/*
++(CCScene *) scenePlaybackOpponentsTurn
+{
+	CCScene *scene = [CCScene node];
+
+    // I. get the game status's dict and put it into _historicalEvents (or just read off the dict)
+    // II. cycle through the _historicalEvents, spawning, moving, etc by calling various Entity's static methods
+    // if the dict key is a bat, send it to a bat
+    // if the dict key is a Player, send it to the player
+
+    //     CoreGameLayer *layer = [CoreGameLayer node];
+    CoreGameLayer* layer = [[CoreGameLayer alloc] initWithPlayback];
+    CoreGameHudLayer* hud = [[CoreGameHudLayer alloc] initWithCoreGameLayer:layer];
+    
+    layer.hud = hud;  // store a member var reference to the hud so we can refer back to it to reset the label strings!
+    
+ 	[scene addChild:layer];
+    [scene addChild:hud];
+    
+    CountdownLayer* cdlayer = [[CountdownLayer alloc] initWithCountdownFrom:3 AndCallBlockWhenCountdownFinished:^(id status) {
+        [layer startRound];
+    }];
+    
+    [scene addChild:cdlayer];
+	return scene;
+}
+ */
 
 #pragma mark - Game Lifecycle
 
@@ -68,6 +128,8 @@ static BOOL _isEnemyPlaybackRound = NO;
         
         // init the wrapper class for the api
         self->_apiWrapper = [[DVAPIWrapper alloc] init];
+        // This code isn't reached unless we are the HOST, and therefore HOST playerID = 1, GUEST = 2
+        _playerID = 1;  // public static variable of the layer class, only set once when a new game has been started
         
         _timeStepIndex = 0; // step index for caching events
         self.isTouchEnabled = YES;  // set THIS LAYER as touch enabled so user can move character around with callbacks
@@ -79,21 +141,8 @@ static BOOL _isEnemyPlaybackRound = NO;
         
         _shurikens = [[NSMutableArray alloc] init];
         _missiles =  [[NSMutableArray alloc] init];
-        
-        // sound effects pre-load
-        [SimpleAudioEngine sharedEngine].backgroundMusicVolume = 0.70;
-        [[SimpleAudioEngine sharedEngine] playBackgroundMusic:@"DMMainTheme.m4r"];
 
-        [SimpleAudioEngine sharedEngine].effectsVolume = 1.0;
-        [[SimpleAudioEngine sharedEngine] preloadEffect:@"DMLifePack.m4r"];
-        [[SimpleAudioEngine sharedEngine] preloadEffect:@"hit.caf"];
-        [[SimpleAudioEngine sharedEngine] preloadEffect:@"move.caf"];
-        [[SimpleAudioEngine sharedEngine] preloadEffect:@"missileSound.m4a"];
-        [[SimpleAudioEngine sharedEngine] preloadEffect:@"missileExplode.m4a"];
-        [[SimpleAudioEngine sharedEngine] preloadEffect:@"shurikenSound.m4a"];
-        [[SimpleAudioEngine sharedEngine] preloadEffect:@"DMPlayerDies.m4r"];
-        [[SimpleAudioEngine sharedEngine] preloadEffect:@"DMZombie.m4r"];
-        [[SimpleAudioEngine sharedEngine] preloadEffect:@"DMZombiePain.m4r"];
+        [self audioInitAndPlay];
         
         // load the TileMap and the tile layers
         _tileMap = [CCTMXTiledMap tiledMapWithTMXFile:@"TileMap.tmx"];
@@ -102,35 +151,46 @@ static BOOL _isEnemyPlaybackRound = NO;
         _foreground = [_tileMap layerNamed:@"Foreground"];
         _destruction = [_tileMap layerNamed:@"Destruction"];
         _meta.visible = NO;
-        
-        // get the objectGroup objects layer from the tileMap, it contains spawn point objects for player and enemy sprites
-        CCTMXObjectGroup* objects = [_tileMap objectGroupNamed:@"Objects"];
-        NSAssert(objects != nil, @"'Objects' object group not found");
-        
-        // extract the "SpawnPoint" object from the tileMap object
-        NSDictionary* spawnPointsDict = [objects objectNamed:@"SpawnPoint"];
-        NSAssert(spawnPointsDict != nil, @"SpawnPoint object not found");
 
-        CGPoint playerSpawnPoint = [self pixelToPoint:
-            ccp([[spawnPointsDict valueForKey:@"x"] intValue],
-                [[spawnPointsDict valueForKey:@"y"] intValue])];
-
-        _player = [[Player alloc] initInLayer:self
-                                 atSpawnPoint:playerSpawnPoint
-                                withShurikens:kInitShurikens
-                                  withMissles:kInitMissiles];
+        // set playerID inside the NewGameLayer class, HOST = 1, GUEST = 2, etc
         
-        // draw the enemy sprites
-        // iterate through tileMap dictionary objects, finding all enemy spawn points
-        // create an enemy for each one
-        //        NSMutableDictionary* spawnPoint;
+        CCTMXObjectGroup* playerSpawnObjects = [_tileMap objectGroupNamed:@"PlayerSpawnPoints"];
+        NSAssert(playerSpawnObjects != nil, @"'PlayerSpawnPoints' object group not found");
+
+        NSDictionary* spawnPointsDict = [[NSDictionary alloc] init];
+        for(spawnPointsDict in [playerSpawnObjects objects])
+        {   // _player has not been instantiated yet, so check [Player nextUniqueID]
+            if([[spawnPointsDict valueForKey:@"Owner"] intValue] == _playerID)
+            {
+                CGPoint playerSpawnPoint = [self pixelToPoint: ccp([[spawnPointsDict valueForKey:@"x"] intValue],[[spawnPointsDict valueForKey:@"y"] intValue])];
+                DLog(@"CGPoint:%f,%f",playerSpawnPoint.x,playerSpawnPoint.y);
+                
+                _player = [[Player alloc] initInLayer:self atSpawnPoint:playerSpawnPoint withUniqueIntID:_playerID withShurikens:kInitShurikens withMissles:kInitMissiles];
+            }
+        }
+
+        int opponent_ID = _playerID == 1 ? 2 : 1;  // don't need to save this as member var - only for opponent instantiation for enemy target
+        // DEBUG for now, spawn opponent as Player 2 (assuming we are host not guest
+        for(spawnPointsDict in [playerSpawnObjects objects])
+        {   // _player has not been instantiated yet, so check [Player nextUniqueID]
+            if([[spawnPointsDict valueForKey:@"Owner"] intValue] == opponent_ID)
+            {
+                CGPoint playerSpawnPoint = [self pixelToPoint: ccp([[spawnPointsDict valueForKey:@"x"] intValue],[[spawnPointsDict valueForKey:@"y"] intValue])];
+                DLog(@"CGPoint:%f,%f",playerSpawnPoint.x,playerSpawnPoint.y);
+                
+                _opponent = [[Player alloc] initInLayer:self atSpawnPoint:playerSpawnPoint withUniqueIntID:opponent_ID withShurikens:kInitShurikens withMissles:kInitMissiles];
+            }
+        }
+         
+        CCTMXObjectGroup* minionSpawnObjects = [_tileMap objectGroupNamed:@"MinionSpawnPoints"];
+        NSAssert(minionSpawnObjects != nil, @"'MinionSpawnPoints' object group not found");
         
         // objects method returns an array of objects (in this case dictionaries) from the ObjectGroup
-        for(spawnPointsDict in [objects objects])
+        for(spawnPointsDict in [minionSpawnObjects objects])
         {
-            if([[spawnPointsDict valueForKey:@"Enemy"] intValue] == 1)
+            if([[spawnPointsDict valueForKey:@"Owner"] intValue] == _player.uniqueID)
             {
-
+                DLog(@"Player ID: %d",_player.uniqueID);
                 CGPoint enemySpawnPoint = [self pixelToPoint:
                     ccp([[spawnPointsDict valueForKey:@"x"] intValue],
                         [[spawnPointsDict valueForKey:@"y"] intValue])];
@@ -139,11 +199,20 @@ static BOOL _isEnemyPlaybackRound = NO;
                                        atSpawnPoint:enemySpawnPoint
                                        withBehavior:DVCreatureBehaviorDefault
                                             ownedBy:_player];
+                DLog(@"Bat is owned by player ID: %d",bat.owner.uniqueID);
                 
-                [self.player.minions addObject:bat]; // just in case KVO is used in future
+                
+//                [eventData addEntriesFromDictionary:
+//                 [NSDictionary dictionaryWithObjectsAndKeys:
+//                  [NSNumber numberWithInt:self.hitPoints], kDVEventKey_HPChange,
+//                  nil]];
+
+                [self.player.minions addEntriesFromDictionary:[NSDictionary dictionaryWithObject:bat forKey:[NSNumber numberWithInt:bat.uniqueID]]];
+                //[self.player.minions addObject:bat]; // just in case KVO is used in future
             }
         }
-
+         
+        
         // set the view position focused on player
         [self setViewpointCenter:_player.sprite.position];
         [self addChild:_tileMap z:-1];
@@ -151,6 +220,161 @@ static BOOL _isEnemyPlaybackRound = NO;
     }
 	return self;
 }
+
+-(id) initWithInitType:(DVCoreLayerInitType) initType
+{
+	if(self=[super init]) {
+
+        // Common initializations to all
+        self->_apiWrapper = [[DVAPIWrapper alloc] init];
+        [self audioInitAndPlay];
+        _shurikens = [[NSMutableArray alloc] init];
+        _missiles =  [[NSMutableArray alloc] init];
+        _timeStepIndex = 0; // step index for caching events
+        _roundHasStarted = NO; // wait for startRound()
+        self.roundTimer = (float) kTurnLengthSeconds;
+
+
+        switch (initType) {
+            case DVNewGameAsGuest:  // didn't get here unless DVServerGameData was packed with the opponent's goods
+            {
+                // Playback enemy turn first
+                // Initialize this player's state and begin the usual action
+                _playerID = 2;
+                // must create the opponent before playback of enemy turn as this is automatic on HOST and GUEST
+                // load the TileMap and the tile layers
+
+                _tileMap = [CCTMXTiledMap tiledMapWithTMXFile:@"TileMap.tmx"];
+                _background = [_tileMap layerNamed:@"Background"];
+                _meta = [_tileMap layerNamed:@"Meta"];
+                _foreground = [_tileMap layerNamed:@"Foreground"];
+                _destruction = [_tileMap layerNamed:@"Destruction"];
+                _meta.visible = NO;
+                
+                // set playerID inside the NewGameLayer class, HOST = 1, GUEST = 2, etc
+                
+                CCTMXObjectGroup* playerSpawnObjects = [_tileMap objectGroupNamed:@"PlayerSpawnPoints"];
+                NSAssert(playerSpawnObjects != nil, @"'PlayerSpawnPoints' object group not found");
+                
+                NSDictionary* spawnPointsDict = [[NSDictionary alloc] init];
+                for(spawnPointsDict in [playerSpawnObjects objects])
+                {   // _player has not been instantiated yet, so check [Player nextUniqueID]
+                    if([[spawnPointsDict valueForKey:@"Owner"] intValue] == _playerID)
+                    {
+                        CGPoint playerSpawnPoint = [self pixelToPoint: ccp([[spawnPointsDict valueForKey:@"x"] intValue],[[spawnPointsDict valueForKey:@"y"] intValue])];
+                        DLog(@"CGPoint:%f,%f",playerSpawnPoint.x,playerSpawnPoint.y);
+                        
+                        _player = [[Player alloc] initInLayer:self atSpawnPoint:playerSpawnPoint withUniqueIntID:_playerID withShurikens:kInitShurikens withMissles:kInitMissiles];
+                    }
+                }
+                
+                int opponent_ID = _playerID == 1 ? 2 : 1;  // don't need to save this as member var - only for opponent instantiation for enemy target
+                // DEBUG for now, spawn opponent as Player 2 (assuming we are host not guest
+                for(spawnPointsDict in [playerSpawnObjects objects])
+                {   // _player has not been instantiated yet, so check [Player nextUniqueID]
+                    if([[spawnPointsDict valueForKey:@"Owner"] intValue] == opponent_ID)
+                    {
+                        CGPoint playerSpawnPoint = [self pixelToPoint: ccp([[spawnPointsDict valueForKey:@"x"] intValue],[[spawnPointsDict valueForKey:@"y"] intValue])];
+                        DLog(@"CGPoint:%f,%f",playerSpawnPoint.x,playerSpawnPoint.y);
+                        
+                        _opponent = [[Player alloc] initInLayer:self atSpawnPoint:playerSpawnPoint withUniqueIntID:opponent_ID withShurikens:kInitShurikens withMissles:kInitMissiles];
+                    }
+                }
+                
+                CCTMXObjectGroup* minionSpawnObjects = [_tileMap objectGroupNamed:@"MinionSpawnPoints"];
+                NSAssert(minionSpawnObjects != nil, @"'MinionSpawnPoints' object group not found");
+                
+                // objects method returns an array of objects (in this case dictionaries) from the ObjectGroup
+                for(spawnPointsDict in [minionSpawnObjects objects])
+                {
+                    if([[spawnPointsDict valueForKey:@"Owner"] intValue] == _player.uniqueID)
+                    {
+                        DLog(@"Player ID: %d",_player.uniqueID);
+                        CGPoint enemySpawnPoint = [self pixelToPoint:
+                                                   ccp([[spawnPointsDict valueForKey:@"x"] intValue],
+                                                       [[spawnPointsDict valueForKey:@"y"] intValue])];
+                        
+                        Bat *bat = [[Bat alloc] initInLayer:self
+                                               atSpawnPoint:enemySpawnPoint
+                                               withBehavior:DVCreatureBehaviorDefault
+                                                    ownedBy:_player];
+                        DLog(@"Bat is owned by player ID: %d",bat.owner.uniqueID);
+                        
+                        [self.player.minions addEntriesFromDictionary:[NSDictionary dictionaryWithObject:bat forKey:[NSNumber numberWithInt:bat.uniqueID]]];
+                        //[self.player.minions addObject:bat]; // just in case KVO is used in future
+                    }
+                }
+                // set the view position focused on player
+                [self setViewpointCenter:_player.sprite.position];
+                [self addChild:_tileMap z:-1];
+
+                // delay here so Player2 can soak in the veiw before enemy playback
+                [NSThread sleepForTimeInterval:2];  // seconds?
+                [self enemyPlaybackLoop:0];  // call the opponent round playback method before our turn
+                
+                [self setViewpointCenter:_player.sprite.position];  // change the view back again to player
+                [self addChild:_tileMap z:-1];
+                
+                self.isTouchEnabled = YES;  // set THIS LAYER as touch enabled so user can move character around with callbacks
+                _isSwipe = NO; // what does this do?
+                _touches = [[NSMutableArray alloc ] init]; // store the touches for missile launching
+            }
+                break;
+            case DVBeginNextTurn:  // didn't get here unless DVServerGameData was packed with the opponent's goods
+            {
+                [self reloadGameState];  // reload the current game state before replay and play
+                [self setViewpointCenter:_player.sprite.position];
+                [self addChild:_tileMap z:-1];
+
+                [NSThread sleepForTimeInterval:2];  // seconds?
+                [self enemyPlaybackLoop:0];  // call the opponent round playback method before our turn
+                
+                [self setViewpointCenter:_player.sprite.position];  // change the view back again to player
+                [self addChild:_tileMap z:-1];
+
+                self.isTouchEnabled = YES;  // set THIS LAYER as touch enabled so user can move character around with callbacks
+                _isSwipe = NO; // what does this do?
+                _touches = [[NSMutableArray alloc ] init]; // store the touches for missile launching
+            }
+                break;
+            case DVResume:
+                // DO STUFF
+                break;
+            default:
+                break;
+        }
+    }
+    return self;
+}
+
+-(void) saveGameState
+{
+    // Save all state variables, including map, player, minion instances and display sprites, etc
+}
+
+-(void) reloadGameState
+{
+    // Reload all state variables, including map, player, minion instances and display sprites, etc
+}
+
+-(void) audioInitAndPlay
+{
+    // sound effects pre-load
+    [SimpleAudioEngine sharedEngine].backgroundMusicVolume = 0.70;
+    [[SimpleAudioEngine sharedEngine] playBackgroundMusic:@"DMMainTheme.m4r"];
+    
+    [SimpleAudioEngine sharedEngine].effectsVolume = 1.0;
+    [[SimpleAudioEngine sharedEngine] preloadEffect:@"DMLifePack.m4r"];
+    [[SimpleAudioEngine sharedEngine] preloadEffect:@"hit.caf"];
+    [[SimpleAudioEngine sharedEngine] preloadEffect:@"move.caf"];
+    [[SimpleAudioEngine sharedEngine] preloadEffect:@"missileSound.m4a"];
+    [[SimpleAudioEngine sharedEngine] preloadEffect:@"missileExplode.m4a"];
+    [[SimpleAudioEngine sharedEngine] preloadEffect:@"shurikenSound.m4a"];
+    [[SimpleAudioEngine sharedEngine] preloadEffect:@"DMPlayerDies.m4r"];
+    [[SimpleAudioEngine sharedEngine] preloadEffect:@"DMZombie.m4r"];
+    [[SimpleAudioEngine sharedEngine] preloadEffect:@"DMZombiePain.m4r"];
+}
+
 
 -(void) startRound {
     _roundHasStarted = YES; // turn on touch processing
@@ -161,6 +385,7 @@ static BOOL _isEnemyPlaybackRound = NO;
     [self schedule:@selector(sampleCurrentPositions:) interval:kReplayTickLengthSeconds];
 }
 
+
 -(void) roundFinished
 {
     ////    [NSString stringWithFormat:@"%@_%@",opponent.playerID,kDVChangeableObjectName_bat];
@@ -170,10 +395,16 @@ static BOOL _isEnemyPlaybackRound = NO;
     ////        [playerBatsActions addObject:bat.historicalEventsList_local];
     ////    }
     ////
-    ////    historicalEventsDict = [NSDictionary dictionaryWithObjectsAndKeys:
-    ////                            player.historicalEventsList_local, player.playerID,
-    ////                            playerBatsActions, [NSString stringWithFormat:@"%@_%@",player.playerID, kDVChangeableObjectName_bat],
-    ////                            nil];
+
+    // I. put the players moves on the list
+        // cycle through the bats
+
+//    _historicalEventsDict = [NSDictionary dictionaryWithObjectsAndKeys:
+//                            player.historicalEventsList_local, player.playerID,
+//                             playerBatsActions, [NSString stringWithFormat:@"%@_%@",player.playerID, kDVChangeableObjectName_bat],
+//                             nil];
+    
+    
     //    // GO JSON!
     //
     //    // unschedule the loops and everything (collision detection, etc)
@@ -184,23 +415,6 @@ static BOOL _isEnemyPlaybackRound = NO;
     //
     //    _isEnemyPlaybackRound = YES;  // DEBUG
     //
-    ///*
-    //    // should force kill all the projectiles so they don't keep going off infinitly
-    //    for (CCSprite *projectile in _projectiles) {
-    //        // FIX LATER - need to add [projectile kill] so that a historical record is made of killing all projectile entities
-    //        [_projectiles removeObject:projectile];
-    //        [self removeChild:projectile cleanup:YES];
-    //    }
-    //
-    //    for (CCSprite *missile in _missiles) {
-    //        // FIX LATER - need to add [projectile kill] so that a historical record is made of killing all projectile entities
-    //        [_missiles removeObject:missile];  // remove our reference to this shuriken from the projectiles array of sprite objects
-    //        [self removeChild:missile cleanup:YES];
-    //    }
-    //*/
-    //
-    //    // FIX for now, remove all sprites too so we can playback Player1's turn for DEBUG
-    //
     //
     //    // [self enemyPlayback];
     //    [self->_apiWrapper postUpdateGameWithUpdates:_historicalEventsDict ThenCallBlock:^(NSError *error) {
@@ -210,13 +424,32 @@ static BOOL _isEnemyPlaybackRound = NO;
     //        DLog(@"success");
     //    }];
     //
+
+    /*
+    // FINALLY, SEND the entire event history
+    [self->_apiWrapper postUpdateGameWithUpdates:[EntityNode eventHistory] ThenCallBlock:^(NSError *error) {
+        if (error != nil) {
+            ULog([error localizedDescription]);
+        }
+        else
+        {
+            // instantiate and go to a LoadingLayer's Scene where we can await the server's response about player's next turn
+            [[CCDirector sharedDirector] replaceScene:[LoadingLayer scene]];
+        }
+    }];
+     */
+
     
-    [self unscheduleAllSelectors];
+//    [self unscheduleAllSelectors];
     
+    [self enemyPlaybackLoop:0];  // DEBUG only for testing
+    
+    /*
     // transition to a waiting for opponent scene, ideally displaying current stats (maybe keep HUD up)
     GameOverScene *gameOverScene = [GameOverScene node];
     [gameOverScene.layer.label setString:@"Round Finished!"];
     [[CCDirector sharedDirector] replaceScene:gameOverScene];
+     */
 }
 
 - (void) win {
@@ -243,9 +476,10 @@ static BOOL _isEnemyPlaybackRound = NO;
 -(void) mainGameLoop:(ccTime)deltaTime
 {
     // update the minions
-    for (Bat *theMinion in _player.minions) {
-        [theMinion realUpdate];
-    }
+//    for (Bat *theMinion in _player.minions) {
+//        [theMinion realUpdate];
+    for (EntityNode *minion in _player.minions)
+        [minion realUpdate];
 }
 
 // at the end of the tick, we find out where the sprites travelled to and then we insert the "move" activity to the SECOND index
@@ -274,54 +508,160 @@ static BOOL _isEnemyPlaybackRound = NO;
     }
 }
 
--(void) enemyPlayback
+-(void) enemyPlaybackLoop:(int)eventArrayIndex
 {
-//    _timeStepIndex = 0;
-//    
-//    // prelod sounds
-//    // sound effects pre-load
-//    [SimpleAudioEngine sharedEngine].effectsVolume = 1.0;
-//    [SimpleAudioEngine sharedEngine].backgroundMusicVolume = 0.70;
-//    
-//    //        [[SimpleAudioEngine sharedEngine] preloadEffect:@"pickup.caf"];
-//    [[SimpleAudioEngine sharedEngine] preloadEffect:@"DMLifePack.m4r"];
-//    [[SimpleAudioEngine sharedEngine] preloadEffect:@"hit.caf"];
-//    [[SimpleAudioEngine sharedEngine] preloadEffect:@"move.caf"];
-//    [[SimpleAudioEngine sharedEngine] preloadEffect:@"missileSound.m4a"];
-//    [[SimpleAudioEngine sharedEngine] preloadEffect:@"missileExplode.m4a"];
-//    [[SimpleAudioEngine sharedEngine] preloadEffect:@"shurikenSound.m4a"];
-//    [[SimpleAudioEngine sharedEngine] preloadEffect:@"DMPlayerDies.m4r"];  // preload creature sounds
-//    //        [[SimpleAudioEngine sharedEngine] preloadEffect:@"juliaRoar.m4a"];  // preload creature sounds
-//    [[SimpleAudioEngine sharedEngine] preloadEffect:@"DMZombie.m4r"];  // preload creature sounds
-//    [[SimpleAudioEngine sharedEngine] preloadEffect:@"DMZombiePain.m4r"];  // preload creature sounds
-//    
-//    //        [[SimpleAudioEngine sharedEngine] preloadEffect:@"juliaRoar.m4a"];
-//    //        [[SimpleAudioEngine sharedEngine] playBackgroundMusic:@"TileMap.caf"];
-//    //        [[SimpleAudioEngine sharedEngine] playBackgroundMusic:@"montersoundtrack2.m4a"];
-//    [[SimpleAudioEngine sharedEngine] playBackgroundMusic:@"DMMainTheme.m4r"];
-//    
-//    
-//    // load the TileMap and the tile layers
-//    self.tileMap = [CCTMXTiledMap tiledMapWithTMXFile:@"TileMap.tmx"];
-//    self.background = [_tileMap layerNamed:@"Background"];
-//    self.meta = [_tileMap layerNamed:@"Meta"];
-//    self.foreground = [_tileMap layerNamed:@"Foreground"];
-//    self.destruction = [_tileMap layerNamed:@"Destruction"];
-//    _meta.visible = NO;
-//
-//    [self addChild:_tileMap z:-1];
-//    
-//    self.roundTimer = (float) kTurnLengthSeconds;
-//    // schedule the playback loops
-//    
-//    [self schedule:@selector(enemyPlaybackLoop:) interval:kReplayTickLengthSeconds];
-//    _isEnemyPlaybackRound = NO;
-}
+    double startTime = CACurrentMediaTime();  // init time to now
 
--(void) enemyPlaybackLoop:(ccTime)deltaTime
-{
+    NSMutableArray* eventsArray = [EntityNode eventHistory];
+    
+    // DEBUG - for testing playback, hard-code the _serverGameData.lastUpdates
+    _serverGameData.lastUpdates = eventsArray;
+    
+    // THIS is where the magic happens - use the static make calls to all the dictionary event objects in _serverGameData
+    
     // FIX for multiplayer, need a function to have previously filled all the local arrays with the needed goods
-    // loop through the player and each player's minionsList, calling 
+    // loop through the player and each player's minionsList, calling
+     
+    // cycle through the array, passing the commands goods to Entity (EXCEPT the spawn calls which will be done locally to ensure
+    // they are instantiated before an action is called on them)
+    
+    // start with the [EntityNode eventHistory] should look identical to _serverGameData
+ /*
+    NSMutableDictionary* eventData = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+                                      [NSNumber numberWithInt:layer.timeStepIndex], kDVEventKey_TimeStepIndex,
+                                      self.entityType, kDVEventKey_EntityType,
+                                      [NSNumber numberWithInt:self.uniqueID], kDVEventKey_EntityID,
+                                      [NSNumber numberWithInt:event], kDVEventKey_EventType,
+                                      nil];
+ */
+    // pull all for key kDVEventKey_TimeStepIndex == _timeStepIndex
+/*
+    typedef enum {
+        DVEvent_Spawn,
+        DVEvent_Move,
+        DVEvent_Wound,
+        DVEvent_Kill,
+        DVEvent_Respawn,
+        DVEvent_InitStats,
+    } DVEventType;
+*/
+    
+    // All event types but wounded:
+    //  kDVEventKey_TimeStepIndex, kDVEventKey_EventType, kDVEventKey_OwnerID, kDVEventKey_EntityType, kDVEventKey_EntityID, kDVEventKey_CoordX, kDVEventKey_CoordY
+    // "wounded" event type only:
+    //  kDVEventKey_TimeStepIndex, kDVEventKey_EventType, kDVEventKey_OwnerID, kDVEventKey_EntityType, kDVEventKey_EntityID, kDVEventKey_HPChange
+    
+    
+    NSMutableDictionary* event; // = [[NSMutableArray alloc] init];  // just setting pointer
+    event = [_serverGameData.lastUpdates objectAtIndex:eventArrayIndex];
+    while((int)[event objectForKey:kDVEventKey_TimeStepIndex] == _timeStepIndex)
+    {
+        // pull out the key values
+        int ownerID = (int) [event objectForKey:kDVEventKey_OwnerID];
+        DVEventType eventType = (int) [event objectForKey:kDVEventKey_EventType];
+        NSString* entityType = (NSString*) [event objectForKey:kDVEventKey_EntityType];  // FIX: need to change this to an enum of entityType
+        int uniqueID = (int) [event objectForKey:kDVEventKey_EntityID];
+        Player *thePlayer;
+        if(ownerID == _player.uniqueID)
+            thePlayer = _player;
+        else
+            thePlayer = _opponent;
+
+        int xCoord, yCoord, hpChange;
+        if(eventType == DVEvent_Wound)
+            hpChange = (int) [event objectForKey:kDVEventKey_HPChange];
+        else
+        {
+            xCoord = (int) [event objectForKey:kDVEventKey_CoordX];
+            yCoord = (int) [event objectForKey:kDVEventKey_CoordY];
+        }
+
+
+        if(entityType == kEntityTypePlayer) // case 1: action to be performed on the thePlayer (_opponent or _player)
+        {
+            switch (eventType) {
+                case DVEvent_Wound:
+                    [thePlayer animateTakeDamage:hpChange];
+                    break;
+                case DVEvent_Move:
+                    [thePlayer animateMove:ccp(xCoord, yCoord)];
+                    break;
+                case DVEvent_Kill:  // This is NOT a real kill as it would be for minions; the Player remains instantiated, just respawns, re-inits, etc
+                    [thePlayer animateKill];  // this call takes care of everything, sounds, respawn, re-init
+                    // for now, animateKill also takes care of DVEvent_InitStats and DVEvent_Respawn, which are no longer cached anyway
+                    break;
+                default:
+                    DLog(@"FUCK got a weird eventType in enemyPlaybackLoop's switch");
+                    break;
+                //case DVEvent_InitStats:  // only exists for actions on players, not minions
+                //case DVEvent_Respawn:  // regenerate in Player, handled in DVEvent_Kill
+            }
+            
+            eventArrayIndex++;
+            event = [_serverGameData.lastUpdates objectAtIndex:eventArrayIndex];
+            continue;
+        }
+        else  // case 2: action goes to a player's minion
+        {
+            // if this is a minion spawn, must instantiate and add to the minions list with appropriate uniqueID
+            if(eventType == DVEvent_Spawn)
+            {   // NOTE: using *WithoutCache init method, so this spawn isn't logged again on the other player's device
+                Bat *bat = [[Bat alloc] initInLayerWithoutCache:self
+                                       atSpawnPoint:ccp(xCoord, yCoord)
+                                       withBehavior:DVCreatureBehaviorDefault
+                                            ownedBy:thePlayer];
+                [thePlayer.minions addEntriesFromDictionary:[NSDictionary dictionaryWithObject:bat forKey:[NSNumber numberWithInt:bat.uniqueID]]];
+                // increment and loop
+                eventArrayIndex++;
+                event = [_serverGameData.lastUpdates objectAtIndex:eventArrayIndex];
+            }
+            
+            EntityNode* theEntity = (EntityNode*)[thePlayer.minions objectForKey:[NSNumber numberWithInt:uniqueID]];
+            
+            switch (eventType) {
+                case DVEvent_Wound:
+                    [theEntity animateTakeDamage:hpChange];
+                    break;
+                case DVEvent_Move:
+                    [theEntity animateMove:ccp(xCoord, yCoord)];
+                    break;
+                case DVEvent_Kill:
+                {
+                    [EntityNode animateDeathForEntityType:entityType at:theEntity.sprite.position]; // TO DO implement the static call for each entityType
+                    [theEntity animateKill];
+                    [self.player.minions removeObjectForKey:[NSNumber numberWithInt:uniqueID]];
+                }
+                    break;
+                default:
+                    DLog(@"FUCK got a weird eventType in enemyPlaybackLoop's switch");
+                    break;
+            }
+        
+        }
+        
+        eventArrayIndex++;
+        event = [_serverGameData.lastUpdates objectAtIndex:eventArrayIndex];
+    }
+    
+    // Now start actually playing all the actions in sequence for each
+    [_player playActionsInSequence];
+    [_opponent playActionsInSequence];
+    for(EntityNode* entity in _player.minions)
+    {
+        [entity playActionsInSequence];
+    }
+    for(EntityNode* entity in _opponent.minions)
+    {
+        [entity playActionsInSequence];
+    }
+
+    
+    // stall until kReplayTickLengthSeconds has passed before animating the next tick of actions
+    if(startTime - CACurrentMediaTime() < kReplayTickLengthSeconds)
+        [NSThread sleepForTimeInterval:(startTime - CACurrentMediaTime())];  // seconds?
+    
+    _timeStepIndex ++;
+          [self enemyPlaybackLoop:eventArrayIndex];  // next time step
 /*
     NSMutableArray *minionsToDelete = [[NSMutableArray alloc] init];
     for(Bat *theMinion in player.playerMinionList)
@@ -397,8 +737,9 @@ static BOOL _isEnemyPlaybackRound = NO;
                 [target kill];
                 self.player.numKills += 1;
                 //                [_hud numKillsChanged:_numKills];
-                [self.player.minions removeObject:target];
-                [self removeChild:target cleanup:YES];
+                    //[self.player.minions removeObject:target];
+                [self.player.minions removeObjectForKey:[NSNumber numberWithInt:target.uniqueID]];
+                // [self removeChild:target cleanup:YES]; // child removes itself on [target kill]
             }
         }
         if (targetsToDelete.count > 0) {
@@ -801,7 +1142,8 @@ static BOOL _isEnemyPlaybackRound = NO;
             [target kill];
             self.player.numKills += 1;
 //            [_hud numKillsChanged:_numKills];
-            [_player.minions removeObject:target];
+                //[_player.minions removeObject:target];
+            [self.player.minions removeObjectForKey:[NSNumber numberWithInt:target.uniqueID]];
             // [self removeChild:target cleanup:YES];
         }
     }
