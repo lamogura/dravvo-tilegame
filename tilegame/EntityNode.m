@@ -13,8 +13,12 @@
 #import "EntityNode.h"
 #import "CoreGameLayer.h"
 #import "GameConstants.h"
+#import "DVMacros.h"
+//#import "CCSequence+Helper.h"
+#import "CCSequenceHelper.h"
 
 static NSMutableArray* _eventHistory;  // the entire event history of all Entitiy's
+
 // Entity's include Bat, Missile, Shuriken, Player?
 // IN the very least, make sure that all previous time step actions and animations are finished before performing the next time step's actions from main
 @implementation EntityNode
@@ -29,7 +33,7 @@ static NSMutableArray* _eventHistory;  // the entire event history of all Entiti
 
 +(NSMutableArray*) eventHistory  // the entire event history of all Entitiy's getter method
 {
-    if(_eventHistory == nil) // this should only run once
+    if(!_eventHistory) // this should only run once
     {
         _eventHistory = [[NSMutableArray alloc] init];
     }
@@ -46,7 +50,7 @@ static NSMutableArray* _eventHistory;  // the entire event history of all Entiti
     if (self = [super init]) {
         self->_gameLayer = layer;
         self->_spawnPoint = spawnPoint;
-        self->_actionsToBePlayed = [[NSMutableArray alloc] init];
+        _actionsToBePlayed = [[NSMutableArray alloc] initWithCapacity:1];;
     }
     return self;
 }
@@ -56,7 +60,7 @@ static NSMutableArray* _eventHistory;  // the entire event history of all Entiti
     if (self = [super init]) {
         self->_gameLayer = layer;
         self->_spawnPoint = spawnPoint;
-        self->_actionsToBePlayed = [[NSMutableArray alloc] init];
+        _actionsToBePlayed = [[NSMutableArray alloc] initWithCapacity:1];;
     }
     return self;
 }
@@ -67,6 +71,7 @@ static NSMutableArray* _eventHistory;  // the entire event history of all Entiti
 
 -(NSMutableDictionary *)cacheStateForEvent:(DVEventType)event
 {
+    DLog(@"cacheStateForEvent...");
     CoreGameLayer* layer = (CoreGameLayer *)self.gameLayer;
     NSMutableDictionary* eventData = [NSMutableDictionary dictionaryWithObjectsAndKeys:
                                       [NSNumber numberWithInt:layer.timeStepIndex], kDVEventKey_TimeStepIndex,
@@ -99,7 +104,11 @@ static NSMutableArray* _eventHistory;  // the entire event history of all Entiti
     }
     
     // Now put this dictionary onto the object's NSMuttableArray
-    [_eventHistory addObject:eventData];
+    DLog(@"[eventData count] = %d",[eventData count]);
+
+    [[EntityNode eventHistory] addObject:eventData];
+//    layer.eventHistory
+    DLog(@"[layer.eventHistory count] = %d", [[EntityNode eventHistory] count]);
     return eventData;
 }
 
@@ -146,9 +155,14 @@ static NSMutableArray* _eventHistory;  // the entire event history of all Entiti
 
 -(void)animateMove:(CGPoint) targetPoint  // will animate a historical move over time interval kTimeStepSeconds
 {
+    // test the CCSequence+Helper shit
+    
+    
     // make an action for moving from current point to targetPoint
     //rotate to face the direction of movement
-    CGPoint diff = ccpSub(targetPoint, self.sprite.position);
+//    CGPoint diff = ccpSub(targetPoint, self.sprite.position);  // Change to this for multiplay
+//    DLog(@"Starting animateMove for ID %d", self.uniqueID);
+    CGPoint diff = ccpSub(targetPoint, self.spawnPoint);  // temporary DEBUG
     float angleRadians = atanf((float)diff.y / (float)diff.x);
     float angleDegrees = CC_RADIANS_TO_DEGREES(angleRadians);
     float cocosAngle = -1 * angleDegrees;
@@ -158,7 +172,13 @@ static NSMutableArray* _eventHistory;  // the entire event history of all Entiti
     
     id actionMove = [CCMoveTo actionWithDuration:kReplayTickLengthSeconds position:targetPoint];
     
-    [self.actionsToBePlayed addObject:actionMove];
+    [_actionsToBePlayed addObject:actionMove];  // change to this for multiplay
+    
+    DLog(@"Move from %f,%f to %f,%f", self.sprite.position.x, self.sprite.position.y, targetPoint.x, targetPoint.y);
+
+    // only temporary
+//    self.sprite.position = self.spawnPoint;
+//    [self.sprite runAction:actionMove];  // temporary DEBUG
     
 }
 
@@ -179,7 +199,20 @@ static NSMutableArray* _eventHistory;  // the entire event history of all Entiti
 
 -(void)playActionsInSequence  // Adds all the actions in the NSMutableArray to a CCSequence and plays them
 {
-    [self.sprite runAction:[CCSequence actionMutableArray:_actionsToBePlayed]];
+
+    if([_actionsToBePlayed count] == 0)
+    {
+        DLog(@"No actions to be played. Returning...");
+        return;
+    }
+
+    DLog(@"Pushing actions sequence!!!");
+//    CCSequence *seq = [CCSequence actionMutableArray:_actionsToBePlayed];
+
+//    [self.sprite runAction:[CCSequence actionMutableArray:_actionsToBePlayed]];
+    [self.sprite runAction:[CCSequenceHelper actionMutableArray:self->_actionsToBePlayed]];
+    
+    DLog(@"Finished pushing actions sequence!!!");
     //    [self.sprite runAction:actionMove];
 }
 

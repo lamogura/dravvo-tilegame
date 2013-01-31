@@ -7,8 +7,10 @@
 
 #import <Foundation/Foundation.h>
 #import <GameKit/GameKit.h>
-#import "CCSequence+Helper.h"
+//#import "CCSequence+Helper.h"
+//#import "CCSequenceHelper.h"
 #import "ccnode.h"
+#import "cocos2d.h"
 
 //#import "CoreGameLayer.h"
 

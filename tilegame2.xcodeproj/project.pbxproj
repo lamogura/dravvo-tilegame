@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3F0BD55D16BA6141005C7A54 /* CCSequenceHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F0BD55C16BA6141005C7A54 /* CCSequenceHelper.m */; };
 		3F205FBD16B0EEB1008D9399 /* Missile.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F205FBC16B0EEB0008D9399 /* Missile.m */; };
 		3F205FC016B0EED1008D9399 /* Shuriken.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F205FBF16B0EED1008D9399 /* Shuriken.m */; };
 		3F3F40D916B180E00080C341 /* Player.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F3F40D816B180E00080C341 /* Player.m */; };
@@ -356,6 +357,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		3F0BD55B16BA6141005C7A54 /* CCSequenceHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CCSequenceHelper.h; sourceTree = "<group>"; };
+		3F0BD55C16BA6141005C7A54 /* CCSequenceHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CCSequenceHelper.m; sourceTree = "<group>"; };
 		3F205FBB16B0EEB0008D9399 /* Missile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Missile.h; sourceTree = "<group>"; };
 		3F205FBC16B0EEB0008D9399 /* Missile.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Missile.m; sourceTree = "<group>"; };
 		3F205FBE16B0EED1008D9399 /* Shuriken.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Shuriken.h; sourceTree = "<group>"; };
@@ -934,6 +937,8 @@
 				3F3F40D816B180E00080C341 /* Player.m */,
 				3F3F40EC16B2AB930080C341 /* HistoricalEvent.h */,
 				3F3F40ED16B2AB930080C341 /* HistoricalEvent.m */,
+				3F0BD55B16BA6141005C7A54 /* CCSequenceHelper.h */,
+				3F0BD55C16BA6141005C7A54 /* CCSequenceHelper.m */,
 			);
 			name = Multiplayer;
 			sourceTree = "<group>";
@@ -1662,6 +1667,7 @@
 				CEC591A816B3E3C900323F57 /* CoreGameLayer.m in Sources */,
 				CE892A5816B4180A00BE6DAB /* EntityNode.m in Sources */,
 				CE892A5B16B4185300BE6DAB /* CreatureNode.m in Sources */,
+				3F0BD55D16BA6141005C7A54 /* CCSequenceHelper.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

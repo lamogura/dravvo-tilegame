@@ -43,10 +43,12 @@
     return eventData;
 }
 
+/*
 // push all animations onto the NSMuttable Actions array
 -(void)animateMove:(CGPoint) targetPoint  // will animate a historical move over time interval kTimeStepSeconds
 {
     [super animateMove:targetPoint];
 }
+*/
 
 @end

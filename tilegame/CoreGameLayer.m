@@ -17,7 +17,9 @@
 #import "DVMacros.h"
 #import "DVConstants.h"
 #import "gameConstants.h"
-#import "CCSequence+Helper.h"
+//#import "CCSequence+Helper.h"
+#import "CCSequenceHelper.h"
+
 #import "Libs/SBJSON/SBJson.h"
 
 #import "Bat.h"
@@ -27,7 +29,7 @@
 #import "CountdownLayer.h"
 #import "LoadingLayer.h"
 #import "EntityNode.h"
-@class EntityNode;
+
 #pragma mark - CoreGameLayer
 
 static BOOL _isEnemyPlaybackRound = NO;
@@ -41,6 +43,7 @@ static DVServerGameData* _serverGameData;
 @synthesize player = _player;
 @synthesize opponent = _opponent;
 @synthesize historicalEventsDict = _historicalEventsDict;
+//@synthesize eventHistory = _eventHistory;
 
 @synthesize roundTimer = _roundTimer;
 
@@ -84,7 +87,7 @@ static DVServerGameData* _serverGameData;
     
  	[scene addChild:layer];
     [scene addChild:hud];
-    
+
     CountdownLayer* cdlayer = [[CountdownLayer alloc] initWithCountdownFrom:3 AndCallBlockWhenCountdownFinished:^(id status) {
         [layer startRound];
     }];
@@ -132,6 +135,7 @@ static DVServerGameData* _serverGameData;
         _playerID = 1;  // public static variable of the layer class, only set once when a new game has been started
         
         _timeStepIndex = 0; // step index for caching events
+//        _eventHistory = [[NSMutableArray alloc] init];
         self.isTouchEnabled = YES;  // set THIS LAYER as touch enabled so user can move character around with callbacks
 		_isSwipe = NO; // what does this do?
         _touches = [[NSMutableArray alloc ] init]; // store the touches for missile launching
@@ -181,7 +185,11 @@ static DVServerGameData* _serverGameData;
                 _opponent = [[Player alloc] initInLayer:self atSpawnPoint:playerSpawnPoint withUniqueIntID:opponent_ID withShurikens:kInitShurikens withMissles:kInitMissiles];
             }
         }
-         
+        
+        CGPoint aSpawnPoint1;  // SHIT
+        CGPoint aSpawnPoint2;  // SHIT
+        int count = 0;
+        
         CCTMXObjectGroup* minionSpawnObjects = [_tileMap objectGroupNamed:@"MinionSpawnPoints"];
         NSAssert(minionSpawnObjects != nil, @"'MinionSpawnPoints' object group not found");
         
@@ -190,6 +198,13 @@ static DVServerGameData* _serverGameData;
         {
             if([[spawnPointsDict valueForKey:@"Owner"] intValue] == _player.uniqueID)
             {
+                count++;  // SHIT
+                if(count == 3)  // SHIT
+                    aSpawnPoint1 = [self pixelToPoint:ccp([[spawnPointsDict valueForKey:@"x"] intValue],
+                                       [[spawnPointsDict valueForKey:@"y"] intValue])];
+                if(count == 4) // SHIT
+                    aSpawnPoint2 = [self pixelToPoint: ccp([[spawnPointsDict valueForKey:@"x"] intValue],
+                                       [[spawnPointsDict valueForKey:@"y"] intValue])];
                 DLog(@"Player ID: %d",_player.uniqueID);
                 CGPoint enemySpawnPoint = [self pixelToPoint:
                     ccp([[spawnPointsDict valueForKey:@"x"] intValue],
@@ -198,20 +213,40 @@ static DVServerGameData* _serverGameData;
                 Bat *bat = [[Bat alloc] initInLayer:self
                                        atSpawnPoint:enemySpawnPoint
                                        withBehavior:DVCreatureBehaviorDefault
-                                            ownedBy:_player];
-                DLog(@"Bat is owned by player ID: %d",bat.owner.uniqueID);
-                
+                                            ownedBy:_player];                
                 
 //                [eventData addEntriesFromDictionary:
 //                 [NSDictionary dictionaryWithObjectsAndKeys:
 //                  [NSNumber numberWithInt:self.hitPoints], kDVEventKey_HPChange,
 //                  nil]];
+                [_player.minions addEntriesFromDictionary:[NSDictionary dictionaryWithObject:bat forKey:[NSNumber numberWithInt:bat.uniqueID]]];
+                DLog(@"Bat is owned by player ID: %d",bat.owner.uniqueID);
 
-                [self.player.minions addEntriesFromDictionary:[NSDictionary dictionaryWithObject:bat forKey:[NSNumber numberWithInt:bat.uniqueID]]];
                 //[self.player.minions addObject:bat]; // just in case KVO is used in future
             }
         }
-         
+//        DLog(@"Number of bats = %@", [_player.minions ])
+        // SHIT
+        CCSprite* aFucker = [CCSprite spriteWithFile:@"boom.png"];
+        aFucker.position = _player.sprite.position;
+        [self addChild:aFucker];
+        
+        NSMutableArray* actionsList = [[NSMutableArray alloc] init];
+        id actionMove1 = [CCMoveTo actionWithDuration:kReplayTickLengthSeconds position:aSpawnPoint1];
+        id actionMove2 = [CCMoveTo actionWithDuration:kReplayTickLengthSeconds position:aSpawnPoint2];
+        id actionMove3 = [CCMoveTo actionWithDuration:kReplayTickLengthSeconds position:_player.sprite.position];
+        id actionMove4 = [CCMoveTo actionWithDuration:kReplayTickLengthSeconds position:aSpawnPoint2];
+        id actionMove5 = [CCMoveTo actionWithDuration:kReplayTickLengthSeconds position:aSpawnPoint1];
+
+        [actionsList addObject:actionMove1];
+        [actionsList addObject:actionMove2];
+        [actionsList addObject:actionMove3];
+        [actionsList addObject:actionMove4];
+        [actionsList addObject:actionMove5];
+        
+        [aFucker runAction:[CCSequenceHelper actionMutableArray:actionsList]];
+        
+        // STOP SHIT
         
         // set the view position focused on player
         [self setViewpointCenter:_player.sprite.position];
@@ -441,7 +476,11 @@ static DVServerGameData* _serverGameData;
 
     
 //    [self unscheduleAllSelectors];
-    
+    // temp only - replace with server game data object
+    eventsArray = [NSMutableArray arrayWithArray:[EntityNode eventHistory]]; // NSMutableArray*
+    DLog(@"eventsArray count = %d",[eventsArray count]);
+
+    _timeStepIndex = 0;  
     [self enemyPlaybackLoop:0];  // DEBUG only for testing
     
     /*
@@ -462,8 +501,8 @@ static DVServerGameData* _serverGameData;
     // delete the player, re-init and re-spawn him back at the beginning,
     // then idle him there until turn is finished (no moving or attacking allowed)
     
-    [self.player takeDamage:2];
-    [self.player kill];
+    [_player takeDamage:2];
+    [_player kill];
     
     // [self scheduleOnce:@selector(roundFinished) delay:3.0];
     
@@ -478,8 +517,11 @@ static DVServerGameData* _serverGameData;
     // update the minions
 //    for (Bat *theMinion in _player.minions) {
 //        [theMinion realUpdate];
-    for (EntityNode *minion in _player.minions)
+    DLog(@"mainGameLoop start");
+    for (EntityNode *minion in [_player.minions allValues])
         [minion realUpdate];
+        
+    DLog(@"mainGameLoop finish");
 }
 
 // at the end of the tick, we find out where the sprites travelled to and then we insert the "move" activity to the SECOND index
@@ -492,10 +534,8 @@ static DVServerGameData* _serverGameData;
     [_player sampleCurrentPosition];
     
     // sample minions
-    for (EntityNode *minion in _player.minions)
-    {
+    for (EntityNode *minion in [_player.minions allValues])
         [minion sampleCurrentPosition];
-    }
 
     // TODO sample the other entities
     
@@ -512,11 +552,16 @@ static DVServerGameData* _serverGameData;
 {
     double startTime = CACurrentMediaTime();  // init time to now
 
-    NSMutableArray* eventsArray = [EntityNode eventHistory];
+    DLog(@"[[EntityNode eventHistory] count] = %d",[[EntityNode eventHistory] count]);
     
     // DEBUG - for testing playback, hard-code the _serverGameData.lastUpdates
-    _serverGameData.lastUpdates = eventsArray;
+
+    // REPLACE ALL eventsArray with _serverGameData.lastUpdates after implementing server stuff
     
+//    NSDictionary* stuffDict = [eventsArray objectAtIndex:0];
+    
+    DLog(@"MADE IT");
+
     // THIS is where the magic happens - use the static make calls to all the dictionary event objects in _serverGameData
     
     // FIX for multiplayer, need a function to have previously filled all the local arrays with the needed goods
@@ -552,116 +597,296 @@ static DVServerGameData* _serverGameData;
     //  kDVEventKey_TimeStepIndex, kDVEventKey_EventType, kDVEventKey_OwnerID, kDVEventKey_EntityType, kDVEventKey_EntityID, kDVEventKey_HPChange
     
     
-    NSMutableDictionary* event; // = [[NSMutableArray alloc] init];  // just setting pointer
-    event = [_serverGameData.lastUpdates objectAtIndex:eventArrayIndex];
-    while((int)[event objectForKey:kDVEventKey_TimeStepIndex] == _timeStepIndex)
+    NSDictionary* event; // = [[NSMutableArray alloc] init];  // just setting pointer
+//    if([eventsArray objectAtIndex:0])
+//        DLog(@"");
+//    event = (NSMutableDictionary*)[eventsArray objectAtIndex:eventArrayIndex];
+    event = (NSDictionary*) [eventsArray objectAtIndex:eventArrayIndex];
+
+    DLog(@"MADE IT 1");
+
+    if(event == nil)
     {
+        // DEBUG temporary
+        GameOverScene *gameOverScene = [GameOverScene node];
+        [gameOverScene.layer.label setString:@"Round Finished!"];
+        [[CCDirector sharedDirector] replaceScene:gameOverScene];
+    }
+    DLog(@"MADE IT 2");
+
+//    while((NSNumber*)[event objectForKey:kDVEventKey_TimeStepIndex] == [NSNumber numberWithInt:_timeStepIndex])
+    while((NSNumber*)[event objectForKey:kDVEventKey_TimeStepIndex] == [NSNumber numberWithInt:_timeStepIndex])
+    {
+        DLog(@"MADE IT 3");
+
         // pull out the key values
-        int ownerID = (int) [event objectForKey:kDVEventKey_OwnerID];
-        DVEventType eventType = (int) [event objectForKey:kDVEventKey_EventType];
+        int ownerID = [(NSNumber*) [event objectForKey:kDVEventKey_OwnerID] intValue];  // int
+        DVEventType eventType = [(NSNumber*) [event objectForKey:kDVEventKey_EventType] intValue];  // DVEventType
         NSString* entityType = (NSString*) [event objectForKey:kDVEventKey_EntityType];  // FIX: need to change this to an enum of entityType
-        int uniqueID = (int) [event objectForKey:kDVEventKey_EntityID];
+        int uniqueID = [(NSNumber*) [event objectForKey:kDVEventKey_EntityID] intValue]; // int
         Player *thePlayer;
-        if(ownerID == _player.uniqueID)
-            thePlayer = _player;
-        else
-            thePlayer = _opponent;
-
-        int xCoord, yCoord, hpChange;
-        if(eventType == DVEvent_Wound)
-            hpChange = (int) [event objectForKey:kDVEventKey_HPChange];
-        else
+        if([entityType isEqualToString:kEntityTypePlayer])
         {
-            xCoord = (int) [event objectForKey:kDVEventKey_CoordX];
-            yCoord = (int) [event objectForKey:kDVEventKey_CoordY];
+            DLog(@"thePlayer being assigned now");
+            if(uniqueID == _player.uniqueID)
+            {
+                thePlayer = _player;
+                DLog(@"thePlayer = _player");
+                DLog(@"thePlayer.uniqueID = %d", thePlayer.uniqueID);
+                DLog(@"_player.uniqueID = %d", _player.uniqueID);
+            }
+            else
+            {
+                thePlayer = _opponent;
+                DLog(@"thePlayer = _opponent");
+                DLog(@"thePlayer.uniqueID = %d", thePlayer.uniqueID);
+                DLog(@"_opponent.uniqueID = %d", _opponent.uniqueID);
+            }
         }
-
-
-        if(entityType == kEntityTypePlayer) // case 1: action to be performed on the thePlayer (_opponent or _player)
+        int xCoord, yCoord, hpChange;
+        
+        // sanity check DEBUG test
+                
+        switch (eventType) {
+            case DVEvent_Spawn: // spawn
+            {
+                DLog(@"DVEvent_Spawn found!");
+            }
+                break;
+            case DVEvent_Wound:  // wound
+            {
+                DLog(@"wound found!");
+            }
+                break;
+            case DVEvent_Move:  // move
+            {
+                DLog(@"DVEvent_Move found!");
+            }
+                break;
+            case DVEvent_Kill:  // kill
+            {
+                DLog(@"kill found!");
+            }
+                break;
+            default:
+                DLog(@"default!");
+                break;
+        }
+        // finish sanity check
+        
+        if( eventType == DVEvent_Wound)
+            hpChange = [(NSNumber*)[event objectForKey:kDVEventKey_HPChange] intValue];
+        else
         {
-            switch (eventType) {
-                case DVEvent_Wound:
-                    [thePlayer animateTakeDamage:hpChange];
-                    break;
-                case DVEvent_Move:
-                    [thePlayer animateMove:ccp(xCoord, yCoord)];
-                    break;
-                case DVEvent_Kill:  // This is NOT a real kill as it would be for minions; the Player remains instantiated, just respawns, re-inits, etc
-                    [thePlayer animateKill];  // this call takes care of everything, sounds, respawn, re-init
-                    // for now, animateKill also takes care of DVEvent_InitStats and DVEvent_Respawn, which are no longer cached anyway
-                    break;
-                default:
-                    DLog(@"FUCK got a weird eventType in enemyPlaybackLoop's switch");
-                    break;
+            xCoord = [(NSNumber*) [event objectForKey:kDVEventKey_CoordX] intValue];
+            yCoord = [(NSNumber*) [event objectForKey:kDVEventKey_CoordY] intValue];
+        }
+        
+        DLog(@"ownerID %d, eventType %d, entityType %@, uniqueID %d, xCoord %d, yCoord %d",ownerID, eventType, entityType, uniqueID, xCoord, yCoord);
+
+        DLog(@"MADE IT 4");
+
+        if([entityType isEqualToString:kEntityTypePlayer]) // case 1: action to be performed on the thePlayer (_opponent or _player)
+        {
+            if([thePlayer isEqual:_player])  // case: _player
+            {
+                switch (eventType) {
+                    case DVEvent_Wound:
+                        [_player animateTakeDamage:hpChange];
+                        break;
+                    case DVEvent_Move:
+                    {
+                        DLog("cacheing move for _player to point: %d, %d",xCoord, yCoord);
+                        [_player animateMove:ccp(xCoord, yCoord)];
+                        break;
+                    }
+                    case DVEvent_Kill:  // This is NOT a real kill as it would be for minions; the Player remains instantiated, just respawns, re-inits, etc
+                        [_player animateKill];  // this call takes care of everything, sounds, respawn, re-init
+                        // for now, animateKill also takes care of DVEvent_InitStats and DVEvent_Respawn, which are no longer cached anyway
+                        break;
+                    default:
+                        DLog(@"FUCK got a weird eventType in enemyPlaybackLoop's switch");
+                        break;
+                }
+                //case DVEvent_InitStats:  // only exists for actions on players, not minions
+                //case DVEvent_Respawn:  // regenerate in Player, handled in DVEvent_Kill
+            }
+            else  // case: _opponent
+            {
+                switch (eventType) {
+                    case DVEvent_Wound:
+                        [_opponent animateTakeDamage:hpChange];
+                        break;
+                    case DVEvent_Move:
+                    {
+                        DLog("cacheing move for _opponent to point: %d, %d",xCoord, yCoord);
+                        [_opponent animateMove:ccp(xCoord, yCoord)];
+                        break;
+                    }
+                    case DVEvent_Kill:  // This is NOT a real kill as it would be for minions; the Player remains instantiated, just respawns, re-inits, etc
+                        [_opponent animateKill];  // this call takes care of everything, sounds, respawn, re-init
+                        // for now, animateKill also takes care of DVEvent_InitStats and DVEvent_Respawn, which are no longer cached anyway
+                        break;
+                    default:
+                        DLog(@"FUCK got a weird eventType in enemyPlaybackLoop's switch");
+                        break;
+                }
                 //case DVEvent_InitStats:  // only exists for actions on players, not minions
                 //case DVEvent_Respawn:  // regenerate in Player, handled in DVEvent_Kill
             }
             
             eventArrayIndex++;
-            event = [_serverGameData.lastUpdates objectAtIndex:eventArrayIndex];
+            if([eventsArray count] >= eventArrayIndex)
+            {
+                // DEBUG temporary
+                GameOverScene *gameOverScene = [GameOverScene node];
+                [gameOverScene.layer.label setString:@"Round Finished!"];
+                [[CCDirector sharedDirector] replaceScene:gameOverScene];       
+            }
+            event = (NSDictionary*) [eventsArray objectAtIndex:eventArrayIndex];
             continue;
         }
         else  // case 2: action goes to a player's minion
         {
             // if this is a minion spawn, must instantiate and add to the minions list with appropriate uniqueID
             if(eventType == DVEvent_Spawn)
-            {   // NOTE: using *WithoutCache init method, so this spawn isn't logged again on the other player's device
+            {
+                /*
+                // NOTE: using *WithoutCache init method, so this spawn isn't logged again on the other player's device
                 Bat *bat = [[Bat alloc] initInLayerWithoutCache:self
-                                       atSpawnPoint:ccp(xCoord, yCoord)
+                                       atSpawnPoint:ccp((int)xCoord, (int)yCoord)
                                        withBehavior:DVCreatureBehaviorDefault
                                             ownedBy:thePlayer];
                 [thePlayer.minions addEntriesFromDictionary:[NSDictionary dictionaryWithObject:bat forKey:[NSNumber numberWithInt:bat.uniqueID]]];
-                // increment and loop
+                 */
+               // increment and loop
                 eventArrayIndex++;
-                event = [_serverGameData.lastUpdates objectAtIndex:eventArrayIndex];
-            }
-            
-            EntityNode* theEntity = (EntityNode*)[thePlayer.minions objectForKey:[NSNumber numberWithInt:uniqueID]];
-            
-            switch (eventType) {
-                case DVEvent_Wound:
-                    [theEntity animateTakeDamage:hpChange];
-                    break;
-                case DVEvent_Move:
-                    [theEntity animateMove:ccp(xCoord, yCoord)];
-                    break;
-                case DVEvent_Kill:
+                if([eventsArray count] >= eventArrayIndex)
                 {
-                    [EntityNode animateDeathForEntityType:entityType at:theEntity.sprite.position]; // TO DO implement the static call for each entityType
-                    [theEntity animateKill];
-                    [self.player.minions removeObjectForKey:[NSNumber numberWithInt:uniqueID]];
+                    // DEBUG temporary
+                    GameOverScene *gameOverScene = [GameOverScene node];
+                    [gameOverScene.layer.label setString:@"Round Finished!"];
+                    [[CCDirector sharedDirector] replaceScene:gameOverScene];
                 }
-                    break;
-                default:
-                    DLog(@"FUCK got a weird eventType in enemyPlaybackLoop's switch");
-                    break;
+                event = (NSDictionary*) [eventsArray objectAtIndex:eventArrayIndex];
+                continue;
+               
+            }
+                        
+//            EntityNode* theEntity = (EntityNode*)[thePlayer.minions objectForKey:[NSNumber numberWithInt:uniqueID]];
+            /*
+            EntityNode* theEntity = [EntityNode alloc];
+            if([thePlayer isEqual:_player])  // case: _player
+                theEntity = (EntityNode*)[_player.minions objectForKey:[NSNumber numberWithInt:uniqueID]];  // ?? CHECK
+            else
+                theEntity = (EntityNode*)[_opponent.minions objectForKey:[NSNumber numberWithInt:uniqueID]];  // ?? CHECK
+             */
+            
+
+//            DLog(@"[thePlayer.minions count] = %d",[thePlayer.minions count]);
+//            DLog(@"[_player.minions count] = %d",[_player.minions count]);
+            if([thePlayer isEqual:_player])  // case: _player
+            {
+
+                switch (eventType) {
+                    case DVEvent_Wound:
+                        [((Bat*)[_player.minions objectForKey:[NSNumber numberWithInt:uniqueID]]) animateTakeDamage:(int)hpChange];
+                        break;
+                    case DVEvent_Move:
+                        [((Bat*)[_player.minions objectForKey:[NSNumber numberWithInt:uniqueID]]) animateMove:ccp((int)xCoord, (int)yCoord)];
+                        break;
+                    case DVEvent_Kill:
+                    {
+                        [EntityNode animateDeathForEntityType:entityType at:((Bat*)[_player.minions objectForKey:[NSNumber numberWithInt:uniqueID]]).sprite.position]; // TO DO implement the static call for each entityType
+                        [((Bat*)[_player.minions objectForKey:[NSNumber numberWithInt:uniqueID]]) animateKill];
+//                    [self.player.minions removeObjectForKey:[NSNumber numberWithInt:uniqueID]];
+                        [_player.minions removeObjectForKey:[NSNumber numberWithInt:uniqueID]];  // ?? CHECK
+                    }
+                        break;
+                    default:
+                        DLog(@"FUCK got a weird eventType in enemyPlaybackLoop's switch");
+                        break;
+                }
+            }
+            else  // case: _opponent
+            {
+                switch (eventType) {
+                    case DVEvent_Wound:
+                        [((Bat*)[_opponent.minions objectForKey:[NSNumber numberWithInt:uniqueID]]) animateTakeDamage:(int)hpChange];
+                        break;
+                    case DVEvent_Move:
+                        [((Bat*)[_opponent.minions objectForKey:[NSNumber numberWithInt:uniqueID]]) animateMove:ccp((int)xCoord, (int)yCoord)];
+                        break;
+                    case DVEvent_Kill:
+                    {
+                        [EntityNode animateDeathForEntityType:entityType at:((Bat*)[_opponent.minions objectForKey:[NSNumber numberWithInt:uniqueID]]).sprite.position]; // TO DO implement the static call for each entityType
+                        [((Bat*)[_opponent.minions objectForKey:[NSNumber numberWithInt:uniqueID]]) animateKill];
+                        //                    [self.player.minions removeObjectForKey:[NSNumber numberWithInt:uniqueID]];
+                        [_opponent.minions removeObjectForKey:[NSNumber numberWithInt:uniqueID]];  // ?? CHECK
+                    }
+                        break;
+                    default:
+                        DLog(@"FUCK got a weird eventType in enemyPlaybackLoop's switch");
+                        break;
+                }
             }
         
         }
         
         eventArrayIndex++;
-        event = [_serverGameData.lastUpdates objectAtIndex:eventArrayIndex];
+        if([eventsArray count] >= eventArrayIndex)
+        {
+            // DEBUG temporary
+            GameOverScene *gameOverScene = [GameOverScene node];
+            [gameOverScene.layer.label setString:@"Round Finished!"];
+            [[CCDirector sharedDirector] replaceScene:gameOverScene];
+        }
+        event = (NSDictionary*) [eventsArray objectAtIndex:eventArrayIndex];
+        continue;
     }
     
-    // Now start actually playing all the actions in sequence for each
-    [_player playActionsInSequence];
-    [_opponent playActionsInSequence];
-    for(EntityNode* entity in _player.minions)
-    {
-        [entity playActionsInSequence];
-    }
-    for(EntityNode* entity in _opponent.minions)
-    {
-        [entity playActionsInSequence];
-    }
+    DLog(@"Playing animations");
 
-    
+    // Now start actually playing all the actions in sequence for each
+    DLog(@"_player playActionsInSequence");
+    [_player playActionsInSequence];
+    DLog(@"_opponent playActionsInSequence");
+    [_opponent playActionsInSequence];
+    int counter = 0;
+    for (Bat *minion in [_player.minions allValues])  // EntityNode
+    {
+        counter++;
+        DLog(@"_player.minion[%d] playActionsInSequence",counter);
+        [minion playActionsInSequence];
+    }
+    counter = 0;
+    for (Bat *minion in [_opponent.minions allValues])
+    {
+        counter++;
+        DLog(@"_opponent.minion[%d] playActionsInSequence",counter);
+        [minion playActionsInSequence];
+    }
+        
     // stall until kReplayTickLengthSeconds has passed before animating the next tick of actions
     if(startTime - CACurrentMediaTime() < kReplayTickLengthSeconds)
-        [NSThread sleepForTimeInterval:(startTime - CACurrentMediaTime())];  // seconds?
+    {
+//        [NSThread sleepForTimeInterval:(CACurrentMediaTime() - startTime)];  // seconds?
+        sleep(CACurrentMediaTime() - startTime);
+        DLog(@"Sleeping for %f seconds",(CACurrentMediaTime() - startTime));
+    }
     
-    _timeStepIndex ++;
-          [self enemyPlaybackLoop:eventArrayIndex];  // next time step
+    _timeStepIndex++;
+    if(_timeStepIndex * kReplayTickLengthSeconds < kTurnLengthSeconds)
+        [self enemyPlaybackLoop:eventArrayIndex];  // next time step
+    else
+    {
+        // DEBUG temporary
+        GameOverScene *gameOverScene = [GameOverScene node];
+        [gameOverScene.layer.label setString:@"Round Finished!"];
+        [[CCDirector sharedDirector] replaceScene:gameOverScene];
+
+        DLog(@"Finished 10 seconds of enemy turn playback");
+    }
 /*
     NSMutableArray *minionsToDelete = [[NSMutableArray alloc] init];
     for(Bat *theMinion in player.playerMinionList)
@@ -696,7 +921,7 @@ static DVServerGameData* _serverGameData;
 {
     // First, see if lose condition is met locally
     // itterate over the enemies to see if any of them are in contact with player (dead)
-    for (Bat *target in _player.minions) {
+    for (Bat *target in [_player.minions allValues]) {
         CGRect targetRect = target.sprite.boundingBox; //CGRectMake(
         //           target.position.x - (target.contentSize.width/2),
         //           target.position.y - (target.contentSize.height/2),
@@ -716,7 +941,7 @@ static DVServerGameData* _serverGameData;
         NSMutableArray *targetsToDelete = [[NSMutableArray alloc] init];
         
         // iterate through enemies, see if any intersect with current projectile
-        for (Bat *target in _player.minions) {
+        for (Bat *target in [_player.minions allValues]) {
             // enemy down!
             if(CGRectIntersectsRect(shuriken.boundingBox, target.sprite.boundingBox))
             {
@@ -1122,7 +1347,7 @@ static DVServerGameData* _serverGameData;
     
     // iterate through enemies, see if any intersect with current projectile
     NSMutableArray *targetsToDelete = [[NSMutableArray alloc] init];
-    for (Bat *target in _player.minions) {
+    for (Bat *target in [_player.minions allValues]) {
         // enemy down!
         if(CGRectIntersectsRect(explosionArea, target.sprite.boundingBox))
         {

@@ -30,7 +30,7 @@ typedef enum {
 @interface Player : EntityNode
 
 //@property (nonatomic, readonly) NSMutableArray* minions;
-@property (nonatomic, copy) NSMutableDictionary* minions;
+@property (nonatomic, strong) NSMutableDictionary* minions;  // was strong
 @property (nonatomic, assign) DVPlayerMode mode;
 
 // change related consts if you ever any of these properties used in KVO

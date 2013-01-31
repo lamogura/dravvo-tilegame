@@ -42,6 +42,7 @@ typedef enum {
     // all existing 
     NSMutableArray* _shurikens;
     NSMutableArray* _missiles;
+    NSMutableArray* eventsArray;  // DEBUG - only for testing
 
     BOOL _roundHasStarted; // NO touches processed until startRound()
     
@@ -68,6 +69,7 @@ typedef enum {
 //@property (nonatomic, strong) Player* opponent;
 
 @property (nonatomic, strong) NSMutableDictionary* historicalEventsDict;
+//@property (nonatomic, strong) NSMutableArray* eventHistory;
 
 // change related consts if you ever any of these properties used in KVO
 @property (nonatomic, assign) float roundTimer; // time left in current round
