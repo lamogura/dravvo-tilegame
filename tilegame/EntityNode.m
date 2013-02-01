@@ -18,6 +18,7 @@
 #import "CCSequenceHelper.h"
 
 static NSMutableArray* _eventHistory;  // the entire event history of all Entitiy's
+//static int _numAnimationsPlaying;
 
 // Entity's include Bat, Missile, Shuriken, Player?
 // IN the very least, make sure that all previous time step actions and animations are finished before performing the next time step's actions from main
@@ -29,6 +30,7 @@ static NSMutableArray* _eventHistory;  // the entire event history of all Entiti
 @synthesize hitPoints = _hitPoints;
 @synthesize isAlive = _isAlive;
 @synthesize spawnPoint = _spawnPoint;
+@synthesize lastPoint = _lastPoint;
 @synthesize actionsToBePlayed = _actionsToBePlayed;
 
 +(NSMutableArray*) eventHistory  // the entire event history of all Entitiy's getter method
@@ -40,6 +42,20 @@ static NSMutableArray* _eventHistory;  // the entire event history of all Entiti
     return _eventHistory;
 }
 
+/*
++(int) numAnimationsPlaying
+{
+    return _numAnimationsPlaying;
+}
+
++(void) callbackAnimationsFinished
+{
+    _numAnimationsPlaying--;
+    if(_numAnimationsPlaying == 0)
+        [CoreGameLayer repeatMe];
+}
+*/
+ 
 +(void) animateDeathForEntityType:(NSString*) theEntityType at:(CGPoint) deathPoint  // TO DO Takes a position and an EntityType
 {
     // TO DO
@@ -50,7 +66,8 @@ static NSMutableArray* _eventHistory;  // the entire event history of all Entiti
     if (self = [super init]) {
         self->_gameLayer = layer;
         self->_spawnPoint = spawnPoint;
-        _actionsToBePlayed = [[NSMutableArray alloc] initWithCapacity:1];;
+        _actionsToBePlayed = [[NSMutableArray alloc] init];
+        _lastPoint = spawnPoint;
     }
     return self;
 }
@@ -60,7 +77,8 @@ static NSMutableArray* _eventHistory;  // the entire event history of all Entiti
     if (self = [super init]) {
         self->_gameLayer = layer;
         self->_spawnPoint = spawnPoint;
-        _actionsToBePlayed = [[NSMutableArray alloc] initWithCapacity:1];;
+        _actionsToBePlayed = [[NSMutableArray alloc] init];
+        _lastPoint = spawnPoint;
     }
     return self;
 }
@@ -115,6 +133,7 @@ static NSMutableArray* _eventHistory;  // the entire event history of all Entiti
 // for sampling during real actions, this should be called (callbacked) once every kTimeStepSeconds for later animation on
 -(void)sampleCurrentPosition
 {
+    DLog(@"Cacheing in sampleCurrentPosition for DVEvent_Move: entityType= %@, uniqueID= %d...", self.entityType, self.uniqueID);
     [self cacheStateForEvent:DVEvent_Move];
 
     /*
@@ -162,7 +181,8 @@ static NSMutableArray* _eventHistory;  // the entire event history of all Entiti
     //rotate to face the direction of movement
 //    CGPoint diff = ccpSub(targetPoint, self.sprite.position);  // Change to this for multiplay
 //    DLog(@"Starting animateMove for ID %d", self.uniqueID);
-    CGPoint diff = ccpSub(targetPoint, self.spawnPoint);  // temporary DEBUG
+    CGPoint diff = ccpSub(targetPoint, self.lastPoint);  // temporary DEBUG for multiplay
+    self.lastPoint = targetPoint;
     float angleRadians = atanf((float)diff.y / (float)diff.x);
     float angleDegrees = CC_RADIANS_TO_DEGREES(angleRadians);
     float cocosAngle = -1 * angleDegrees;
@@ -172,7 +192,11 @@ static NSMutableArray* _eventHistory;  // the entire event history of all Entiti
     
     id actionMove = [CCMoveTo actionWithDuration:kReplayTickLengthSeconds position:targetPoint];
     
+    DLog(@"BEFORE push [_actionsToBePlayed count] = %d",[_actionsToBePlayed count]);
+    
     [_actionsToBePlayed addObject:actionMove];  // change to this for multiplay
+
+    DLog(@"AFTER push [_actionsToBePlayed count] = %d",[_actionsToBePlayed count]);
     
     DLog(@"Move from %f,%f to %f,%f", self.sprite.position.x, self.sprite.position.y, targetPoint.x, targetPoint.y);
 
@@ -197,19 +221,29 @@ static NSMutableArray* _eventHistory;  // the entire event history of all Entiti
     
 }
 
--(void)playActionsInSequence  // Adds all the actions in the NSMutableArray to a CCSequence and plays them
+-(void)playActionsInSequenceAndCallback_tryEnemyPlayback  // Adds all the actions in the NSMutableArray to a CCSequence and plays them
 {
-
+/*
     if([_actionsToBePlayed count] == 0)
     {
         DLog(@"No actions to be played. Returning...");
         return;
     }
-
+*/
     DLog(@"Pushing actions sequence!!!");
+//    _numAnimationsPlaying++;
 //    CCSequence *seq = [CCSequence actionMutableArray:_actionsToBePlayed];
 
 //    [self.sprite runAction:[CCSequence actionMutableArray:_actionsToBePlayed]];
+    
+    // increment CoreGameLayer's animations running counter
+    CoreGameLayer* theLayer = (CoreGameLayer *) self.gameLayer;
+    
+    // push a callback action on the actionMutableArray
+    id actionCallFunc = [CCCallFunc actionWithTarget:theLayer selector:@selector(tryEnemyPlayback)];
+
+    [_actionsToBePlayed addObject:actionCallFunc];  // change to this for multiplay
+
     [self.sprite runAction:[CCSequenceHelper actionMutableArray:self->_actionsToBePlayed]];
     
     DLog(@"Finished pushing actions sequence!!!");

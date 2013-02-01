@@ -52,11 +52,17 @@ typedef enum {
     NSMutableArray* _touches;
 
     DVAPIWrapper* _apiWrapper; // api wrapper for server calls
+    
+    CGPoint aSpawnPoint1;  // SHIT
+    CGPoint aSpawnPoint2;  // SHIT
+    
+    int _eventArrayIndex;
 }
 
 +(void) setServerGameData:(DVServerGameData*) gameData; // static storing last gameData update
 +(void) setPlayerID:(int)setID;
 +(int) playerID; // returns the unique player ID - set on game startup depending on host or guest
++(void) changeNumPlaybacksRunningBy:(int)change;
 // returns a CCScene that contains the HelloWorldLayer as the only child
 +(CCScene *) scene:(DVCoreLayerInitType) initType;
 
@@ -64,6 +70,7 @@ typedef enum {
 
 @property (nonatomic, strong) CoreGameHudLayer* hud;
 @property (nonatomic, assign) int timeStepIndex; // should count up to 10 or 20, to get to a 10 second round
+@property (nonatomic, assign) int eventArrayIndex;
 @property (nonatomic, strong) Player* player; // always the local player
 @property (nonatomic, strong) Player* opponent; // always the local player
 //@property (nonatomic, strong) Player* opponent;
@@ -104,6 +111,8 @@ typedef enum {
 -(void) win;
 -(void) lose;
 -(void) roundFinished;
--(void) enemyPlaybackLoop:(int)lastArrayIndex;
+-(void) enemyPlaybackLoop:(ccTime)deltaTime; //(int)lastArrayIndex;
+-(void) tryEnemyPlayback;
+-(void) transitionToNextTurn;
 
 @end

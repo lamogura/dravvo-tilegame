@@ -50,12 +50,15 @@ typedef enum {
 @property (nonatomic, assign) int hitPoints;
 @property (nonatomic, assign) BOOL isAlive;
 @property (nonatomic, assign) CGPoint spawnPoint;
+@property (nonatomic, assign) CGPoint lastPoint;
 @property (nonatomic, strong) NSString* entityType;
 @property (nonatomic, strong) NSMutableArray* actionsToBePlayed;
 //@property (nonatomic, copy) NSMutableArray* eventHistory;
 
 
 +(NSMutableArray*) eventHistory;  // returns the entire event history static getter method
+//+(int) numAnimationsPlaying;
+//+(void) callbackAnimationsFinished;
 +(void) animateDeathForEntityType:(NSString*) theEntityType at:(CGPoint) deathPoint;  // TO DO Takes a position and an EntityType
 // optional
 -(id)initInLayer:(CoreGameLayer *)layer atSpawnPoint:(CGPoint)spawnPoint;
@@ -84,6 +87,6 @@ typedef enum {
 -(void)animateTakeDamage:(int)damagePoints;
 -(void)animateKill;
 
--(void)playActionsInSequence;  // plays all the actions in sequence FOR EACH entity object
+-(void)playActionsInSequenceAndCallback_tryEnemyPlayback;  // plays all the actions in sequence FOR EACH entity object
 
 @end
