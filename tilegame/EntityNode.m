@@ -28,7 +28,7 @@ static NSMutableArray* _eventHistory;  // the entire event history of all Entiti
 @synthesize sprite = _sprite;
 @synthesize uniqueID = _uniqueID;
 @synthesize hitPoints = _hitPoints;
-@synthesize isAlive = _isAlive;
+@synthesize isDead = _isDead;
 @synthesize spawnPoint = _spawnPoint;
 @synthesize lastPoint = _lastPoint;
 @synthesize actionsToBePlayed = _actionsToBePlayed;
@@ -41,20 +41,6 @@ static NSMutableArray* _eventHistory;  // the entire event history of all Entiti
     }
     return _eventHistory;
 }
-
-/*
-+(int) numAnimationsPlaying
-{
-    return _numAnimationsPlaying;
-}
-
-+(void) callbackAnimationsFinished
-{
-    _numAnimationsPlaying--;
-    if(_numAnimationsPlaying == 0)
-        [CoreGameLayer repeatMe];
-}
-*/
  
 +(void) animateDeathForEntityType:(NSString*) theEntityType at:(CGPoint) deathPoint  // TO DO Takes a position and an EntityType
 {
@@ -72,16 +58,18 @@ static NSMutableArray* _eventHistory;  // the entire event history of all Entiti
     return self;
 }
 
--(id)initInLayerWithoutCache:(CCNode *)layer atSpawnPoint:(CGPoint)spawnPoint
-{
-    if (self = [super init]) {
-        _actionsToBePlayed = [[NSMutableArray alloc] init];
+//-(id)initInLayerWithoutCache_AndAnimate:(CCNode *)layer atSpawnPoint:(CGPoint)spawnPoint afterDelay:(ccTime) delay
+//{
+//    if (self = [super init]) {
+//        self->_gameLayer = layer;
+//        self->_spawnPoint = spawnPoint;
+//        _actionsToBePlayed = [[NSMutableArray alloc] init];
+//        _lastPoint = spawnPoint;
+//    }
+//    return self;
+//}
 
-        self->_gameLayer = layer;
-        self->_spawnPoint = _lastPoint = spawnPoint;
-    }
-    return self;
-}
+
 // All event types but wounded:
 //  kDVEventKey_TimeStepIndex, kDVEventKey_EventType, kDVEventKey_OwnerID, kDVEventKey_EntityType, kDVEventKey_EntityID, kDVEventKey_CoordX, kDVEventKey_CoordY
 // "wounded" event type only:
@@ -101,22 +89,20 @@ static NSMutableArray* _eventHistory;  // the entire event history of all Entiti
         case DVEvent_Spawn:
         case DVEvent_Respawn:
         case DVEvent_Move:
+        case DVEvent_Kill:
             [eventData addEntriesFromDictionary:
              [NSDictionary dictionaryWithObjectsAndKeys:
               [NSNumber numberWithFloat:self.sprite.position.x], kDVEventKey_CoordX,
               [NSNumber numberWithFloat:self.sprite.position.y], kDVEventKey_CoordY,
               nil]];
             break;
-            
         case DVEvent_Wound:
             [eventData addEntriesFromDictionary:
              [NSDictionary dictionaryWithObjectsAndKeys:
               [NSNumber numberWithInt:self.hitPoints], kDVEventKey_HPChange,
               nil]];
             break;
-            
         case DVEvent_InitStats:
-        case DVEvent_Kill:
         default:
             break;
     }
@@ -174,26 +160,38 @@ static NSMutableArray* _eventHistory;  // the entire event history of all Entiti
 
 -(void)animateMove:(CGPoint) targetPoint  // will animate a historical move over time interval kTimeStepSeconds
 {
-    // test the CCSequence+Helper shit
-    
-    
     // make an action for moving from current point to targetPoint
     //rotate to face the direction of movement
 //    CGPoint diff = ccpSub(targetPoint, self.sprite.position);  // Change to this for multiplay
 //    DLog(@"Starting animateMove for ID %d", self.uniqueID);
-    CGPoint diff = ccpSub(targetPoint, self.lastPoint);  // temporary DEBUG for multiplay
-    self.lastPoint = targetPoint;
-    float angleRadians = atanf((float)diff.y / (float)diff.x);
-    float angleDegrees = CC_RADIANS_TO_DEGREES(angleRadians);
-    float cocosAngle = -1 * angleDegrees;
-    if(diff.x < 0)
-        cocosAngle += 180;
-    self.sprite.rotation = cocosAngle;
+    if(targetPoint.x == self.lastPoint.x && targetPoint.y == self.lastPoint.y)
+    {
+        // the action is to pause the sprite for kReplayTickLengthSeconds time
+        id actionStall = [CCActionInterval actionWithDuration:kReplayTickLengthSeconds];  // DEBUG does this work??
+        [_actionsToBePlayed addObject:actionStall];  // change to this for multiplay
+        return;
+    }
     
-    id actionMove = [CCMoveTo actionWithDuration:kReplayTickLengthSeconds position:targetPoint];
+    CGPoint diff = ccpSub(targetPoint, self.lastPoint);
+    
+    // Determine angle for the missile to face
+    // basic trig stuff using touch info a character position calculations from above
+    float angleRadians = atanf(diff.y / (float)diff.x);
+    float angleDegrees = CC_RADIANS_TO_DEGREES(angleRadians);
+    float cocosAngle = -1 * angleDegrees - 90;
+    if(targetPoint.x > self.lastPoint.x)
+        cocosAngle += 180;  // 90
+    //        [missile setRotation:cocosAngle];
+
+    id actionRotate = [CCCallBlock actionWithBlock:^(void){
+        self.sprite.rotation = cocosAngle;
+    }];
+
+    id actionMove = [CCMoveTo actionWithDuration:(kReplayTickLengthSeconds) position:targetPoint]; // kReplayTickLengthSeconds
     
     DLog(@"BEFORE push [_actionsToBePlayed count] = %d",[_actionsToBePlayed count]);
     
+    [_actionsToBePlayed addObject:actionRotate];  // change to this for multiplay
     [_actionsToBePlayed addObject:actionMove];  // change to this for multiplay
 
     DLog(@"AFTER push [_actionsToBePlayed count] = %d",[_actionsToBePlayed count]);
@@ -211,25 +209,49 @@ static NSMutableArray* _eventHistory;  // the entire event history of all Entiti
     self.hitPoints -= damagePoints;   
 }
 
--(void)animateKill
+-(void)animateKill:(CGPoint)killPosition
 {
-    [self removeChild:self.sprite cleanup:YES];
+    // force the sprite to the current position before killing (cheat in case there was a lag issue)
+    if(killPosition.x == self.lastPoint.x && killPosition.y == self.lastPoint.y)
+    {
+        [self removeChild:self.sprite cleanup:YES];
+        _isDead = YES;
+        return;
+    }
+    CGPoint diff = ccpSub(killPosition, self.lastPoint);  // temporary DEBUG for multiplay
+    self.lastPoint = killPosition;
+    float angleRadians = atanf((float)diff.y / (float)diff.x);
+    float angleDegrees = CC_RADIANS_TO_DEGREES(angleRadians);
+    float cocosAngle = -1 * angleDegrees;
+    if(diff.x < 0)
+        cocosAngle += 180;
+    self.sprite.rotation = cocosAngle;
+    
+    id actionMove = [CCMoveTo actionWithDuration:(kReplayTickLengthSeconds) position:killPosition];
+    
+    id actionKill = [CCCallBlock actionWithBlock:^(void){
+        [self removeChild:self.sprite cleanup:YES];
+        _isDead = YES;
+    }];
+    
+    [_actionsToBePlayed addObject:actionMove];
+    [_actionsToBePlayed addObject:actionKill];
 }
 
--(void)animateExplode:(CGPoint) targetPoint  // animate it exploding TODO this should move to weapon
+-(void)animateExplode  // animate it exploding TODO this should move to weapon
 {
     
 }
 
+/*
 -(void)playActionsInSequenceAndCallback_tryEnemyPlayback  // Adds all the actions in the NSMutableArray to a CCSequence and plays them
 {
-/*
-    if([_actionsToBePlayed count] == 0)
-    {
-        DLog(@"No actions to be played. Returning...");
-        return;
-    }
-*/
+//    if([_actionsToBePlayed count] == 0)
+//    {
+//        DLog(@"No actions to be played. Returning...");
+//        return;
+//    }
+
     DLog(@"Pushing actions sequence!!!");
 //    _numAnimationsPlaying++;
 //    CCSequence *seq = [CCSequence actionMutableArray:_actionsToBePlayed];
@@ -249,6 +271,35 @@ static NSMutableArray* _eventHistory;  // the entire event history of all Entiti
     DLog(@"Finished pushing actions sequence!!!");
     //    [self.sprite runAction:actionMove];
 }
+*/
+
+-(void)playActionsInSequence  // Adds all the actions in the NSMutableArray to a CCSequence and plays them
+{
+     if([_actionsToBePlayed count] == 0)
+     {
+         DLog(@"No actions to be played. Returning...");
+         return;
+     }
+    DLog(@"Playing actions sequence!!!");
+    //    _numAnimationsPlaying++;
+    //    CCSequence *seq = [CCSequence actionMutableArray:_actionsToBePlayed];
+    
+    //    [self.sprite runAction:[CCSequence actionMutableArray:_actionsToBePlayed]];
+    
+    // increment CoreGameLayer's animations running counter
+//    CoreGameLayer* theLayer = (CoreGameLayer *) self.gameLayer;
+    
+    // push a callback action on the actionMutableArray
+//    id actionCallFunc = [CCCallFunc actionWithTarget:theLayer selector:@selector(tryEnemyPlayback)];
+    
+//    [_actionsToBePlayed addObject:actionCallFunc];  // change to this for multiplay
+    
+    [self.sprite runAction:[CCSequenceHelper actionMutableArray:self->_actionsToBePlayed]];
+    
+    DLog(@"Finished pushing actions sequence!!!");
+    //    [self.sprite runAction:actionMove];
+}
+
 
 -(void)realUpdate
 {
@@ -262,7 +313,7 @@ static NSMutableArray* _eventHistory;  // the entire event history of all Entiti
 {
     
 }
--(void)realExplode:(CGPoint) targetPoint
+-(void)realExplode
 {
     
 }
@@ -275,9 +326,9 @@ static NSMutableArray* _eventHistory;  // the entire event history of all Entiti
 {
     [coder encodeInt:self.uniqueID forKey:EntityNodeUniqueID];
     [coder encodeInt:self.hitPoints forKey:EntityNodeHitPoints];
-//    [coder encodeBool:self.isAlive forKey:EntityNodeIsAlive];
     [coder encodeCGPoint:self.spawnPoint forKey:EntityNodeSpawnPoint];
     [coder encodeCGPoint:self.sprite.position forKey:EntityNodePosition];
+//    [coder encodeBool:self.isAlive forKey:EntityNodeIsAlive];
 //    [coder encodeObject:self.entityType forKey:EntityNodeEntityType];
 }
 
@@ -288,13 +339,12 @@ static NSMutableArray* _eventHistory;  // the entire event history of all Entiti
         
         _uniqueID = [coder decodeIntForKey:EntityNodeUniqueID];
         _hitPoints = [coder decodeIntForKey:EntityNodeHitPoints];
-//        _isAlive = [coder decodeBoolForKey:EntityNodeIsAlive];
         _spawnPoint = [coder decodeCGPointForKey:EntityNodeSpawnPoint];
-        self.sprite.position = [coder decodeCGPointForKey:EntityNodePosition];
+
+//        _isAlive = [coder decodeBoolForKey:EntityNodeIsAlive];
 //        _entityType = [coder decodeObjectForKey:EntityNodeEntityType];
         
-        _lastPoint = self.sprite.position;
-
+        self.sprite.position = _lastPoint = [coder decodeCGPointForKey:EntityNodePosition];
     }
     return self;
 }

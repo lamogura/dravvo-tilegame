@@ -6,7 +6,7 @@
 //
 //
 
-@interface DVUtils
+@interface DVUtils : NSObject 
 
 + (NSString *)hexadecimalStringFromData: (NSData *)data;
 

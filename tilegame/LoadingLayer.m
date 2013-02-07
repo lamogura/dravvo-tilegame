@@ -30,7 +30,7 @@
         [self->_apiWrapper getGameStatusThenCallBlock:^(NSError *error, DVServerGameData *gameData) {
             //TODO: update game with the game status
             if (error != nil) {
-                ULog([error localizedDescription]);
+                ULog(@"%@", [error localizedDescription]);
             }
             else {
                 DLog(@"Sucessfully got status for gameID: %@", gameData.gameID);

@@ -10,9 +10,6 @@
 #import "EntityNode.h"
 #import "CoreGameLayer.h"
 
-#define kDVPlayerOne 1
-#define kDVPlayerTwo 2
-
 // change properties if you chane this KVO constants
 #define kDVNumMelonsKVO     @"numMelons"
 #define kDVNumKillsKVO      @"numKills"
@@ -24,6 +21,11 @@ typedef enum {
     DVPlayerMode_Moving,
     DVPlayerMode_Shooting,
 } DVPlayerMode;
+
+typedef enum {
+    DVPlayerHost = 1,
+    DVPlayerGuest,
+} DVPLayerRole;
 
 @class CoreGameLayer;
 
@@ -38,6 +40,8 @@ typedef enum {
 
 //@property (nonatomic, readonly) NSMutableArray* minions;
 @property (nonatomic, strong) NSMutableDictionary* minions;  // was strong
+@property (nonatomic, strong) NSMutableDictionary* missiles;  // was strong
+@property (nonatomic, strong) NSMutableDictionary* shurikens;  // was strong
 @property (nonatomic, assign) DVPlayerMode mode;
 
 // change related consts if you ever any of these properties used in KVO

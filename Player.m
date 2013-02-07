@@ -24,6 +24,8 @@
 @synthesize numShurikens = _numShurikens;
 @synthesize numMissiles = _numMissiles;
 @synthesize enemyPlayer = _enemyPlayer;
+@synthesize missiles = _missiles;
+@synthesize shurikens = _shurikens;
 
 /*
 +(int)nextUniqueID {
@@ -43,6 +45,8 @@
         self.uniqueID = intID; // [Player nextUniqueID];
 //        self->_playerMinionList = [[NSMutableArray alloc] init];
         self->_minions = [[NSMutableDictionary alloc] init];
+        self->_missiles = [[NSMutableDictionary alloc] init];
+        self->_shurikens = [[NSMutableDictionary alloc] init];
         self.mode = DVPlayerMode_Moving;
         
         // set Player's initial stats
@@ -88,8 +92,8 @@
 //    [[SimpleAudioEngine sharedEngine] playEffect:@"juliaRoar.m4a"];
     //myLayer.numKills += 1;
     //[myLayer.hud numKillsChanged:myLayer.numKills];
-    
-    self.isAlive = NO;
+
+    self.isDead = YES;
     
     // kill sound
 //    DMPlayerDies.m4r
@@ -153,7 +157,7 @@
     // respawn sound
     [[SimpleAudioEngine sharedEngine] playEffect:@"DMRespawn.m4r"];  // preload creature sounds
 
-    self.isAlive = YES;
+    self.isDead = NO;
     self.hitPoints = 1;
 
 //    [self cacheStateForEvent:DVEvent_InitStats];  // don't cache for now
@@ -168,12 +172,43 @@
 */
 }
 
--(void)animateKill
+// override has no rotation for Player like Entity
+-(void)animateMove:(CGPoint) targetPoint  // will animate a historical move over time interval kTimeStepSeconds
 {
+    // DON'T call super
+    
+    // make an action for moving from current point to targetPoint
+    //rotate to face the direction of movement
+    //    CGPoint diff = ccpSub(targetPoint, self.sprite.position);  // Change to this for multiplay
+    //    DLog(@"Starting animateMove for ID %d", self.uniqueID);
+    if(targetPoint.x == self.lastPoint.x && targetPoint.y == self.lastPoint.y)
+    {
+        // the action is to pause the sprite for kReplayTickLengthSeconds time
+        id actionStall = [CCActionInterval actionWithDuration:kReplayTickLengthSeconds];  // DEBUG does this work??
+        [self.actionsToBePlayed addObject:actionStall];  // change to this for multiplay
+        return;
+    }
+    self.lastPoint = targetPoint;
+    
+    id actionMove = [CCMoveTo actionWithDuration:kReplayTickLengthSeconds position:targetPoint];
+    
+    DLog(@"BEFORE push [_actionsToBePlayed count] = %d",[self.actionsToBePlayed count]);
+    
+    [self.actionsToBePlayed addObject:actionMove];  // change to this for multiplay
+    
+    DLog(@"AFTER push [_actionsToBePlayed count] = %d",[self.actionsToBePlayed count]);
+    
+    DLog(@"Move from %f,%f to %f,%f", self.sprite.position.x, self.sprite.position.y, targetPoint.x, targetPoint.y);
+        
+}
+
+-(void)animateKill:(CGPoint)killPosition
+{
+//    [super animateKill:killPosition];  // puts any necessary sprint to last location action into the actionsToBePlayed queue
+    self.isDead = YES;
+
     // do NOT call super, since super will remove us from the layer and we will lose minions, etc
     // instead, just re-locate to spawn point and change state variables
-    
-    self.isAlive = NO;
     
     // kill sound
     //    DMPlayerDies.m4r
@@ -202,7 +237,7 @@
     // set Player's initial stats
     [[SimpleAudioEngine sharedEngine] playEffect:@"DMRespawn.m4r"];  // preload creature sounds
     
-    self.isAlive = YES;
+    self.isDead = NO;
     self.hitPoints = 1;
 
 }
@@ -223,18 +258,23 @@
     if (self = [super initWithCoder:coder])
     {
         self.entityType = kEntityTypePlayer;
+        
+        self->_minions = [[NSMutableDictionary alloc] init];
+        self->_missiles = [[NSMutableDictionary alloc] init];
+        self->_shurikens = [[NSMutableDictionary alloc] init];
+        
+        // init stats
         [[SimpleAudioEngine sharedEngine] playEffect:@"DMRespawn.m4r"];  // preload creature sounds
-        
-        self.isAlive = YES;
-        self.hitPoints = 1;
-        
-//        self->_minions = [coder decodeObjectForKey:PlayerMinionsKey];
+        self.isDead = NO;
+       
         self.mode = DVPlayerMode_Moving;
        
         if(self.uniqueID == 1)
             self.sprite = [CCSprite spriteWithFile:@"PlayerGreen.png"];
         else
             self.sprite = [CCSprite spriteWithFile:@"PlayerRed.png"];
+        
+        self.sprite.position = self.lastPoint = [coder decodeCGPointForKey:EntityNodePosition];
         
         _numMelonsCollected = [coder decodeIntForKey:PlayerNumMelons];
         _numKills = [coder decodeIntForKey:PlayerNumKills];

@@ -12,18 +12,10 @@
 
 @synthesize speedInPixelsPerSec = _speedInPixelsPerSec;
 @synthesize behavior = _behavior;
+
+//@synthesize previousPosition = _previousPosition;
 @synthesize owner = _owner;
 @synthesize entityType = _entityType;
-
--(id)initInLayerWithoutCache:(CoreGameLayer *)layer atSpawnPoint:(CGPoint)spawnPoint withBehavior:(DVCreatureBehavior)behavior ownedBy:(EntityNode *)owner
-{
-    if (self = [super initInLayerWithoutCache:layer atSpawnPoint:spawnPoint]) {
-        self->_behavior = behavior;
-        self->_owner = owner;
-    }
-    return self;
-
-}
 
 -(id)initInLayer:(CoreGameLayer *)layer atSpawnPoint:(CGPoint)spawnPoint withBehavior:(DVCreatureBehavior)behavior ownedBy:(EntityNode *)owner
 {

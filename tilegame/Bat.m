@@ -25,9 +25,9 @@ static int _uniqueIDCounter = 0;
     return _uniqueIDCounter++;
 }
 
--(id)initInLayerWithoutCache:(CoreGameLayer *)layer atSpawnPoint:(CGPoint)spawnPoint withBehavior:(DVCreatureBehavior)behavior ownedBy:(EntityNode *)player
+-(id)initInLayerWithoutCache:(CoreGameLayer *)layer atSpawnPoint:(CGPoint)spawnPoint withBehavior:(DVCreatureBehavior)behavior ownedBy:(EntityNode *)owner
 {
-    if(self = [super initInLayer:layer atSpawnPoint:spawnPoint withBehavior:behavior ownedBy:(EntityNode *)player])
+    if(self = [super initInLayer:layer atSpawnPoint:spawnPoint withBehavior:behavior ownedBy:(EntityNode *)owner])
     {
         self.entityType = kEntityTypeBat;
         self.uniqueID = [Bat nextUniqueID];
@@ -40,7 +40,9 @@ static int _uniqueIDCounter = 0;
             self.sprite = [CCSprite spriteWithFile:@"batRed.png"];
         else
             self.sprite = [CCSprite spriteWithFile:@"batGreen.png"];
+
         self.sprite.position = self.lastPoint = spawnPoint;
+
         [self addChild:self.sprite];
         
         [self.gameLayer addChild:self];
@@ -49,9 +51,47 @@ static int _uniqueIDCounter = 0;
    
 }
 
--(id)initInLayer:(CoreGameLayer *)layer atSpawnPoint:(CGPoint)spawnPoint withBehavior:(DVCreatureBehavior)behavior ownedBy:(EntityNode *)player
+-(id)initInLayerWithoutCache_AndAnimate:(CoreGameLayer *)layer atSpawnPoint:(CGPoint)spawnPoint withBehavior:(DVCreatureBehavior)behavior ownedBy:(EntityNode *)owner withUniqueID:(int)uniqueID afterDelay:(ccTime) delay
 {
-    if(self = [super initInLayer:layer atSpawnPoint:spawnPoint withBehavior:behavior ownedBy:(EntityNode *)player])
+    if(self = [super initInLayer:layer atSpawnPoint:spawnPoint withBehavior:behavior ownedBy:(EntityNode *)owner])
+    {
+        self.entityType = kEntityTypeBat;
+        self.uniqueID = uniqueID;
+        
+        // set bat's stats
+        self.hitPoints = kEntityBatHitPoints;
+        self.speedInPixelsPerSec = kEntityBatSpeedPPS;
+        
+        if(self.owner.uniqueID == 2)
+            self.sprite = [CCSprite spriteWithFile:@"batRed.png"];
+        else
+            self.sprite = [CCSprite spriteWithFile:@"batGreen.png"];
+        self.lastPoint = spawnPoint;
+        self.sprite.position = self.lastPoint;
+        
+        // the action is to pause the sprite for kReplayTickLengthSeconds time
+        id actionStall = [CCActionInterval actionWithDuration:delay];  // DEBUG does this work??
+        
+        self.sprite.visible = NO;
+        
+        id actionAppear = [CCCallBlock actionWithBlock:^(void){
+            self.sprite.visible = YES;
+        }];
+        
+        [self.actionsToBePlayed addObject:actionStall];  // change to this for multiplay
+        [self.actionsToBePlayed addObject:actionAppear];
+        
+        [self addChild:self.sprite];
+        
+        [self.gameLayer addChild:self];
+    }
+    return self;
+}
+
+
+-(id)initInLayer:(CoreGameLayer *)layer atSpawnPoint:(CGPoint)spawnPoint withBehavior:(DVCreatureBehavior)behavior ownedBy:(EntityNode *)owner
+{
+    if(self = [super initInLayer:layer atSpawnPoint:spawnPoint withBehavior:behavior ownedBy:(EntityNode *)owner])
     {
         self.entityType = kEntityTypeBat;
         self.uniqueID = [Bat nextUniqueID];
@@ -64,7 +104,9 @@ static int _uniqueIDCounter = 0;
             self.sprite = [CCSprite spriteWithFile:@"batRed.png"];
         else
             self.sprite = [CCSprite spriteWithFile:@"batGreen.png"];
+
         self.sprite.position = self.lastPoint = spawnPoint;
+
         [self addChild:self.sprite];
         
         [self cacheStateForEvent:DVEvent_Spawn];
@@ -120,13 +162,22 @@ static int _uniqueIDCounter = 0;
         {
             //rotate to face the opponent
             CoreGameLayer* layer = (CoreGameLayer *)self.gameLayer;
-            CGPoint diff = ccpSub(layer.opponent.sprite.position, self.sprite.position);
-            float angleRadians = atanf((float)diff.y / (float)diff.x);
+
+            CGPoint diff = ccpSub(layer.opponent.sprite.position, self.lastPoint);
+            
+            // Determine angle for the missile to face
+            // basic trig stuff using touch info a character position calculations from above
+            float angleRadians = atanf(diff.y / (float)diff.x);
             float angleDegrees = CC_RADIANS_TO_DEGREES(angleRadians);
-            float cocosAngle = -1 * angleDegrees;
-            if(diff.x < 0)
+            float cocosAngle = -1 * angleDegrees - 90;
+            if(layer.opponent.sprite.position.x > self.lastPoint.x)
                 cocosAngle += 180;
+            //        [missile setRotation:cocosAngle];
             self.sprite.rotation = cocosAngle;
+            
+//            CGFloat angle = ccpAngle(layer.opponent.sprite.position, self.sprite.position);
+//            //self.lastPoint = targetPoint;
+//            self.sprite.rotation = angle+90;
             
             // 10 pixels per 0.3 seconds -> speed = 33 pixels / second
             int distancePixels = (int) (self.speedInPixelsPerSec * kTickLengthSeconds);

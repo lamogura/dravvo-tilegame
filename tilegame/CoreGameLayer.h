@@ -25,7 +25,7 @@ typedef enum {
     DVLoadFromFile,
     DVBeginNextTurn,  // start with playback, then player's move
     DVResume,  // Player closed the app before the JSON update could be sent to server - continue from where left off if possible
-} DVCoreLayerInitType;
+} DVCoreLayerType;
 
 @class CoreGameHudLayer;
 @class Player;
@@ -51,9 +51,6 @@ typedef enum {
     CCTMXLayer* _foreground;  // foreground layer is seen by player but is modifiable, like collectible items
     CCTMXLayer* _destruction;  // destruction under-layer, for when terrain is devastated
     
-    // all existing 
-    NSMutableArray* _shurikens;
-    NSMutableArray* _missiles;
     NSMutableArray* eventsArray;  // DEBUG - only for testing
 
     BOOL _roundHasStarted; // NO touches processed until startRound()
@@ -72,13 +69,11 @@ typedef enum {
 }
 
 +(void) setServerGameData:(DVServerGameData*) gameData; // static storing last gameData update
-+(void) setPlayerID:(int)setID;
-+(int) playerID; // returns the unique player ID - set on game startup depending on host or guest
 +(void) changeNumPlaybacksRunningBy:(int)change;
 // returns a CCScene that contains the HelloWorldLayer as the only child
-+(CCScene *) scene:(DVCoreLayerInitType) initType;
++(CCScene *) scene:(DVCoreLayerType) initType;
 
--(id) initWithInitType:(DVCoreLayerInitType) initType;
+-(id) initWithInitType:(DVCoreLayerType) initType;
 -(id) initFromSavedGameState;
 
 @property (nonatomic, strong) CoreGameHudLayer* hud;
@@ -86,10 +81,8 @@ typedef enum {
 @property (nonatomic, assign) int eventArrayIndex;
 @property (nonatomic, strong) Player* player; // always the local player
 @property (nonatomic, strong) Player* opponent; // always the local player
-//@property (nonatomic, strong) Player* opponent;
-
+@property (nonatomic, strong) NSMutableDictionary* collidableProjectiles;
 @property (nonatomic, strong) NSMutableDictionary* historicalEventsDict;
-//@property (nonatomic, strong) NSMutableArray* eventHistory;
 
 // change related consts if you ever any of these properties used in KVO
 @property (nonatomic, assign) float roundTimer; // time left in current round
@@ -99,12 +92,6 @@ typedef enum {
 -(void) mainGameLoop:(ccTime)deltaTime;
 -(void) sampleCurrentPositions:(ccTime)deltaTime; // scheduled callback
 
-// entity actions finished
--(void) shurikenMoveFinished:(id) sender;
--(void) enemyMoveFinished:(id)sender;
--(void) missileMoveFinished:(id) sender;
--(void) missileExplodesFinished:(id) sender;
-
 // helpers
 -(void) setViewpointCenter:(CGPoint) position;
 -(CGPoint) tileCoordForPosition:(CGPoint) position;
@@ -112,20 +99,22 @@ typedef enum {
 -(CGPoint) pixelToPoint:(CGPoint) pixelPoint;
 -(CGSize) pixelToPointSize:(CGSize) pixelSize;
 
-// animation helpers
--(void) animateEnemy:(CCSprite*) enemy;
--(void) missileExplodes:(CGPoint) hitLocation;
+-(void) explosionAt:(CGPoint) hitLocation effectingArea:(CGRect) area infilctingDamage:(int)damage weaponID:(int)weaponID;
+
+// init helpers
+-(id) initAsPlayerWithRole:(int)pRole; // FIX it wont take my enum for some reason ??
+-(void) initSettings;
+-(void) initTilemap;
+-(void) initAudio;
 
 // lifecycle functions
--(void) audioInitAndPlay;
 -(void) reloadGameState;
 -(void) saveGameState;
 -(void) startRound;
 -(void) win;
 -(void) lose;
 -(void) roundFinished;
--(void) enemyPlaybackLoop:(ccTime)deltaTime; //(int)lastArrayIndex;
--(void) tryEnemyPlayback;
+-(void) enemyPlaybackLoop;
 -(void) transitionToNextTurn;
 
 +(NSString*) gameStateFilePath;
