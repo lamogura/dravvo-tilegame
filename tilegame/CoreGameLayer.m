@@ -81,6 +81,7 @@ static DVServerGameData* _serverGameData;
             break;
         case DVLoadFromFile:
             gameLayer = [[CoreGameLayer alloc] initFromSavedGameState];
+            break;
         default:
             ULog(@"Some unknown initType sent to CoreGameLayer scene()");
             break;
@@ -279,9 +280,10 @@ static DVServerGameData* _serverGameData;
 
 - (void)encodeWithCoder:(NSCoder *)coder
 {
-//    [coder encodeInt:*(_destruction.tiles) forKey:CoreGameDestructionTilesKey];
-//    [coder encodeInt:*(_foreground.tiles) forKey:CoreGameForegroundTilesKey];
-//    [coder encodeInt:*(_meta.tiles) forKey:CoreGameMetaTilesKey];
+    [coder encodeInt:*(_background.tiles) forKey:CoreGameBackgroundTilesKey];
+    [coder encodeInt:*(_destruction.tiles) forKey:CoreGameDestructionTilesKey];
+    [coder encodeInt:*(_foreground.tiles) forKey:CoreGameForegroundTilesKey];
+    [coder encodeInt:*(_meta.tiles) forKey:CoreGameMetaTilesKey];
     [coder encodeObject:self.player forKey:CoreGamePlayerKey];
     [coder encodeObject:self.opponent forKey:CoreGameOpponentKey];
 }
@@ -290,14 +292,16 @@ static DVServerGameData* _serverGameData;
 {
     if (self = [self init])
     {
-//        uint32_t intVal;
-//        
-//        intVal = [coder decodeIntForKey:CoreGameDestructionTilesKey];
-//        _destruction.tiles = &(intVal);
-//        intVal = [coder decodeIntForKey:CoreGameForegroundTilesKey];
-//        _foreground.tiles = &(intVal);
-//        intVal = [coder decodeIntForKey:CoreGameMetaTilesKey];
-//        _meta.tiles = &(intVal);
+        uint32_t intVal;
+        
+        intVal = [coder decodeIntForKey:CoreGameBackgroundTilesKey];
+        _background.tiles = &(intVal);
+        intVal = [coder decodeIntForKey:CoreGameDestructionTilesKey];
+        _destruction.tiles = &(intVal);
+        intVal = [coder decodeIntForKey:CoreGameForegroundTilesKey];
+        _foreground.tiles = &(intVal);
+        intVal = [coder decodeIntForKey:CoreGameMetaTilesKey];
+        _meta.tiles = &(intVal);
 
         // alloc ivars and set inital vars
         [self initSettings];
@@ -1404,8 +1408,8 @@ static DVServerGameData* _serverGameData;
     [_meta removeTileAt:[self tileCoordForPosition:bottomRight]];
     [_meta removeTileAt:[self tileCoordForPosition:topLeft]];
     [_meta removeTileAt:[self tileCoordForPosition:topRight]];
-    
-//    [self scheduleOnce:block^(void){[_player.missiles removeObjectForKey:[NSNumber numberWithInt:weaponID]]; } delay:2];
+
+    //    [self scheduleOnce:block^(void){[_player.missiles removeObjectForKey:[NSNumber numberWithInt:weaponID]]; } delay:2];
     // DEBUG - replace this with code with less overhead (don't need to make an action out of removing weapon from the dict)
     // the action is to pause the sprite for kReplayTickLengthSeconds time
     id actionStall = [CCActionInterval actionWithDuration:delayBeforeDelete];  // DEBUG does this work??

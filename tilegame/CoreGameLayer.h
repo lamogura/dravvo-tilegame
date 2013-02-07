@@ -33,6 +33,7 @@ typedef enum {
 // for NSCoding
 #define CoreGameSavedGameKey @"savedGameKey"
 
+#define CoreGameBackgroundTilesKey @"backgroundTiles"
 #define CoreGameDestructionTilesKey @"destructionTiles"
 #define CoreGameForegroundTilesKey @"foregroundTiles"
 #define CoreGameMetaTilesKey @"metaTiles"
