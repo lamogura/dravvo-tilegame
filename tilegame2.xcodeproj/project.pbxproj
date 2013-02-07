@@ -20,6 +20,7 @@
 		3F3F40F616B2BF980080C341 /* DMZombie.m4r in Resources */ = {isa = PBXBuildFile; fileRef = 3F3F40F516B2BF980080C341 /* DMZombie.m4r */; };
 		3F3F40F816B2C2490080C341 /* DMLifePack.m4r in Resources */ = {isa = PBXBuildFile; fileRef = 3F3F40F716B2C2490080C341 /* DMLifePack.m4r */; };
 		3F3F40FA16B2C3820080C341 /* DMZombiePain.m4r in Resources */ = {isa = PBXBuildFile; fileRef = 3F3F40F916B2C3820080C341 /* DMZombiePain.m4r */; };
+		3F62AA3E16C2704500BA4EFC /* WeaponNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F62AA3D16C2704500BA4EFC /* WeaponNode.m */; };
 		3F881E2016B66FA300C11D1B /* TileMap.caf in Resources */ = {isa = PBXBuildFile; fileRef = 3F881E1F16B66FA300C11D1B /* TileMap.caf */; };
 		3F881E2816B6A9EB00C11D1B /* TileMap-hd.tmx in Resources */ = {isa = PBXBuildFile; fileRef = 3F881E2716B6A9EB00C11D1B /* TileMap-hd.tmx */; };
 		3F881E2A16B6F0C500C11D1B /* batGreen-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = 3F881E2916B6F0C500C11D1B /* batGreen-hd.png */; };
@@ -375,6 +376,8 @@
 		3F3F40F516B2BF980080C341 /* DMZombie.m4r */ = {isa = PBXFileReference; lastKnownFileType = file; path = DMZombie.m4r; sourceTree = "<group>"; };
 		3F3F40F716B2C2490080C341 /* DMLifePack.m4r */ = {isa = PBXFileReference; lastKnownFileType = file; path = DMLifePack.m4r; sourceTree = "<group>"; };
 		3F3F40F916B2C3820080C341 /* DMZombiePain.m4r */ = {isa = PBXFileReference; lastKnownFileType = file; path = DMZombiePain.m4r; sourceTree = "<group>"; };
+		3F62AA3C16C2704500BA4EFC /* WeaponNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WeaponNode.h; sourceTree = "<group>"; };
+		3F62AA3D16C2704500BA4EFC /* WeaponNode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WeaponNode.m; sourceTree = "<group>"; };
 		3F881E1F16B66FA300C11D1B /* TileMap.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = TileMap.caf; sourceTree = "<group>"; };
 		3F881E2716B6A9EB00C11D1B /* TileMap-hd.tmx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = "TileMap-hd.tmx"; sourceTree = "<group>"; };
 		3F881E2916B6F0C500C11D1B /* batGreen-hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "batGreen-hd.png"; sourceTree = "<group>"; };
@@ -781,6 +784,8 @@
 				CE892A5716B4180A00BE6DAB /* EntityNode.m */,
 				CE892A5916B4185300BE6DAB /* CreatureNode.h */,
 				CE892A5A16B4185300BE6DAB /* CreatureNode.m */,
+				3F62AA3C16C2704500BA4EFC /* WeaponNode.h */,
+				3F62AA3D16C2704500BA4EFC /* WeaponNode.m */,
 			);
 			name = Superclasses;
 			sourceTree = "<group>";
@@ -1668,6 +1673,7 @@
 				CE892A5816B4180A00BE6DAB /* EntityNode.m in Sources */,
 				CE892A5B16B4185300BE6DAB /* CreatureNode.m in Sources */,
 				3F0BD55D16BA6141005C7A54 /* CCSequenceHelper.m in Sources */,
+				3F62AA3E16C2704500BA4EFC /* WeaponNode.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

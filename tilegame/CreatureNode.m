@@ -12,7 +12,7 @@
 
 @synthesize speedInPixelsPerSec = _speedInPixelsPerSec;
 @synthesize behavior = _behavior;
-@synthesize previousPosition = _previousPosition;
+//@synthesize previousPosition = _previousPosition;
 @synthesize owner = _owner;
 @synthesize entityType = _entityType;
 

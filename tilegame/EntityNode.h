@@ -27,6 +27,8 @@
 // entityTypes defined in the respective sub-class's constructors
 #define kEntityTypePlayer @"player"
 #define kEntityTypeBat @"bat"
+#define kEntityTypeMissile @"missile"
+#define kEntityTypeShuriken @"shuriken"
 
 // possible events
 typedef enum {
@@ -48,7 +50,7 @@ typedef enum {
 @property (nonatomic, strong) CCSprite* sprite;
 @property (nonatomic, assign) int uniqueID;
 @property (nonatomic, assign) int hitPoints;
-@property (nonatomic, assign) BOOL isAlive;
+@property (nonatomic, assign) BOOL isDead;
 @property (nonatomic, assign) CGPoint spawnPoint;
 @property (nonatomic, assign) CGPoint lastPoint;
 @property (nonatomic, strong) NSString* entityType;
@@ -57,12 +59,12 @@ typedef enum {
 
 
 +(NSMutableArray*) eventHistory;  // returns the entire event history static getter method
-//+(int) numAnimationsPlaying;
-//+(void) callbackAnimationsFinished;
 +(void) animateDeathForEntityType:(NSString*) theEntityType at:(CGPoint) deathPoint;  // TO DO Takes a position and an EntityType
 // optional
 -(id)initInLayer:(CoreGameLayer *)layer atSpawnPoint:(CGPoint)spawnPoint;
 -(id)initInLayerWithoutCache:(CoreGameLayer *)layer atSpawnPoint:(CGPoint)spawnPoint;
+//-(id)initInLayerWithoutCache_AndAnimate:(CCNode *)layer atSpawnPoint:(CGPoint)spawnPoint afterDelay:(ccTime) delay;
+
 //-(void)replayEventsAtTimeIndex:(int)index;
 -(NSMutableDictionary *)cacheStateForEvent:(DVEventType)event;
 
@@ -78,15 +80,17 @@ typedef enum {
 -(void)realUpdate;
 -(void)realSetBehaviour:(int) newBeahavior;
 -(void)realMove:(CGPoint) targetPoint;
--(void)realExplode:(CGPoint) targetPoint;
+-(void)realExplode;
 
 // List of historical animations that simluate past actions without any environment state changes, for later animation re-play on player2's side
 // each minion has it's own list of animations that can be performed on it, such as exploding, moving, attacking,
--(void)animateExplode:(CGPoint) targetPoint;  // animate it exploding TODO this should move to weapon
+-(void)animateExplode;  // animate it exploding TODO this should move to weapon
 -(void)animateMove:(CGPoint) targetPoint;  // will animate a historical move over time interval kTimeStepSeconds
 -(void)animateTakeDamage:(int)damagePoints;
--(void)animateKill;
+-(void)animateKill:(CGPoint)killPosition;
 
--(void)playActionsInSequenceAndCallback_tryEnemyPlayback;  // plays all the actions in sequence FOR EACH entity object
+//-(void)playActionsInSequenceAndCallback_tryEnemyPlayback;  // plays all the actions in sequence FOR EACH entity object
+-(void)playActionsInSequence;  // plays all the actions in sequence FOR EACH entity object
+
 
 @end

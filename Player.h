@@ -31,6 +31,8 @@ typedef enum {
 
 //@property (nonatomic, readonly) NSMutableArray* minions;
 @property (nonatomic, strong) NSMutableDictionary* minions;  // was strong
+@property (nonatomic, strong) NSMutableDictionary* missiles;  // was strong
+@property (nonatomic, strong) NSMutableDictionary* shurikens;  // was strong
 @property (nonatomic, assign) DVPlayerMode mode;
 
 // change related consts if you ever any of these properties used in KVO

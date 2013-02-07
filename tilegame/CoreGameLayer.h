@@ -39,9 +39,6 @@ typedef enum {
     CCTMXLayer* _foreground;  // foreground layer is seen by player but is modifiable, like collectible items
     CCTMXLayer* _destruction;  // destruction under-layer, for when terrain is devastated
     
-    // all existing 
-    NSMutableArray* _shurikens;
-    NSMutableArray* _missiles;
     NSMutableArray* eventsArray;  // DEBUG - only for testing
 
     BOOL _roundHasStarted; // NO touches processed until startRound()
@@ -73,10 +70,8 @@ typedef enum {
 @property (nonatomic, assign) int eventArrayIndex;
 @property (nonatomic, strong) Player* player; // always the local player
 @property (nonatomic, strong) Player* opponent; // always the local player
-//@property (nonatomic, strong) Player* opponent;
-
+@property (nonatomic, strong) NSMutableDictionary* collidableProjectiles;
 @property (nonatomic, strong) NSMutableDictionary* historicalEventsDict;
-//@property (nonatomic, strong) NSMutableArray* eventHistory;
 
 // change related consts if you ever any of these properties used in KVO
 @property (nonatomic, assign) float roundTimer; // time left in current round
@@ -86,12 +81,6 @@ typedef enum {
 -(void) mainGameLoop:(ccTime)deltaTime;
 -(void) sampleCurrentPositions:(ccTime)deltaTime; // scheduled callback
 
-// entity actions finished
--(void) shurikenMoveFinished:(id) sender;
--(void) enemyMoveFinished:(id)sender;
--(void) missileMoveFinished:(id) sender;
--(void) missileExplodesFinished:(id) sender;
-
 // helpers
 -(void) setViewpointCenter:(CGPoint) position;
 -(CGPoint) tileCoordForPosition:(CGPoint) position;
@@ -99,9 +88,7 @@ typedef enum {
 -(CGPoint) pixelToPoint:(CGPoint) pixelPoint;
 -(CGSize) pixelToPointSize:(CGSize) pixelSize;
 
-// animation helpers
--(void) animateEnemy:(CCSprite*) enemy;
--(void) missileExplodes:(CGPoint) hitLocation;
+-(void) explosionAt:(CGPoint) hitLocation effectingArea:(CGRect) area infilctingDamage:(int)damage weaponID:(int)weaponID;
 
 // lifecycle functions
 -(void) audioInitAndPlay;
@@ -111,8 +98,7 @@ typedef enum {
 -(void) win;
 -(void) lose;
 -(void) roundFinished;
--(void) enemyPlaybackLoop:(ccTime)deltaTime; //(int)lastArrayIndex;
--(void) tryEnemyPlayback;
+-(void) enemyPlaybackLoop;
 -(void) transitionToNextTurn;
 
 @end
