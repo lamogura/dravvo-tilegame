@@ -1,4 +1,4 @@
-//
+
 //  HelloWorldLayer.m
 //  tutorial_TileGame
 //
@@ -80,9 +80,13 @@ static DVServerGameData* _serverGameData;
 	CCScene *scene = [CCScene node];
     CoreGameLayer *layer;
     
-    if(initType == DVNewGameAsHost)
+    if (initType == DVNewGameAsHost)
     {
         layer = [CoreGameLayer node];  // regular init
+    }
+    else if (initType == DVLoadFromFile)
+    {
+        layer = [[CoreGameLayer alloc] initFromSavedGameState];
     }
     else
     {
@@ -368,14 +372,73 @@ static DVServerGameData* _serverGameData;
     return self;
 }
 
--(void) saveGameState
++(NSString*) gameStateFilePath
 {
-    // Save all state variables, including map, player, minion instances and display sprites, etc
+    NSString *gameID = [[NSUserDefaults standardUserDefaults] objectForKey:kCurrentGameIDKey];
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    return [NSString stringWithFormat:@"%@/%@.plist", [paths objectAtIndex:0], gameID];
 }
 
--(void) reloadGameState
+-(void) saveGameState //TODO add error handling
+{
+    NSMutableData *data = [[NSMutableData alloc] init];
+    NSKeyedArchiver *archiver = [[NSKeyedArchiver alloc] initForWritingWithMutableData:data];
+    
+    [archiver encodeObject:self forKey:CoreGameSavedGameKey];
+    [archiver finishEncoding];
+    [data writeToFile:[CoreGameLayer gameStateFilePath] atomically:YES];
+}
+
+-(id) initFromSavedGameState
 {
     // Reload all state variables, including map, player, minion instances and display sprites, etc
+    NSString* path = [CoreGameLayer gameStateFilePath];
+    if ([[NSFileManager defaultManager] fileExistsAtPath:path])
+    {
+        NSData *codedData = [[NSData alloc] initWithContentsOfFile:path];
+        if (codedData != nil)
+        {
+            NSKeyedUnarchiver *unarchiver = [[NSKeyedUnarchiver alloc] initForReadingWithData:codedData];
+            self = [unarchiver decodeObjectForKey:CoreGameSavedGameKey];
+            [unarchiver finishDecoding];
+        }
+    }
+    else
+    {
+        ULog(@"Tried to load from file, but no file existed. Using standard init()");
+        self = [self init];
+    }
+    
+    return self;
+}
+
+- (void)encodeWithCoder:(NSCoder *)coder
+{
+//    [coder encodeInt:*(_destruction.tiles) forKey:CoreGameDestructionTilesKey];
+//    [coder encodeInt:*(_foreground.tiles) forKey:CoreGameForegroundTilesKey];
+//    [coder encodeInt:*(_meta.tiles) forKey:CoreGameMetaTilesKey];
+    [coder encodeObject:self.player forKey:CoreGamePlayerKey];
+//    [coder encodeObject:self.opponent forKey:CoreGameOpponentKey];
+}
+
+- (id)initWithCoder:(NSCoder *)coder
+{
+    if (self = [self init])
+    {
+//        uint32_t intVal;
+//        
+//        intVal = [coder decodeIntForKey:CoreGameDestructionTilesKey];
+//        _destruction.tiles = &(intVal);
+//        intVal = [coder decodeIntForKey:CoreGameForegroundTilesKey];
+//        _foreground.tiles = &(intVal);
+//        intVal = [coder decodeIntForKey:CoreGameMetaTilesKey];
+//        _meta.tiles = &(intVal);
+        
+        self.player = [coder decodeObjectForKey:CoreGamePlayerKey];
+        [self addChild:self.player];
+//        self.opponent = [coder decodeObjectForKey:CoreGameOpponentKey];
+    }
+    return self;
 }
 
 -(void) audioInitAndPlay
@@ -410,6 +473,8 @@ static DVServerGameData* _serverGameData;
 
 -(void) roundFinished
 {
+    [self saveGameState];
+    
     isTouchEnabled_ = NO;
     // temp only - replace with server game data object
     eventsArray = [NSMutableArray arrayWithArray:[EntityNode eventHistory]]; // NSMutableArray*

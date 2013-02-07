@@ -16,13 +16,29 @@
 #import "CountdownLayer.h"
 
 @implementation GameLifecycle
+
++(void) deleteGameStateSave
+{
+    NSString* path = [CoreGameLayer gameStateFilePath];
+    if ([[NSFileManager defaultManager] fileExistsAtPath:path])
+    {
+        NSError* error;
+        [[NSFileManager defaultManager] removeItemAtPath:path error:(&error)];
+        if (error != nil) ULog(@"%@", [error localizedDescription]);
+    }
+}
+
 +(void) startWithDirector:(CCDirectorIOS *)director {
     // load new game scene if there isnt one currently going
 
-//    NSString* currentGameID = [[NSUserDefaults standardUserDefaults] valueForKey:kCurrentGameIDKey];
 //    if (currentGameID != nil) {
 //        DLog(@"Found gameID: %@", currentGameID);
-        [director pushScene: [CoreGameLayer scene:DVNewGameAsHost]];  // FIX replace with  [director pushScene:[CoreGameLayer scene:DVBeginNextTurn]];
+//    
+//    [GameLifecycle deleteGameStateSave];
+    
+    [director pushScene: [CoreGameLayer scene:DVLoadFromFile]];  // FIX replace with  [director pushScene:
+//    [director pushScene: [CoreGameLayer scene:DVNewGameAsHost]];  // FIX replace with  [director pushScene:
+
 //    }
 //    else {
 //        [director pushScene: [NewGameLayer scene]];

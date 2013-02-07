@@ -207,5 +207,43 @@
 
 }
 
+- (void)encodeWithCoder:(NSCoder *)coder
+{
+    [super encodeWithCoder:coder];
+    
+//    [coder encodeObject:_minions forKey:PlayerMinionsKey];
+    [coder encodeInt:_numMelonsCollected forKey:PlayerNumMelons];
+    [coder encodeInt:_numKills forKey:PlayerNumKills];
+    [coder encodeInt:_numShurikens forKey:PlayerNumShurikens];
+    [coder encodeInt:_numMissiles forKey:PlayerNumMissiles];
+}
+
+- (id)initWithCoder:(NSCoder *)coder
+{
+    if (self = [super initWithCoder:coder])
+    {
+        self.entityType = kEntityTypePlayer;
+        [[SimpleAudioEngine sharedEngine] playEffect:@"DMRespawn.m4r"];  // preload creature sounds
+        
+        self.isAlive = YES;
+        self.hitPoints = 1;
+        
+//        self->_minions = [coder decodeObjectForKey:PlayerMinionsKey];
+        self.mode = DVPlayerMode_Moving;
+       
+        if(self.uniqueID == 1)
+            self.sprite = [CCSprite spriteWithFile:@"PlayerGreen.png"];
+        else
+            self.sprite = [CCSprite spriteWithFile:@"PlayerRed.png"];
+        
+        _numMelonsCollected = [coder decodeIntForKey:PlayerNumMelons];
+        _numKills = [coder decodeIntForKey:PlayerNumKills];
+        _numShurikens = [coder decodeIntForKey:PlayerNumShurikens];
+        _numMissiles = [coder decodeIntForKey:PlayerNumMissiles];
+        
+        [self addChild:self.sprite];
+    }
+    return self;
+}
 
 @end

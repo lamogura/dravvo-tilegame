@@ -22,6 +22,7 @@
 typedef enum {
     DVNewGameAsHost,  // a new game is started with you as the host
     DVNewGameAsGuest,  // a new game is started with you as the guest: I. Guest Player's initialization, II. playback, III. Guest player's move
+    DVLoadFromFile,
     DVBeginNextTurn,  // start with playback, then player's move
     DVResume,  // Player closed the app before the JSON update could be sent to server - continue from where left off if possible
 } DVCoreLayerInitType;
@@ -29,8 +30,19 @@ typedef enum {
 @class CoreGameHudLayer;
 @class Player;
 
+// for NSCoding
+#define CoreGameSavedGameKey @"savedGameKey"
+
+#define CoreGameDestructionTilesKey @"destructionTiles"
+#define CoreGameForegroundTilesKey @"foregroundTiles"
+#define CoreGameMetaTilesKey @"metaTiles"
+#define CoreGameShurikensKey @"shurikens"
+#define CoreGameMisslesKey @"missles"
+#define CoreGamePlayerKey @"player"
+#define CoreGameOpponentKey @"opponent"
+
 // HelloWorldLayer
-@interface CoreGameLayer : CCLayer <GKAchievementViewControllerDelegate, GKLeaderboardViewControllerDelegate>
+@interface CoreGameLayer : CCLayer <NSCoding, GKAchievementViewControllerDelegate, GKLeaderboardViewControllerDelegate>
 {
     CCTMXTiledMap* _tileMap;
     // these layers are part of the _tileMap
@@ -67,6 +79,7 @@ typedef enum {
 +(CCScene *) scene:(DVCoreLayerInitType) initType;
 
 -(id) initWithInitType:(DVCoreLayerInitType) initType;
+-(id) initFromSavedGameState;
 
 @property (nonatomic, strong) CoreGameHudLayer* hud;
 @property (nonatomic, assign) int timeStepIndex; // should count up to 10 or 20, to get to a 10 second round
@@ -114,5 +127,7 @@ typedef enum {
 -(void) enemyPlaybackLoop:(ccTime)deltaTime; //(int)lastArrayIndex;
 -(void) tryEnemyPlayback;
 -(void) transitionToNextTurn;
+
++(NSString*) gameStateFilePath;
 
 @end

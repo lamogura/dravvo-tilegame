@@ -12,7 +12,6 @@
 
 @synthesize speedInPixelsPerSec = _speedInPixelsPerSec;
 @synthesize behavior = _behavior;
-@synthesize previousPosition = _previousPosition;
 @synthesize owner = _owner;
 @synthesize entityType = _entityType;
 
@@ -50,5 +49,25 @@
     [super animateMove:targetPoint];
 }
 */
+
+- (void)encodeWithCoder:(NSCoder *)coder
+{
+    [super encodeWithCoder:coder];
+
+    [coder encodeInt:self.speedInPixelsPerSec forKey:CreatureNodeSpeedInPixelsPerSec];
+    [coder encodeInt:(int)self.behavior forKey:CreatureNodeBehavior];
+    [coder encodeObject:self.owner forKey:CreatureNodeOwner];
+}
+
+- (id)initWithCoder:(NSCoder *)coder
+{
+    if (self = [super initWithCoder:coder])
+    {
+        _speedInPixelsPerSec = [coder decodeIntForKey:CreatureNodeSpeedInPixelsPerSec];
+        _behavior = (DVCreatureBehavior)[coder decodeIntForKey:CreatureNodeBehavior];
+        _owner = [coder decodeObjectForKey:CreatureNodeOwner];
+    }
+    return self;
+}
 
 @end

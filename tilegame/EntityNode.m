@@ -64,10 +64,10 @@ static NSMutableArray* _eventHistory;  // the entire event history of all Entiti
 -(id)initInLayer:(CCNode *)layer atSpawnPoint:(CGPoint)spawnPoint
 {
     if (self = [super init]) {
-        self->_gameLayer = layer;
-        self->_spawnPoint = spawnPoint;
         _actionsToBePlayed = [[NSMutableArray alloc] init];
-        _lastPoint = spawnPoint;
+
+        self->_gameLayer = layer;
+        self->_spawnPoint = _lastPoint = spawnPoint;
     }
     return self;
 }
@@ -75,10 +75,10 @@ static NSMutableArray* _eventHistory;  // the entire event history of all Entiti
 -(id)initInLayerWithoutCache:(CCNode *)layer atSpawnPoint:(CGPoint)spawnPoint
 {
     if (self = [super init]) {
-        self->_gameLayer = layer;
-        self->_spawnPoint = spawnPoint;
         _actionsToBePlayed = [[NSMutableArray alloc] init];
-        _lastPoint = spawnPoint;
+
+        self->_gameLayer = layer;
+        self->_spawnPoint = _lastPoint = spawnPoint;
     }
     return self;
 }
@@ -271,5 +271,31 @@ static NSMutableArray* _eventHistory;  // the entire event history of all Entiti
     
 }
 
+- (void)encodeWithCoder:(NSCoder *)coder
+{
+    [coder encodeInt:self.uniqueID forKey:EntityNodeUniqueID];
+    [coder encodeInt:self.hitPoints forKey:EntityNodeHitPoints];
+//    [coder encodeBool:self.isAlive forKey:EntityNodeIsAlive];
+    [coder encodeCGPoint:self.spawnPoint forKey:EntityNodeSpawnPoint];
+    [coder encodeCGPoint:self.sprite.position forKey:EntityNodePosition];
+//    [coder encodeObject:self.entityType forKey:EntityNodeEntityType];
+}
 
+- (id)initWithCoder:(NSCoder *)coder
+{
+    if (self = [super init]) {
+        _actionsToBePlayed = [[NSMutableArray alloc] init];
+        
+        _uniqueID = [coder decodeIntForKey:EntityNodeUniqueID];
+        _hitPoints = [coder decodeIntForKey:EntityNodeHitPoints];
+//        _isAlive = [coder decodeBoolForKey:EntityNodeIsAlive];
+        _spawnPoint = [coder decodeCGPointForKey:EntityNodeSpawnPoint];
+        self.sprite.position = [coder decodeCGPointForKey:EntityNodePosition];
+//        _entityType = [coder decodeObjectForKey:EntityNodeEntityType];
+        
+        _lastPoint = self.sprite.position;
+
+    }
+    return self;
+}
 @end

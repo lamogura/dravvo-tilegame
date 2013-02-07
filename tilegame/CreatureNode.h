@@ -19,11 +19,15 @@ typedef enum {
 
 @class EntityNode;
 
-@interface CreatureNode : EntityNode
+@interface CreatureNode : EntityNode <NSCoding>
+
+// NSCoding keys
+#define CreatureNodeSpeedInPixelsPerSec @"speedInPixelsPerSec"
+#define CreatureNodeBehavior @"behavior"
+#define CreatureNodeOwner @"owner"
 
 @property (nonatomic, assign) int speedInPixelsPerSec;
 @property (nonatomic, assign) DVCreatureBehavior behavior;
-@property (nonatomic, assign) CGPoint previousPosition;
 @property (nonatomic, strong) EntityNode* owner;
 
 -(id)initInLayer:(CoreGameLayer *)layer atSpawnPoint:(CGPoint)spawnPoint withBehavior:(DVCreatureBehavior)behavior ownedBy:(EntityNode *)owner;

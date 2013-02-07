@@ -19,7 +19,7 @@
 
 @class CreatureNode;
 
-@interface Bat : CreatureNode
+@interface Bat : CreatureNode <NSCoding>
 
 -(id)initInLayer:(CoreGameLayer *)layer atSpawnPoint:(CGPoint)spawnPoint withBehavior:(DVCreatureBehavior)behavior ownedBy:(EntityNode *)player;
 

@@ -10,5 +10,8 @@
 #import "cocos2d.h"
 
 @interface GameLifecycle : NSObject
+
++(void) deleteGameStateSave;
 +(void) startWithDirector:(CCDirectorIOS *)director;
+
 @end

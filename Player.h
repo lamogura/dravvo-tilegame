@@ -27,7 +27,14 @@ typedef enum {
 
 @class CoreGameLayer;
 
-@interface Player : EntityNode
+@interface Player : EntityNode <NSCoding>
+
+#define PlayerMinionsKey @"minions"
+#define PlayerNumMelons @"numMelons"
+#define PlayerNumKills @"numKills"
+#define PlayerNumShurikens @"numShurikens"
+#define PlayerNumMissiles @"numMissiles"
+#define PlayerEnemyPlayer @"enemyPlayer"
 
 //@property (nonatomic, readonly) NSMutableArray* minions;
 @property (nonatomic, strong) NSMutableDictionary* minions;  // was strong

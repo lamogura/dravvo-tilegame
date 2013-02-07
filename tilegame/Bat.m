@@ -40,7 +40,7 @@ static int _uniqueIDCounter = 0;
             self.sprite = [CCSprite spriteWithFile:@"batRed.png"];
         else
             self.sprite = [CCSprite spriteWithFile:@"batGreen.png"];
-        self.sprite.position = self.previousPosition = spawnPoint;
+        self.sprite.position = self.lastPoint = spawnPoint;
         [self addChild:self.sprite];
         
         [self.gameLayer addChild:self];
@@ -64,7 +64,7 @@ static int _uniqueIDCounter = 0;
             self.sprite = [CCSprite spriteWithFile:@"batRed.png"];
         else
             self.sprite = [CCSprite spriteWithFile:@"batGreen.png"];
-        self.sprite.position = self.previousPosition = spawnPoint;
+        self.sprite.position = self.lastPoint = spawnPoint;
         [self addChild:self.sprite];
         
         [self cacheStateForEvent:DVEvent_Spawn];
@@ -184,6 +184,32 @@ static int _uniqueIDCounter = 0;
 
 }
 
+- (void)encodeWithCoder:(NSCoder *)coder
+{
+    [super encodeWithCoder:coder];
+}
+
+- (id)initWithCoder:(NSCoder *)coder
+{
+    if (self = [super initWithCoder:coder])
+    {
+        self.entityType = kEntityTypeBat;
+        
+        // set bat's stats
+        self.hitPoints = kEntityBatHitPoints;
+        self.speedInPixelsPerSec = kEntityBatSpeedPPS;
+        
+        if(self.owner.uniqueID == 2)
+            self.sprite = [CCSprite spriteWithFile:@"batRed.png"];
+        else
+            self.sprite = [CCSprite spriteWithFile:@"batGreen.png"];
+        
+        self.sprite.position = [coder decodeCGPointForKey:EntityNodePosition];
+        
+        [self addChild:self.sprite];
+    }
+    return self;
+}
 
 @end
 

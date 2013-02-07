@@ -42,7 +42,13 @@ typedef enum {
 
 // Entity's include Bat, Missile, Shuriken, Player?
 // IN the very least, make sure that all previous time step actions and animations are finished before performing the next time step's actions from main
-@interface EntityNode : CCNode
+@interface EntityNode : CCNode <NSCoding>
+
+// constant keys for NSCoding
+#define EntityNodeUniqueID @"uniqueID"
+#define EntityNodeHitPoints @"hitPoints"
+#define EntityNodeSpawnPoint @"spawnPoint"
+#define EntityNodePosition @"positionPoint"
 
 @property (nonatomic, strong) CCNode* gameLayer;
 @property (nonatomic, strong) CCSprite* sprite;
@@ -54,7 +60,6 @@ typedef enum {
 @property (nonatomic, strong) NSString* entityType;
 @property (nonatomic, strong) NSMutableArray* actionsToBePlayed;
 //@property (nonatomic, copy) NSMutableArray* eventHistory;
-
 
 +(NSMutableArray*) eventHistory;  // returns the entire event history static getter method
 //+(int) numAnimationsPlaying;
