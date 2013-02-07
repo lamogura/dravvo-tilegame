@@ -246,7 +246,7 @@
 {
     [super encodeWithCoder:coder];
     
-//    [coder encodeObject:_minions forKey:PlayerMinionsKey];
+    [coder encodeObject:_minions forKey:PlayerMinionsKey];
     [coder encodeInt:_numMelonsCollected forKey:PlayerNumMelons];
     [coder encodeInt:_numKills forKey:PlayerNumKills];
     [coder encodeInt:_numShurikens forKey:PlayerNumShurikens];
@@ -259,7 +259,7 @@
     {
         self.entityType = kEntityTypePlayer;
         
-        self->_minions = [[NSMutableDictionary alloc] init];
+        self->_minions = [coder decodeObjectForKey:PlayerMinionsKey];
         self->_missiles = [[NSMutableDictionary alloc] init];
         self->_shurikens = [[NSMutableDictionary alloc] init];
         

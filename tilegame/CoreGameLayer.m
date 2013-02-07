@@ -283,7 +283,7 @@ static DVServerGameData* _serverGameData;
 //    [coder encodeInt:*(_foreground.tiles) forKey:CoreGameForegroundTilesKey];
 //    [coder encodeInt:*(_meta.tiles) forKey:CoreGameMetaTilesKey];
     [coder encodeObject:self.player forKey:CoreGamePlayerKey];
-//    [coder encodeObject:self.opponent forKey:CoreGameOpponentKey];
+    [coder encodeObject:self.opponent forKey:CoreGameOpponentKey];
 }
 
 - (id)initWithCoder:(NSCoder *)coder
@@ -305,12 +305,25 @@ static DVServerGameData* _serverGameData;
         [self initAudio];
         
         [self initTilemap];
+        [self addChild:_tileMap z:-1];
         
         _player = [coder decodeObjectForKey:CoreGamePlayerKey];
         [self addChild:self.player];
+        
+        for (Bat* bat in [_player.minions allValues]) {
+            bat.gameLayer = self;
+            [self addChild:bat];
+        }
+        
+        _opponent = [coder decodeObjectForKey:CoreGameOpponentKey];
+        [self addChild:self.opponent];
+        
+        for (Bat* bat in [_opponent.minions allValues]) {
+            bat.gameLayer = self;
+            [self addChild:bat];
+        }
+        
         [self setViewpointCenter:_player.sprite.position];
-
-        [self addChild:_tileMap z:-1];
 //        self.opponent = [coder decodeObjectForKey:CoreGameOpponentKey];
     }
     return self;
@@ -378,7 +391,7 @@ static DVServerGameData* _serverGameData;
 
 -(void) roundFinished
 {
-    [self saveGameState];
+//    [self saveGameState];
     
     self.isTouchEnabled = NO;
     // temp only - replace with server game data object

@@ -247,15 +247,14 @@ static int _uniqueIDCounter = 0;
         self.entityType = kEntityTypeBat;
         
         // set bat's stats
-        self.hitPoints = kEntityBatHitPoints;
         self.speedInPixelsPerSec = kEntityBatSpeedPPS;
         
-        if(self.owner.uniqueID == 2)
+        if(self.owner.uniqueID == (int)DVPlayerGuest)
             self.sprite = [CCSprite spriteWithFile:@"batRed.png"];
         else
             self.sprite = [CCSprite spriteWithFile:@"batGreen.png"];
         
-        self.sprite.position = [coder decodeCGPointForKey:EntityNodePosition];
+        self.sprite.position = self.lastPoint = [coder decodeCGPointForKey:EntityNodePosition];
         
         [self addChild:self.sprite];
     }
