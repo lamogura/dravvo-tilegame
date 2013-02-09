@@ -86,7 +86,7 @@ static DVServerGameData* _serverGameData;
             ULog(@"Some unknown initType sent to CoreGameLayer scene()");
             break;
     }
-
+    
     CoreGameHudLayer* hud = [[CoreGameHudLayer alloc] initWithCoreGameLayer:gameLayer];
     
     gameLayer.hud = hud;  // store a member var reference to the hud so we can refer back to it to reset the label strings!
@@ -280,10 +280,22 @@ static DVServerGameData* _serverGameData;
 
 - (void)encodeWithCoder:(NSCoder *)coder
 {
-    [coder encodeInt:*(_background.tiles) forKey:CoreGameBackgroundTilesKey];
-    [coder encodeInt:*(_destruction.tiles) forKey:CoreGameDestructionTilesKey];
-    [coder encodeInt:*(_foreground.tiles) forKey:CoreGameForegroundTilesKey];
-    [coder encodeInt:*(_meta.tiles) forKey:CoreGameMetaTilesKey];
+    NSUInteger length = _background.layerSize.width * _background.layerSize.height - 1;
+    NSData* data = [NSData dataWithBytes:_background.tiles length:length];
+    [coder encodeObject:data forKey:CoreGameBackgroundTilesKey];
+
+    length = _destruction.layerSize.width * _destruction.layerSize.height - 1;
+    data = [NSData dataWithBytes:_destruction.tiles length:length];
+    [coder encodeObject:data forKey:CoreGameDestructionTilesKey];
+
+    length = _foreground.layerSize.width * _foreground.layerSize.height - 1;
+    data = [NSData dataWithBytes:_foreground.tiles length:length];
+    [coder encodeObject:data forKey:CoreGameForegroundTilesKey];
+
+    length = _meta.layerSize.width * _meta.layerSize.height - 1;
+    data = [NSData dataWithBytes:_meta.tiles length:length];
+    [coder encodeObject:data forKey:CoreGameMetaTilesKey];
+    
     [coder encodeObject:self.player forKey:CoreGamePlayerKey];
     [coder encodeObject:self.opponent forKey:CoreGameOpponentKey];
 }
@@ -292,23 +304,25 @@ static DVServerGameData* _serverGameData;
 {
     if (self = [self init])
     {
-        uint32_t intVal;
+        [self initTilemap];
         
-        intVal = [coder decodeIntForKey:CoreGameBackgroundTilesKey];
-        _background.tiles = &(intVal);
-        intVal = [coder decodeIntForKey:CoreGameDestructionTilesKey];
-        _destruction.tiles = &(intVal);
-        intVal = [coder decodeIntForKey:CoreGameForegroundTilesKey];
-        _foreground.tiles = &(intVal);
-        intVal = [coder decodeIntForKey:CoreGameMetaTilesKey];
-        _meta.tiles = &(intVal);
-
+        NSData* data = [coder decodeObjectForKey:CoreGameBackgroundTilesKey];
+        [data getBytes:_background.tiles];
+        
+        data = [coder decodeObjectForKey:CoreGameDestructionTilesKey];
+        [data getBytes:_destruction.tiles];
+        
+        data = [coder decodeObjectForKey:CoreGameForegroundTilesKey];
+        [data getBytes:_foreground.tiles];
+        
+        data = [coder decodeObjectForKey:CoreGameMetaTilesKey];
+        [data getBytes:_background.tiles];
+   
         // alloc ivars and set inital vars
         [self initSettings];
         
         [self initAudio];
         
-        [self initTilemap];
         [self addChild:_tileMap z:-1];
         
         _player = [coder decodeObjectForKey:CoreGamePlayerKey];
@@ -395,7 +409,7 @@ static DVServerGameData* _serverGameData;
 
 -(void) roundFinished
 {
-//    [self saveGameState];
+    [self saveGameState];
     
     self.isTouchEnabled = NO;
     // temp only - replace with server game data object
