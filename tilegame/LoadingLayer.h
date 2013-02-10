@@ -9,11 +9,12 @@
 #import "cocos2d.h"
 #import "DVAPIWrapper.h"
 
-@interface LoadingLayer : CCLayerColor {
-    DVAPIWrapper* _apiWrapper;
-}
+@interface LoadingLayer : CCLayerColor
 
-+(CCScene *) scene;
+-(id)init;
+
++(CCScene *)scene;
+
 @end
 
 

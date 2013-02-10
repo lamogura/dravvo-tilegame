@@ -26,7 +26,7 @@
 @synthesize enemyPlayer = _enemyPlayer;
 @synthesize missiles = _missiles;
 @synthesize shurikens = _shurikens;
-
+@synthesize deviceToken = _deviceToken;
 /*
 +(int)nextUniqueID {
     if (_nextPlayer == kDVPlayerOne) {
@@ -251,6 +251,7 @@
     [coder encodeInt:_numKills forKey:PlayerNumKills];
     [coder encodeInt:_numShurikens forKey:PlayerNumShurikens];
     [coder encodeInt:_numMissiles forKey:PlayerNumMissiles];
+    [coder encodeObject:_deviceToken forKey:PlayerDeviceToken];
 }
 
 - (id)initWithCoder:(NSCoder *)coder

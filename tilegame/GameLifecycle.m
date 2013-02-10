@@ -14,12 +14,13 @@
 #import "NewGameLayer.h"
 #import "CoreGameLayer.h"
 #import "CountdownLayer.h"
+#import "AwaitingOpponentMoveScene.h"
 
 @implementation GameLifecycle
 
 +(void) deleteGameStateSave
 {
-    NSString* path = [CoreGameLayer gameStateFilePath];
+    NSString* path = [CoreGameLayer SavegamePath];
     if ([[NSFileManager defaultManager] fileExistsAtPath:path])
     {
         NSError* error;
@@ -28,21 +29,51 @@
     }
 }
 
-+(void) startWithDirector:(CCDirectorIOS *)director {
++(void) startWithDirector:(CCDirectorIOS *)director
+{
+    DVAPIWrapper* apiWrapper = [[DVAPIWrapper alloc] init];
+    
     // load new game scene if there isnt one currently going
-
-//    if (currentGameID != nil) {
-//        DLog(@"Found gameID: %@", currentGameID);
+//    [[NSUserDefaults standardUserDefaults] removeObjectForKey:kCurrentGameIDKey];
+    NSString* gameID = [[NSUserDefaults standardUserDefaults] valueForKey:kCurrentGameIDKey];
     
-//    [GameLifecycle deleteGameStateSave];
-//
-    [director pushScene: [CoreGameLayer scene:DVLoadFromFile]];  // FIX replace with  [director pushScene:
-//    [director pushScene: [CoreGameLayer scene:DVNewGameAsHost]];  // FIX replace with  [director pushScene:
-
-//    }
-//    else {
-//        [director pushScene: [NewGameLayer scene]];
-//    }
-    
+    if (gameID == nil)
+    {
+        [director pushScene: [NewGameLayer scene]];
+    }
+    else
+    {
+        [director pushScene:[LoadingLayer scene]];
+        [apiWrapper getGameStatusThenCallBlock:^(NSError *error, DVServerGameData *status) {
+            //TODO: update game with the game status
+            if (error != nil)
+            {
+                ULog(@"%@", [error localizedDescription]);
+            }
+            else
+            {
+                DLog(@"Sucessfully got status for gameID: %@", status.gameID);
+                NSString* deviceToken = [[NSUserDefaults standardUserDefaults] valueForKey:kDeviceToken];
+                if ([status.nextTurn isEqualToString:deviceToken])
+                {
+                    // load last scene
+                    DLog(@"Loading CoreGame from savegame '%@'", [CoreGameLayer SavegamePath]);
+                    CCScene* gameScene = [CoreGameLayer scene:DVLoadFromFile];
+                    CoreGameLayer* gameLayer = (CoreGameLayer *)[gameScene getChildByTag:13];
+                    [director pushScene:gameScene];
+                    
+                    // TODO show replay of opponent
+                    
+                    // start our turn
+                    CountdownLayer* cdlayer = [[CountdownLayer alloc] initWithCountdownFrom:3 AndCallBlockWhenCountdownFinished:^(id status) {
+                        [gameLayer startRound];
+                    }];
+                    [gameScene addChild:cdlayer];
+                }
+                else [director pushScene:[AwaitingOpponentMoveLayer scene]];
+            }
+        }];
+    }
 }
+
 @end

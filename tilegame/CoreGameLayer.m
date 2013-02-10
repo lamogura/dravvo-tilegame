@@ -86,19 +86,15 @@ static DVServerGameData* _serverGameData;
             ULog(@"Some unknown initType sent to CoreGameLayer scene()");
             break;
     }
+    gameLayer.tag = 13; // FIX this ugliness, its used to get the layer from the scene obj in the lifecycle
     
     CoreGameHudLayer* hud = [[CoreGameHudLayer alloc] initWithCoreGameLayer:gameLayer];
     
     gameLayer.hud = hud;  // store a member var reference to the hud so we can refer back to it to reset the label strings!
-    
+
  	[scene addChild:gameLayer];
     [scene addChild:hud];
 
-    CountdownLayer* cdlayer = [[CountdownLayer alloc] initWithCountdownFrom:3 AndCallBlockWhenCountdownFinished:^(id status) {
-        [gameLayer startRound];
-    }];
-
-    [scene addChild:cdlayer];
 	return scene;
 }
 /*
@@ -141,7 +137,6 @@ static DVServerGameData* _serverGameData;
         [self initAudio];
         
         [self initTilemap];
-
         
         CCTMXObjectGroup* playerSpawnObjects = [_tileMap objectGroupNamed:@"PlayerSpawnPoints"];
         NSAssert(playerSpawnObjects != nil, @"'PlayerSpawnPoints' object group not found");
@@ -156,6 +151,7 @@ static DVServerGameData* _serverGameData;
                 DLog(@"CGPoint:%f,%f",playerSpawnPoint.x,playerSpawnPoint.y);
                 
                 _player = [[Player alloc] initInLayer:self atSpawnPoint:playerSpawnPoint withUniqueIntID:(int)pRole withShurikens:kInitShurikens withMissles:kInitMissiles];
+                _player.deviceToken = [[NSUserDefaults standardUserDefaults] valueForKey:kDeviceToken];
             }
         }
 
@@ -217,6 +213,12 @@ static DVServerGameData* _serverGameData;
         [self setViewpointCenter:_player.sprite.position];
         [self addChild:_tileMap z:-1];
 //        [self startRound];
+        
+        CountdownLayer* cdlayer = [[CountdownLayer alloc] initWithCountdownFrom:3 AndCallBlockWhenCountdownFinished:^(id status) {
+            [self startRound];
+        }];
+        
+        [self.parent addChild:cdlayer];
     }
 	return self;
 }
@@ -238,7 +240,7 @@ static DVServerGameData* _serverGameData;
 //    _touches = [[NSMutableArray alloc ] init]; // store the touches for missile launching
 //}
 
-+(NSString*) gameStateFilePath
++(NSString*) SavegamePath
 {
     NSString *gameID = [[NSUserDefaults standardUserDefaults] objectForKey:kCurrentGameIDKey];
     NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
@@ -252,13 +254,13 @@ static DVServerGameData* _serverGameData;
     
     [archiver encodeObject:self forKey:CoreGameSavedGameKey];
     [archiver finishEncoding];
-    [data writeToFile:[CoreGameLayer gameStateFilePath] atomically:YES];
+    [data writeToFile:[CoreGameLayer SavegamePath] atomically:YES];
 }
 
 -(id) initFromSavedGameState
 {
     // Reload all state variables, including map, player, minion instances and display sprites, etc
-    NSString* path = [CoreGameLayer gameStateFilePath];
+    NSString* path = [CoreGameLayer SavegamePath];
     if ([[NSFileManager defaultManager] fileExistsAtPath:path])
     {
         NSData *codedData = [[NSData alloc] initWithContentsOfFile:path];
@@ -304,8 +306,10 @@ static DVServerGameData* _serverGameData;
     if (self = [self init])
     {
         [self initTilemap];
-
-        uint32_t data[2500];
+        
+        NSInteger length = _background.layerSize.width * _background.layerSize.height;
+        uint32_t data[length];
+        
         [[coder decodeObjectForKey:CoreGameBackgroundTilesKey] getBytes:data];
         [CoreGameLayer setTileArray:data ForLayer:_background];
         
@@ -419,14 +423,14 @@ static DVServerGameData* _serverGameData;
 
 -(void) roundFinished
 {
-//    [self saveGameState];
+    [self saveGameState];
     
     self.isTouchEnabled = NO;
     // temp only - replace with server game data object
-    eventsArray = [NSMutableArray arrayWithArray:[EntityNode eventHistory]]; // NSMutableArray*
-    DLog(@"eventsArray count = %d",[eventsArray count]);
+//    eventsArray = [NSMutableArray arrayWithArray:[EntityNode eventHistory]]; // NSMutableArray*
+//    DLog(@"eventsArray count = %d",[eventsArray count]);
 
-    [self enemyPlaybackLoop];
+//    [self enemyPlaybackLoop];
     /*
     // transition to a waiting for opponent scene, ideally displaying current stats (maybe keep HUD up)
     GameOverScene *gameOverScene = [GameOverScene node];

@@ -37,6 +37,7 @@ typedef enum {
 #define PlayerNumShurikens @"numShurikens"
 #define PlayerNumMissiles @"numMissiles"
 #define PlayerEnemyPlayer @"enemyPlayer"
+#define PlayerDeviceToken @"playerDeviceToken"
 
 //@property (nonatomic, readonly) NSMutableArray* minions;
 @property (nonatomic, strong) NSMutableDictionary* minions;  // was strong
@@ -50,6 +51,8 @@ typedef enum {
 @property (nonatomic, assign) int numShurikens; // FIX should be able just to count objects in array
 @property (nonatomic, assign) int numMissiles; // FIX should be able just to count objects in array
 @property (nonatomic, strong) Player* enemyPlayer;  // later, upgrade this to a list of enemyPlayers FIX for > 2 multiplay
+// used to know who is who in gamestatus objects from server
+@property (nonatomic, strong) NSString* deviceToken; // FIX should be more clever about this
 
 // constructors
 -(id)initInLayer:(CoreGameLayer *)layer atSpawnPoint:(CGPoint)spawnPoint withUniqueIntID:(int)intID;

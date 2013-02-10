@@ -9,6 +9,8 @@
 #import <Foundation/Foundation.h>
 #import "cocos2d.h"
 
+#import "DVAPIWrapper.h"
+
 @interface GameLifecycle : NSObject
 
 +(void) deleteGameStateSave;

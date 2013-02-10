@@ -120,6 +120,6 @@ typedef enum {
 -(void) enemyPlaybackLoop;
 -(void) transitionToNextTurn;
 
-+(NSString*) gameStateFilePath;
++(NSString*) SavegamePath;
 
 @end
