@@ -99,6 +99,8 @@ typedef enum {
 -(void) setPlayerPosition:(CGPoint) position; // FIX maybe this shoudl be more flexible
 -(CGPoint) pixelToPoint:(CGPoint) pixelPoint;
 -(CGSize) pixelToPointSize:(CGSize) pixelSize;
++(uint32_t *)getTileArrayForLayer:(CCTMXLayer *)layer;
++(void)setTileArray:(uint32_t *)pArray ForLayer:(CCTMXLayer *)pLayer;
 
 -(void) explosionAt:(CGPoint) hitLocation effectingArea:(CGRect) area infilctingDamage:(int)damage weaponID:(int)weaponID;
 

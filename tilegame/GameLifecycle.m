@@ -33,9 +33,9 @@
 
 //    if (currentGameID != nil) {
 //        DLog(@"Found gameID: %@", currentGameID);
-//    
+    
 //    [GameLifecycle deleteGameStateSave];
-//    
+//
     [director pushScene: [CoreGameLayer scene:DVLoadFromFile]];  // FIX replace with  [director pushScene:
 //    [director pushScene: [CoreGameLayer scene:DVNewGameAsHost]];  // FIX replace with  [director pushScene:
 

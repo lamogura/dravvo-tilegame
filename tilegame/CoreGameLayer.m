@@ -280,19 +280,18 @@ static DVServerGameData* _serverGameData;
 
 - (void)encodeWithCoder:(NSCoder *)coder
 {
-    NSUInteger length = _background.layerSize.width * _background.layerSize.height - 1;
-    NSData* data = [NSData dataWithBytes:_background.tiles length:length];
+    NSData* data;
+    NSUInteger length = _background.layerSize.width * _background.layerSize.height * sizeof(uint32_t);
+    
+    data = [NSData dataWithBytes:_background.tiles length:length];
     [coder encodeObject:data forKey:CoreGameBackgroundTilesKey];
 
-    length = _destruction.layerSize.width * _destruction.layerSize.height - 1;
     data = [NSData dataWithBytes:_destruction.tiles length:length];
     [coder encodeObject:data forKey:CoreGameDestructionTilesKey];
 
-    length = _foreground.layerSize.width * _foreground.layerSize.height - 1;
     data = [NSData dataWithBytes:_foreground.tiles length:length];
     [coder encodeObject:data forKey:CoreGameForegroundTilesKey];
 
-    length = _meta.layerSize.width * _meta.layerSize.height - 1;
     data = [NSData dataWithBytes:_meta.tiles length:length];
     [coder encodeObject:data forKey:CoreGameMetaTilesKey];
     
@@ -305,18 +304,29 @@ static DVServerGameData* _serverGameData;
     if (self = [self init])
     {
         [self initTilemap];
+
+        uint32_t data[2500];
+        [[coder decodeObjectForKey:CoreGameBackgroundTilesKey] getBytes:data];
+        [CoreGameLayer setTileArray:data ForLayer:_background];
         
-        NSData* data = [coder decodeObjectForKey:CoreGameBackgroundTilesKey];
-        [data getBytes:_background.tiles];
+        [[coder decodeObjectForKey:CoreGameForegroundTilesKey] getBytes:data];
+        [CoreGameLayer setTileArray:data ForLayer:_foreground];
         
-        data = [coder decodeObjectForKey:CoreGameDestructionTilesKey];
-        [data getBytes:_destruction.tiles];
+        [[coder decodeObjectForKey:CoreGameDestructionTilesKey] getBytes:data];
+        [CoreGameLayer setTileArray:data ForLayer:_destruction];
         
-        data = [coder decodeObjectForKey:CoreGameForegroundTilesKey];
-        [data getBytes:_foreground.tiles];
+        [[coder decodeObjectForKey:CoreGameMetaTilesKey] getBytes:data];
+        [CoreGameLayer setTileArray:data ForLayer:_meta];
         
-        data = [coder decodeObjectForKey:CoreGameMetaTilesKey];
-        [data getBytes:_background.tiles];
+//        [self removeChild:_background cleanup:YES];
+//        [self removeChild:_destruction cleanup:YES];
+//        [self removeChild:_foreground cleanup:YES];
+//        [self removeChild:_meta cleanup:YES];
+//        
+//        [self addChild:_background];
+//        [self addChild:_destruction];
+//        [self addChild:_foreground];
+//        [self addChild:_meta];
    
         // alloc ivars and set inital vars
         [self initSettings];
@@ -409,7 +419,7 @@ static DVServerGameData* _serverGameData;
 
 -(void) roundFinished
 {
-    [self saveGameState];
+//    [self saveGameState];
     
     self.isTouchEnabled = NO;
     // temp only - replace with server game data object
@@ -1249,6 +1259,29 @@ static DVServerGameData* _serverGameData;
 
 -(CGSize) pixelToPointSize:(CGSize) pixelSize{
     return CGSizeMake((pixelSize.width / CC_CONTENT_SCALE_FACTOR()), (pixelSize.height / CC_CONTENT_SCALE_FACTOR()));
+}
+
++(uint32_t *)getTileArrayForLayer:(CCTMXLayer *)layer
+{
+    int size = layer.layerSize.width * layer.layerSize.height * sizeof(uint32_t);
+    uint32_t* arrayToSave = malloc(size);
+    
+    memcpy(arrayToSave, layer.tiles, size);
+    
+    return arrayToSave;
+}
+
++(void)setTileArray:(uint32_t *)pArray ForLayer:(CCTMXLayer *)pLayer
+{
+    CGSize size = pLayer.layerSize;
+    for (int x = 0; x < size.width; x++)
+    {
+        for (int y = 0; y < size.height; y++)
+        {
+            uint32_t tileGid = *(pArray + y*(int)size.width + x);
+            [pLayer setTileGID:tileGid at:ccp(x, y)];
+        }
+    }
 }
 
 #pragma mark - Touch Handling
