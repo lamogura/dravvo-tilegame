@@ -13,6 +13,5 @@
 +(CCScene *) sceneWithLabelText:(NSString *)pLabelText;
 
 -(id) initWithLabelText:(NSString *)pLabelText;
--(void) gameOverDone;
 
 @end

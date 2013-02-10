@@ -34,16 +34,13 @@
         
         [self runAction:[CCSequence actions:
                          [CCDelayTime actionWithDuration:5],
-                         [CCCallFunc actionWithTarget:self selector:@selector(gameOverDone:)],
-                         nil]];
+                         [CCCallBlock actionWithBlock:^{
+            // FIX should show report of points and stats!
+            // try re-starting another new game
+            [[CCDirector sharedDirector] replaceScene:[NewGameLayer scene]];
+        }], nil]];
     }
     return self;
-}
-
-- (void) gameOverDone
-{
-    // FIX should show report of points and stats!
-    [[CCDirector sharedDirector] replaceScene:[NewGameLayer scene]];  // try re-starting another game automatically
 }
 
 @end
