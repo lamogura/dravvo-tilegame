@@ -35,7 +35,7 @@
 
 #pragma mark - CoreGameLayer
 
-static int NumPlaybacksRunning = 0;
+//static int NumPlaybacksRunning = 0;
 static int NumPlaybacksMethodsRunning = 0;
 
 static DVServerGameData* _serverGameData;
@@ -67,33 +67,32 @@ static DVServerGameData* _serverGameData;
 
 // Helper class method that creates a Scene with the HelloWorldLayer as the only child.
 // What calls this class??
-+(CCScene *) scene:(DVCoreLayerType) initType
++(CCScene *) scene:(CoreGameRoundType) initType
 {
 	CCScene *scene = [CCScene node];
     CoreGameLayer *gameLayer;
     
     switch (initType) {
-        case DVNewGameAsHost:
+        case NewGameAsHost:
             gameLayer = [[CoreGameLayer alloc] initAsPlayerWithRole:(int)DVPlayerHost];
             break;
-        case DVNewGameAsGuest:
+        case NewGameAsGuest:
             gameLayer = [[CoreGameLayer alloc] initAsPlayerWithRole:(int)DVPlayerGuest];
             break;
-        case DVLoadFromFile:
+        case ReloadReplay:
             gameLayer = [[CoreGameLayer alloc] initFromSavedGameState];
             break;
         default:
             ULog(@"Some unknown initType sent to CoreGameLayer scene()");
             break;
     }
-    gameLayer.tag = 13; // FIX this ugliness, its used to get the layer from the scene obj in the lifecycle
-    
-    CoreGameHudLayer* hud = [[CoreGameHudLayer alloc] initWithCoreGameLayer:gameLayer];
-    
-    gameLayer.hud = hud;  // store a member var reference to the hud so we can refer back to it to reset the label strings!
+    gameLayer.tag = kCoreGameLayerTag; // FIX this ugliness, its used to get the layer from the scene obj in the lifecycle
+
+    // store a member var reference to the hud so we can refer back to it to reset the label strings!
+    gameLayer.hud = [[CoreGameHudLayer alloc] initWithCoreGameLayer:gameLayer];
 
  	[scene addChild:gameLayer];
-    [scene addChild:hud];
+    [scene addChild:gameLayer.hud];
 
 	return scene;
 }
@@ -129,10 +128,9 @@ static DVServerGameData* _serverGameData;
 
 -(id) initAsPlayerWithRole:(int) pRole
 {
-	if(self=[super init]) {
-        
-        // alloc ivars and set inital vars
-        [self initSettings];
+	if (self=[super init])
+    {
+        [self initSettings]; // alloc ivars and set inital vars
 
         [self initAudio];
         
@@ -252,7 +250,7 @@ static DVServerGameData* _serverGameData;
     NSMutableData *data = [[NSMutableData alloc] init];
     NSKeyedArchiver *archiver = [[NSKeyedArchiver alloc] initForWritingWithMutableData:data];
     
-    [archiver encodeObject:self forKey:CoreGameSavedGameKey];
+    [archiver encodeObject:self forKey:kCoreGameSavegameKey];
     [archiver finishEncoding];
     [data writeToFile:[CoreGameLayer SavegamePath] atomically:YES];
 }
@@ -267,7 +265,7 @@ static DVServerGameData* _serverGameData;
         if (codedData != nil)
         {
             NSKeyedUnarchiver *unarchiver = [[NSKeyedUnarchiver alloc] initForReadingWithData:codedData];
-            self = [unarchiver decodeObjectForKey:CoreGameSavedGameKey];
+            self = [unarchiver decodeObjectForKey:kCoreGameSavegameKey];
             [unarchiver finishDecoding];
         }
     }
@@ -282,23 +280,22 @@ static DVServerGameData* _serverGameData;
 
 - (void)encodeWithCoder:(NSCoder *)coder
 {
-    NSData* data;
     NSUInteger length = _background.layerSize.width * _background.layerSize.height * sizeof(uint32_t);
     
-    data = [NSData dataWithBytes:_background.tiles length:length];
-    [coder encodeObject:data forKey:CoreGameBackgroundTilesKey];
+    NSData* data = [NSData dataWithBytes:_background.tiles length:length];
+    [coder encodeObject:data forKey:kCoreGameNSCodingKey_Background];
 
     data = [NSData dataWithBytes:_destruction.tiles length:length];
-    [coder encodeObject:data forKey:CoreGameDestructionTilesKey];
+    [coder encodeObject:data forKey:kCoreGameNSCodingKey_Destruction];
 
     data = [NSData dataWithBytes:_foreground.tiles length:length];
-    [coder encodeObject:data forKey:CoreGameForegroundTilesKey];
+    [coder encodeObject:data forKey:kCoreGameNSCodingKey_Foreground];
 
     data = [NSData dataWithBytes:_meta.tiles length:length];
-    [coder encodeObject:data forKey:CoreGameMetaTilesKey];
+    [coder encodeObject:data forKey:kCoreGameNSCodingKey_Meta];
     
-    [coder encodeObject:self.player forKey:CoreGamePlayerKey];
-    [coder encodeObject:self.opponent forKey:CoreGameOpponentKey];
+    [coder encodeObject:self.player forKey:kCoreGameNSCodingKey_Player];
+    [coder encodeObject:self.opponent forKey:kCoreGameNSCodingKey_Opponent];
 }
 
 - (id)initWithCoder:(NSCoder *)coder
@@ -307,31 +304,22 @@ static DVServerGameData* _serverGameData;
     {
         [self initTilemap];
         
+        // CHECK assume all layers are same size
         NSInteger length = _background.layerSize.width * _background.layerSize.height;
         uint32_t data[length];
         
-        [[coder decodeObjectForKey:CoreGameBackgroundTilesKey] getBytes:data];
+        [[coder decodeObjectForKey:kCoreGameNSCodingKey_Background] getBytes:data];
         [CoreGameLayer setTileArray:data ForLayer:_background];
         
-        [[coder decodeObjectForKey:CoreGameForegroundTilesKey] getBytes:data];
+        [[coder decodeObjectForKey:kCoreGameNSCodingKey_Foreground] getBytes:data];
         [CoreGameLayer setTileArray:data ForLayer:_foreground];
         
-        [[coder decodeObjectForKey:CoreGameDestructionTilesKey] getBytes:data];
+        [[coder decodeObjectForKey:kCoreGameNSCodingKey_Destruction] getBytes:data];
         [CoreGameLayer setTileArray:data ForLayer:_destruction];
         
-        [[coder decodeObjectForKey:CoreGameMetaTilesKey] getBytes:data];
+        [[coder decodeObjectForKey:kCoreGameNSCodingKey_Meta] getBytes:data];
         [CoreGameLayer setTileArray:data ForLayer:_meta];
         
-//        [self removeChild:_background cleanup:YES];
-//        [self removeChild:_destruction cleanup:YES];
-//        [self removeChild:_foreground cleanup:YES];
-//        [self removeChild:_meta cleanup:YES];
-//        
-//        [self addChild:_background];
-//        [self addChild:_destruction];
-//        [self addChild:_foreground];
-//        [self addChild:_meta];
-   
         // alloc ivars and set inital vars
         [self initSettings];
         
@@ -339,7 +327,7 @@ static DVServerGameData* _serverGameData;
         
         [self addChild:_tileMap z:-1];
         
-        _player = [coder decodeObjectForKey:CoreGamePlayerKey];
+        _player = [coder decodeObjectForKey:kCoreGameNSCodingKey_Player];
         [self addChild:self.player];
         
         for (Bat* bat in [_player.minions allValues]) {
@@ -347,7 +335,7 @@ static DVServerGameData* _serverGameData;
             [self addChild:bat];
         }
         
-        _opponent = [coder decodeObjectForKey:CoreGameOpponentKey];
+        _opponent = [coder decodeObjectForKey:kCoreGameNSCodingKey_Opponent];
         [self addChild:self.opponent];
         
         for (Bat* bat in [_opponent.minions allValues]) {
@@ -356,7 +344,6 @@ static DVServerGameData* _serverGameData;
         }
         
         [self setViewpointCenter:_player.sprite.position];
-//        self.opponent = [coder decodeObjectForKey:CoreGameOpponentKey];
     }
     return self;
 }
@@ -440,9 +427,8 @@ static DVServerGameData* _serverGameData;
 }
 
 - (void) win {
-    GameOverScene *gameOverScene = [GameOverScene node];
-    [gameOverScene.layer.label setString:@"You Win!"];
-    [[CCDirector sharedDirector] replaceScene:gameOverScene];
+    [[CCDirector sharedDirector] replaceScene:
+     [GameOverLayer sceneWithLabelText:@"You Win!"]];
 }
 
 - (void) lose {
@@ -517,7 +503,6 @@ static DVServerGameData* _serverGameData;
     }
 }
 
- 
 -(void) enemyPlaybackLoop
 {
     // cycle over timeIndex
@@ -568,7 +553,7 @@ static DVServerGameData* _serverGameData;
                     DLog(@"_opponent.uniqueID = %d", _opponent.uniqueID);
                 }
             }
-            int xCoord, yCoord, hpChange;
+            int xCoord = 0, yCoord = 0, hpChange = 0;
             
             // sanity check DEBUG test
             
@@ -600,11 +585,11 @@ static DVServerGameData* _serverGameData;
             // finish sanity check
             
             if(eventType == DVEvent_Wound)
-                hpChange = [(NSNumber*)[event objectForKey:kDVEventKey_HPChange] intValue];
+                hpChange = [[event objectForKey:kDVEventKey_HPChange] intValue];
             else
             {
-                xCoord = [(NSNumber*) [event objectForKey:kDVEventKey_CoordX] intValue];
-                yCoord = [(NSNumber*) [event objectForKey:kDVEventKey_CoordY] intValue];
+                xCoord = [[event objectForKey:kDVEventKey_CoordX] intValue];
+                yCoord = [[event objectForKey:kDVEventKey_CoordY] intValue];
             }
             
             DLog(@"ownerID %d, eventType %d, entityType %@, uniqueID %d, xCoord %d, yCoord %d",ownerID, eventType, entityType, uniqueID, xCoord, yCoord);
@@ -1121,11 +1106,8 @@ static DVServerGameData* _serverGameData;
     for (EntityNode* entity in toDelete)
         [_opponent.shurikens removeObjectForKey:[NSNumber numberWithInt:entity.uniqueID]];
 
-    
-    GameOverScene *gameOverScene = [GameOverScene node];
-    [gameOverScene.layer.label setString:@"Round Finished!"];
-    [[CCDirector sharedDirector] replaceScene:gameOverScene];
-
+    [[CCDirector sharedDirector] replaceScene:
+     [GameOverLayer sceneWithLabelText:@"Round Finished!"]];
 }
 
 -(void) testCollisions:(ccTime) dt
@@ -1263,16 +1245,6 @@ static DVServerGameData* _serverGameData;
 
 -(CGSize) pixelToPointSize:(CGSize) pixelSize{
     return CGSizeMake((pixelSize.width / CC_CONTENT_SCALE_FACTOR()), (pixelSize.height / CC_CONTENT_SCALE_FACTOR()));
-}
-
-+(uint32_t *)getTileArrayForLayer:(CCTMXLayer *)layer
-{
-    int size = layer.layerSize.width * layer.layerSize.height * sizeof(uint32_t);
-    uint32_t* arrayToSave = malloc(size);
-    
-    memcpy(arrayToSave, layer.tiles, size);
-    
-    return arrayToSave;
 }
 
 +(void)setTileArray:(uint32_t *)pArray ForLayer:(CCTMXLayer *)pLayer
@@ -1471,7 +1443,6 @@ static DVServerGameData* _serverGameData;
     [self runAction:[CCSequence actionOne:actionStall two:actionRemove]];
     //
 }
-
 
 #pragma mark GameKit delegate
 

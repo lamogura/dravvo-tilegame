@@ -20,27 +20,29 @@
 
 // possible initialization methods of CoreGameLayer
 typedef enum {
-    DVNewGameAsHost,  // a new game is started with you as the host
-    DVNewGameAsGuest,  // a new game is started with you as the guest: I. Guest Player's initialization, II. playback, III. Guest player's move
-    DVLoadFromFile,
-    DVBeginNextTurn,  // start with playback, then player's move
-    DVResume,  // Player closed the app before the JSON update could be sent to server - continue from where left off if possible
-} DVCoreLayerType;
+    NewGameAsHost,  // a new game is started with you as the host
+    NewGameAsGuest,  // a new game is started with you as the guest: I. Guest Player's initialization, II. playback, III. Guest player's move
+    ReloadReplay,
+//    BeginNextTurn,  // start with playback, then player's move
+//    Resume,  // Player closed the app before the JSON update could be sent to server - continue from where left off if possible
+} CoreGameRoundType;
 
 @class CoreGameHudLayer;
 @class Player;
 
-// for NSCoding
-#define CoreGameSavedGameKey @"savedGameKey"
+#define kCoreGameLayerTag 13 // for pulling out of scene getChildByTag
 
-#define CoreGameBackgroundTilesKey @"backgroundTiles"
-#define CoreGameDestructionTilesKey @"destructionTiles"
-#define CoreGameForegroundTilesKey @"foregroundTiles"
-#define CoreGameMetaTilesKey @"metaTiles"
-#define CoreGameShurikensKey @"shurikens"
-#define CoreGameMisslesKey @"missles"
-#define CoreGamePlayerKey @"player"
-#define CoreGameOpponentKey @"opponent"
+// for NSCoding
+#define kCoreGameSavegameKey @"savedGameKey"
+
+#define kCoreGameNSCodingKey_Background @"backgroundTiles"
+#define kCoreGameNSCodingKey_Destruction @"destructionTiles"
+#define kCoreGameNSCodingKey_Foreground @"foregroundTiles"
+#define kCoreGameNSCodingKey_Meta @"metaTiles"
+#define kCoreGameNSCodingKey_Shurikens @"shurikens"
+#define kCoreGameNSCodingKey_Missles @"missles"
+#define kCoreGameNSCodingKey_Player @"player"
+#define kCoreGameNSCodingKey_Opponent @"opponent"
 
 // HelloWorldLayer
 @interface CoreGameLayer : CCLayer <NSCoding, GKAchievementViewControllerDelegate, GKLeaderboardViewControllerDelegate>
@@ -70,11 +72,10 @@ typedef enum {
 }
 
 +(void) setServerGameData:(DVServerGameData*) gameData; // static storing last gameData update
-+(void) changeNumPlaybacksRunningBy:(int)change;
++(void) changeNumPlaybacksRunningBy:(int) change;
 // returns a CCScene that contains the HelloWorldLayer as the only child
-+(CCScene *) scene:(DVCoreLayerType) initType;
++(CCScene *) scene:(CoreGameRoundType) initType;
 
--(id) initWithInitType:(DVCoreLayerType) initType;
 -(id) initFromSavedGameState;
 
 @property (nonatomic, strong) CoreGameHudLayer* hud;
@@ -99,7 +100,6 @@ typedef enum {
 -(void) setPlayerPosition:(CGPoint) position; // FIX maybe this shoudl be more flexible
 -(CGPoint) pixelToPoint:(CGPoint) pixelPoint;
 -(CGSize) pixelToPointSize:(CGSize) pixelSize;
-+(uint32_t *)getTileArrayForLayer:(CCTMXLayer *)layer;
 +(void)setTileArray:(uint32_t *)pArray ForLayer:(CCTMXLayer *)pLayer;
 
 -(void) explosionAt:(CGPoint) hitLocation effectingArea:(CGRect) area infilctingDamage:(int)damage weaponID:(int)weaponID;
@@ -111,7 +111,6 @@ typedef enum {
 -(void) initAudio;
 
 // lifecycle functions
--(void) reloadGameState;
 -(void) saveGameState;
 -(void) startRound;
 -(void) win;

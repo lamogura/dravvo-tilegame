@@ -92,7 +92,7 @@
 	[CCTexture2D PVRImagesHavePremultipliedAlpha:YES];
 
     // start the game
-    [GameLifecycle startWithDirector:director_];
+    [GameLifecycle start];
     
 	return YES;
 }

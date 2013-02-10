@@ -9,17 +9,10 @@
 #import "cocos2d.h"
 
 @interface GameOverLayer : CCLayerColor
-{
-    CCLabelTTF* _label;
-}
-@property (nonatomic, strong) CCLabelTTF *label;
-@end
 
++(CCScene *) sceneWithLabelText:(NSString *)pLabelText;
 
+-(id) initWithLabelText:(NSString *)pLabelText;
+-(void) gameOverDone;
 
-@interface GameOverScene : CCScene
-{
-    GameOverLayer* _layer;
-}
-@property (nonatomic, strong) GameOverLayer* layer;
 @end

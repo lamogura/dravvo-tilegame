@@ -18,19 +18,9 @@
 
 @implementation GameLifecycle
 
-+(void) deleteGameStateSave
++(void) start
 {
-    NSString* path = [CoreGameLayer SavegamePath];
-    if ([[NSFileManager defaultManager] fileExistsAtPath:path])
-    {
-        NSError* error;
-        [[NSFileManager defaultManager] removeItemAtPath:path error:(&error)];
-        if (error != nil) ULog(@"%@", [error localizedDescription]);
-    }
-}
-
-+(void) startWithDirector:(CCDirectorIOS *)director
-{
+    CCDirector* director = [CCDirector sharedDirector];
     DVAPIWrapper* apiWrapper = [[DVAPIWrapper alloc] init];
     
     // load new game scene if there isnt one currently going
@@ -39,11 +29,12 @@
     
     if (gameID == nil)
     {
-        [director pushScene: [NewGameLayer scene]];
+        [director pushScene:[NewGameLayer scene]];
     }
     else
     {
         [director pushScene:[LoadingLayer scene]];
+        
         [apiWrapper getGameStatusThenCallBlock:^(NSError *error, DVServerGameData *status) {
             //TODO: update game with the game status
             if (error != nil)
@@ -58,7 +49,7 @@
                 {
                     // load last scene
                     DLog(@"Loading CoreGame from savegame '%@'", [CoreGameLayer SavegamePath]);
-                    CCScene* gameScene = [CoreGameLayer scene:DVLoadFromFile];
+                    CCScene* gameScene = [CoreGameLayer scene:ReloadReplay];
                     CoreGameLayer* gameLayer = (CoreGameLayer *)[gameScene getChildByTag:13];
                     [director pushScene:gameScene];
                     
@@ -73,6 +64,17 @@
                 else [director pushScene:[AwaitingOpponentMoveLayer scene]];
             }
         }];
+    }
+}
+
++(void) deleteGameStateSave
+{
+    NSString* path = [CoreGameLayer SavegamePath];
+    if ([[NSFileManager defaultManager] fileExistsAtPath:path])
+    {
+        NSError* error;
+        [[NSFileManager defaultManager] removeItemAtPath:path error:(&error)];
+        if (error != nil) ULog(@"%@", [error localizedDescription]);
     }
 }
 

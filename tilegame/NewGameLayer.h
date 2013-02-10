@@ -9,8 +9,8 @@
 #import "cocos2d.h"
 #import "DVAPIWrapper.h"
 
-@interface NewGameLayer : CCLayerColor {
-    DVAPIWrapper* _apiWrapper;
-}
+@interface NewGameLayer : CCLayerColor
+
 +(CCScene *) scene;
+
 @end

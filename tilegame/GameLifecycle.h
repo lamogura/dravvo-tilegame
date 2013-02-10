@@ -13,7 +13,7 @@
 
 @interface GameLifecycle : NSObject
 
++(void) start;
 +(void) deleteGameStateSave;
-+(void) startWithDirector:(CCDirectorIOS *)director;
 
 @end
