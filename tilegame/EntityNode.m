@@ -33,12 +33,10 @@ static NSMutableArray* _eventHistory;  // the entire event history of all Entiti
 @synthesize lastPoint = _lastPoint;
 @synthesize actionsToBePlayed = _actionsToBePlayed;
 
-+(NSMutableArray*) eventHistory  // the entire event history of all Entitiy's getter method
++(NSMutableArray*) CompleteEventHistory  // the entire event history of all Entitiy's getter method
 {
     if(!_eventHistory) // this should only run once
-    {
         _eventHistory = [[NSMutableArray alloc] init];
-    }
     return _eventHistory;
 }
  
@@ -110,10 +108,11 @@ static NSMutableArray* _eventHistory;  // the entire event history of all Entiti
     // Now put this dictionary onto the object's NSMuttableArray
     DLog(@"[eventData count] = %d",[eventData count]);
 
-    [[EntityNode eventHistory] addObject:eventData];
+    [[EntityNode CompleteEventHistory] addObject:eventData];
 //    layer.eventHistory
-    DLog(@"[layer.eventHistory count] = %d", [[EntityNode eventHistory] count]);
-    return eventData;
+    DLog(@"[CompleteEventHistory count] = %d", [[EntityNode CompleteEventHistory] count]);
+    
+    return eventData; // return for further modding
 }
 
 // for sampling during real actions, this should be called (callbacked) once every kTimeStepSeconds for later animation on
@@ -334,7 +333,8 @@ static NSMutableArray* _eventHistory;  // the entire event history of all Entiti
 
 - (id)initWithCoder:(NSCoder *)coder
 {
-    if (self = [super init]) {
+    if (self = [super init])
+    {
         _actionsToBePlayed = [[NSMutableArray alloc] init];
         
         _uniqueID = [coder decodeIntForKey:EntityNodeUniqueID];

@@ -54,8 +54,6 @@ typedef enum {
     CCTMXLayer* _foreground;  // foreground layer is seen by player but is modifiable, like collectible items
     CCTMXLayer* _destruction;  // destruction under-layer, for when terrain is devastated
     
-    NSMutableArray* eventsArray;  // DEBUG - only for testing
-
     BOOL _roundHasStarted; // NO touches processed until startRound()
     
     // touches ivars
@@ -116,7 +114,7 @@ typedef enum {
 -(void) win;
 -(void) lose;
 -(void) roundFinished;
--(void) enemyPlaybackLoop;
+-(void) playbackEvents:(NSArray *)events;
 -(void) transitionToNextTurn;
 
 +(NSString*) SavegamePath;

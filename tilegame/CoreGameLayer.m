@@ -363,7 +363,6 @@ static DVServerGameData* _serverGameData;
     _roundHasStarted = NO; // wait for startRound()
     self.roundTimer = (float) kTurnLengthSeconds;
     
-    _timeStepIndex = 0; // step index for caching events
     //        _eventHistory = [[NSMutableArray alloc] init];
 }
 
@@ -410,14 +409,15 @@ static DVServerGameData* _serverGameData;
 
 -(void) roundFinished
 {
-    [self saveGameState];
+//    [self saveGameState];
     
     self.isTouchEnabled = NO;
     // temp only - replace with server game data object
-//    eventsArray = [NSMutableArray arrayWithArray:[EntityNode eventHistory]]; // NSMutableArray*
-//    DLog(@"eventsArray count = %d",[eventsArray count]);
+    
+    NSArray* allEvents = [EntityNode CompleteEventHistory];
+    DLog(@"allEvents count = %d",[allEvents count]);
 
-//    [self enemyPlaybackLoop];
+    [self playbackEvents:allEvents];
     /*
     // transition to a waiting for opponent scene, ideally displaying current stats (maybe keep HUD up)
     GameOverScene *gameOverScene = [GameOverScene node];
@@ -503,463 +503,159 @@ static DVServerGameData* _serverGameData;
     }
 }
 
--(void) enemyPlaybackLoop
+-(void) playbackEvents:(NSArray *)events
 {
-    // cycle over timeIndex
-    NSDictionary* event; // = [[NSMutableArray alloc] init];  // just setting pointer
-    _eventArrayIndex = 0;
-    for(_timeStepIndex = 0; _timeStepIndex * kReplayTickLengthSeconds < kTurnLengthSeconds; _timeStepIndex++)
+    for (int timeStep = 0; timeStep * kReplayTickLengthSeconds < kTurnLengthSeconds; timeStep++)
     {
         //  DLog(@"MADE IT 1");
-        
-        for(event = (NSDictionary*) [eventsArray objectAtIndex:_eventArrayIndex];
-            (_eventArrayIndex < [eventsArray count]) && ([(NSNumber*)[(NSDictionary*) [eventsArray objectAtIndex:_eventArrayIndex] objectForKey:kDVEventKey_TimeStepIndex] isEqualToNumber:[NSNumber numberWithInt:_timeStepIndex]]) == YES;
-            _eventArrayIndex++)
+        for (NSDictionary* eventInfo in events)
         {
-            event = (NSDictionary*) [eventsArray objectAtIndex:_eventArrayIndex];
+            if ([[eventInfo objectForKey:kDVEventKey_TimeStepIndex] intValue] != timeStep)
+                continue;
+            
             //////  OLD SHIT FROM HERE  ///////
             DLog(@"MADE IT 3");
             
             // pull out the key values
-            int ownerID = [(NSNumber*) [event objectForKey:kDVEventKey_OwnerID] intValue];  // int
-            DVEventType eventType = [(NSNumber*) [event objectForKey:kDVEventKey_EventType] intValue];  // DVEventType
-            NSString* entityType = (NSString*) [event objectForKey:kDVEventKey_EntityType];  // FIX: need to change this to an enum of entityType
-            int uniqueID = [(NSNumber*) [event objectForKey:kDVEventKey_EntityID] intValue]; // int
-            Player *thePlayer;
-            if([entityType isEqualToString:kEntityTypePlayer])
-            {
-                DLog(@"thePlayer being assigned now");
-                if(uniqueID == _player.uniqueID)
-                {
-                    thePlayer = _player;
-                    DLog(@"thePlayer = _player");
-                    DLog(@"thePlayer.uniqueID = %d", thePlayer.uniqueID);
-                    DLog(@"_player.uniqueID = %d", _player.uniqueID);
-                    if([thePlayer isEqual:_player])
-                    {
-                        DLog(@"[thePlayer isEqual:_player] = TRUE");
-                    }
-                    else
-                    {
-                        DLog(@"[thePlayer isEqual:_player] FALSE");
-                    }
-                    
-                }
-                else
-                {
-                    thePlayer = _opponent;
-                    DLog(@"thePlayer = _opponent");
-                    DLog(@"thePlayer.uniqueID = %d", thePlayer.uniqueID);
-                    DLog(@"_opponent.uniqueID = %d", _opponent.uniqueID);
-                }
-            }
-            int xCoord = 0, yCoord = 0, hpChange = 0;
+            int ownerID = [[eventInfo objectForKey:kDVEventKey_OwnerID] intValue];  // int
+            DVEventType eventType = [[eventInfo objectForKey:kDVEventKey_EventType] intValue];  // DVEventType
+            NSString* entityType = [eventInfo objectForKey:kDVEventKey_EntityType];  // FIX: need to change this to an enum of entityType
+            int uniqueID = [[eventInfo objectForKey:kDVEventKey_EntityID] intValue]; // int
+            
+            int hpChange = 0;
+            CGPoint location;
             
             // sanity check DEBUG test
-            
-            switch (eventType) {
-                case DVEvent_Spawn: // spawn
-                {
-                    DLog(@"DVEvent_Spawn found!");
-                }
-                    break;
+            switch (eventType)
+            {
                 case DVEvent_Wound:  // wound
-                {
-                    DLog(@"wound found!");
-                }
+                    DLog(@"DVEvent_Wound found!");
+                    hpChange = [[eventInfo objectForKey:kDVEventKey_HPChange] intValue];
                     break;
+                case DVEvent_Spawn: // spawn
                 case DVEvent_Move:  // move
-                {
-                    DLog(@"DVEvent_Move found!");
-                }
-                    break;
                 case DVEvent_Kill:  // kill
-                {
-                    DLog(@"kill found!");
-                }
+                    DLog(@"Event needing X,Y Found!");
+                    location = ccp([[eventInfo objectForKey:kDVEventKey_CoordX] intValue],
+                                   [[eventInfo objectForKey:kDVEventKey_CoordY] intValue]);
                     break;
                 default:
-                    DLog(@"default!");
+                    ULog(@"Unknown EventType!");
                     break;
             }
-            // finish sanity check
             
-            if(eventType == DVEvent_Wound)
-                hpChange = [[event objectForKey:kDVEventKey_HPChange] intValue];
-            else
+            DLog(@"ownerID %d, eventType %d, entityType %@, uniqueID %d, xCoord %f, yCoord %f",ownerID, eventType, entityType, uniqueID, location.x, location.y);
+            
+            if ([entityType isEqualToString:kEntityTypePlayer]) // case 1: action to be performed on the thePlayer (_opponent or _player)
             {
-                xCoord = [[event objectForKey:kDVEventKey_CoordX] intValue];
-                yCoord = [[event objectForKey:kDVEventKey_CoordY] intValue];
-            }
-            
-            DLog(@"ownerID %d, eventType %d, entityType %@, uniqueID %d, xCoord %d, yCoord %d",ownerID, eventType, entityType, uniqueID, xCoord, yCoord);
-            
-            DLog(@"MADE IT 4");
-            
-            if([entityType isEqualToString:kEntityTypePlayer]) // case 1: action to be performed on the thePlayer (_opponent or _player)
-            {
-                
-                switch (eventType) {
+                switch (eventType)
+                {
                     case DVEvent_Wound:
-                        [thePlayer animateTakeDamage:hpChange];
+                        [_opponent animateTakeDamage:hpChange];
                         break;
                     case DVEvent_Move:
-                    {
-                        DLog("cacheing move for _player to point: %d, %d",xCoord, yCoord);
-                        [thePlayer animateMove:ccp(xCoord, yCoord)];
+                        DLog("cacheing move for _player to point: %f, %f",location.x, location.y);
+                        [_opponent animateMove:location];
                         break;
-                    }
                     case DVEvent_Kill:  // This is NOT a real kill as it would be for minions; the Player remains instantiated, just respawns, re-inits, etc
-                        [thePlayer animateKill:ccp(xCoord, yCoord)];  // this call takes care of everything, sounds, respawn, re-init
+                        [_opponent animateKill:location];  // this call takes care of everything, sounds, respawn, re-init
                         // for now, animateKill also takes care of DVEvent_InitStats and DVEvent_Respawn, which are no longer cached anyway
                         break;
                     default:
-                        DLog(@"FUCK got a weird eventType in enemyPlaybackLoop's switch");
+                        ULog(@"FUCK got a weird eventType in enemyPlaybackLoop's switch");
                         break;
                 }
-                
-                /*
-                 if([thePlayer isEqual:_player])  // case: _player
-                 {
-                 switch (eventType) {
-                 case DVEvent_Wound:
-                 [_player animateTakeDamage:hpChange];
-                 break;
-                 case DVEvent_Move:
-                 {
-                 DLog("cacheing move for _player to point: %d, %d",xCoord, yCoord);
-                 [_player animateMove:ccp(xCoord, yCoord)];
-                 break;
-                 }
-                 case DVEvent_Kill:  // This is NOT a real kill as it would be for minions; the Player remains instantiated, just respawns, re-inits, etc
-                 [_player animateKill];  // this call takes care of everything, sounds, respawn, re-init
-                 // for now, animateKill also takes care of DVEvent_InitStats and DVEvent_Respawn, which are no longer cached anyway
-                 break;
-                 default:
-                 DLog(@"FUCK got a weird eventType in enemyPlaybackLoop's switch");
-                 break;
-                 }
-                 //case DVEvent_InitStats:  // only exists for actions on players, not minions
-                 //case DVEvent_Respawn:  // regenerate in Player, handled in DVEvent_Kill
-                 }
-                 else  // case: _opponent
-                 {
-                 switch (eventType) {
-                 case DVEvent_Wound:
-                 [_opponent animateTakeDamage:hpChange];
-                 break;
-                 case DVEvent_Move:
-                 {
-                 DLog("cacheing move for _opponent to point: %d, %d",xCoord, yCoord);
-                 [_opponent animateMove:ccp(xCoord, yCoord)];
-                 break;
-                 }
-                 case DVEvent_Kill:  // This is NOT a real kill as it would be for minions; the Player remains instantiated, just respawns, re-inits, etc
-                 [_opponent animateKill];  // this call takes care of everything, sounds, respawn, re-init
-                 // for now, animateKill also takes care of DVEvent_InitStats and DVEvent_Respawn, which are no longer cached anyway
-                 break;
-                 default:
-                 DLog(@"FUCK got a weird eventType in enemyPlaybackLoop's switch");
-                 break;
-                 }
-                 //case DVEvent_InitStats:  // only exists for actions on players, not minions
-                 //case DVEvent_Respawn:  // regenerate in Player, handled in DVEvent_Kill
-                 }
-                 */
-                
             }
-            else  // case 2: action goes to a player's minion
+            else // non-player entity
             {
-                DLog("A Player's minions case");
+                Player* ownerPlayer = _player; // guess first
+                if (ownerID != ownerPlayer.uniqueID)
+                    ownerPlayer = _opponent;
+                NSAssert(ownerID == ownerPlayer.uniqueID, @"Not finding correct player by ownerID");
+                
+                DLog("A Player's minions case"); // FIX use right vocab!
                 // if this is a minion spawn, must instantiate and add to the minions list with appropriate uniqueID
-                if(eventType == DVEvent_Spawn)
+                const ccTime delay = _timeStepIndex * kReplayTickLengthSeconds;
+                
+                switch (eventType)
                 {
-                    if(ownerID == _player.uniqueID)
-                    {
+                    case DVEvent_Spawn:
                         if([entityType isEqualToString:kEntityTypeBat])
                         {
                             DLog(@"Spawning a bat...");
                             // NOTE: using *WithoutCache init method, so this spawn isn't logged again on the other player's device
                             //                 EntityNode *minion = [[EntityNode alloc] initInLayerWithoutCache:self
                             //                Bat* minion = [[Bat alloc] initInLayer:self atSpawnPoint:ccp((int)xCoord, (int)yCoord)];
-                            Bat *minion = [[Bat alloc] initInLayerWithoutCache_AndAnimate:self
-                                                                             atSpawnPoint:ccp(xCoord, yCoord)
-                                                                             withBehavior:DVCreatureBehaviorDefault
-                                                                                  ownedBy:_player
-                                                                             withUniqueID:uniqueID
-                                                                               afterDelay:(_timeStepIndex * kReplayTickLengthSeconds)];  // amount of time that will have passed til this _timeStepIndex
-                     
-                            [_player.minions addEntriesFromDictionary:[NSDictionary dictionaryWithObject:minion forKey:[NSNumber numberWithInt:minion.uniqueID]]];
-                            DLog(@"minion ownedBy: %d == %d",_player.uniqueID, minion.owner.uniqueID);
+                            Bat *bat = [[Bat alloc] initInLayerWithoutCache_AndAnimate:self
+                                                                          atSpawnPoint:location
+                                                                          withBehavior:DVCreatureBehaviorDefault
+                                                                               ownedBy:ownerPlayer
+                                                                          withUniqueID:uniqueID
+                                                                            afterDelay:delay];  // amount of time that will have passed til this _timeStepIndex
+                            
+                            [_player.minions addEntriesFromDictionary:
+                             [NSDictionary dictionaryWithObject:bat forKey:[NSNumber numberWithInt:bat.uniqueID]]];
+                            NSAssert(ownerPlayer.uniqueID == bat.owner.uniqueID, @"Bat owner ID and player ID not matching");
                         }
                         else if([entityType isEqualToString:kEntityTypeMissile])
                         {
                             DLog(@"Spawning a missile...");
                             Missile* missile = [[Missile alloc] initInLayerWithoutCache_AndAnimate:self
-                                                                                      atSpawnPoint:ccp(xCoord, yCoord)
-                                                                                           ownedBy:_player
+                                                                                      atSpawnPoint:location
+                                                                                           ownedBy:ownerPlayer
                                                                                       withUniqueID:uniqueID
-                                                                                        afterDelay:(_timeStepIndex * kReplayTickLengthSeconds)];
+                                                                                        afterDelay:delay];
                             
-                            [_player.missiles addEntriesFromDictionary:[NSDictionary dictionaryWithObject:missile forKey:[NSNumber numberWithInt:missile.uniqueID]]];
-                            DLog(@"missile ownedBy: %d == %d",_player.uniqueID, missile.owner.uniqueID);
+                            [_player.missiles addEntriesFromDictionary:
+                             [NSDictionary dictionaryWithObject:missile forKey:[NSNumber numberWithInt:missile.uniqueID]]];
+                            DLog(@"missile ownedBy: %d == %d",ownerPlayer.uniqueID, missile.owner.uniqueID);
                         }
                         else if([entityType isEqualToString:kEntityTypeShuriken])
                         {
                             DLog(@"Spawning a shuriken...");
                             Shuriken* shuriken = [[Shuriken alloc] initInLayerWithoutCache_AndAnimate:self
-                                                                                      atSpawnPoint:ccp(xCoord, yCoord)
-                                                                                           ownedBy:_player
-                                                                                      withUniqueID:uniqueID
-                                                                                        afterDelay:(_timeStepIndex * kReplayTickLengthSeconds)];
-                            
-                            [_player.shurikens addEntriesFromDictionary:[NSDictionary dictionaryWithObject:shuriken forKey:[NSNumber numberWithInt:shuriken.uniqueID]]];
-                            DLog(@"shuriken ownedBy: %d == %d",_player.uniqueID, shuriken.owner.uniqueID);
-                        }
-                        
-                    }
-                    else if (ownerID == _opponent.uniqueID)
-                    {
-                        if([entityType isEqualToString:kEntityTypeBat])
-                        {
-                            DLog(@"Spawning a bat...");
-                            // NOTE: using *WithoutCache init method, so this spawn isn't logged again on the other player's device
-                            //                 EntityNode *minion = [[EntityNode alloc] initInLayerWithoutCache:self
-                            //                Bat* minion = [[Bat alloc] initInLayer:self atSpawnPoint:ccp((int)xCoord, (int)yCoord)];
-                            Bat *minion = [[Bat alloc] initInLayerWithoutCache_AndAnimate:self
-                                                                             atSpawnPoint:ccp(xCoord, yCoord)
-                                                                             withBehavior:DVCreatureBehaviorDefault
-                                                                                  ownedBy:_opponent
-                                                                             withUniqueID:uniqueID
-                                                                               afterDelay:(_timeStepIndex * kReplayTickLengthSeconds)];  // amount of time that will have passed til this _timeStepIndex
-                            
-                            [_opponent.minions addEntriesFromDictionary:[NSDictionary dictionaryWithObject:minion forKey:[NSNumber numberWithInt:minion.uniqueID]]];
-                            DLog(@"minion ownedBy: %d == %d",_opponent.uniqueID, minion.owner.uniqueID);
-                        }
-                        else if([entityType isEqualToString:kEntityTypeMissile])
-                        {
-                            DLog(@"Spawning a missile...");
-                            Missile* missile = [[Missile alloc] initInLayerWithoutCache_AndAnimate:self
-                                                                                      atSpawnPoint:ccp(xCoord, yCoord)
-                                                                                           ownedBy:_opponent
-                                                                                      withUniqueID:uniqueID
-                                                                                        afterDelay:(_timeStepIndex * kReplayTickLengthSeconds)];
-                            
-                            [_opponent.missiles addEntriesFromDictionary:[NSDictionary dictionaryWithObject:missile forKey:[NSNumber numberWithInt:missile.uniqueID]]];
-                            DLog(@"missile ownedBy: %d == %d",_opponent.uniqueID, missile.owner.uniqueID);
-                        }
-                        else if([entityType isEqualToString:kEntityTypeShuriken])
-                        {
-                            DLog(@"Spawning a shuriken...");
-                            Shuriken* shuriken = [[Shuriken alloc] initInLayerWithoutCache_AndAnimate:self
-                                                                                         atSpawnPoint:ccp(xCoord, yCoord)
-                                                                                              ownedBy:_opponent
+                                                                                         atSpawnPoint:location
+                                                                                              ownedBy:ownerPlayer
                                                                                          withUniqueID:uniqueID
-                                                                                           afterDelay:(_timeStepIndex * kReplayTickLengthSeconds)];
+                                                                                           afterDelay:delay];
                             
-                            [_opponent.shurikens addEntriesFromDictionary:[NSDictionary dictionaryWithObject:shuriken forKey:[NSNumber numberWithInt:shuriken.uniqueID]]];
-                            DLog(@"shuriken ownedBy: %d == %d",_opponent.uniqueID, shuriken.owner.uniqueID);
+                            [_player.shurikens addEntriesFromDictionary:
+                             [NSDictionary dictionaryWithObject:shuriken forKey:[NSNumber numberWithInt:shuriken.uniqueID]]];
+                            DLog(@"shuriken ownedBy: %d == %d",ownerPlayer.uniqueID, shuriken.owner.uniqueID);
                         }
-                    }
-
-                }
-                
-                //            EntityNode* theEntity = (EntityNode*)[thePlayer.minions objectForKey:[NSNumber numberWithInt:uniqueID]];
-                /*
-                 EntityNode* theEntity = [EntityNode alloc];
-                 if([thePlayer isEqual:_player])  // case: _player
-                 theEntity = (EntityNode*)[_player.minions objectForKey:[NSNumber numberWithInt:uniqueID]];  // ?? CHECK
-                 else
-                 theEntity = (EntityNode*)[_opponent.minions objectForKey:[NSNumber numberWithInt:uniqueID]];  // ?? CHECK
-                 */
-                
-                
-                //            DLog(@"[thePlayer.minions count] = %d",[thePlayer.minions count]);
-                //            DLog(@"[_player.minions count] = %d",[_player.minions count]);
-                //            if([thePlayer isEqual:_player])  // case: _player
-                else if(ownerID == _player.uniqueID)
-                {
-                    if([entityType isEqualToString:kEntityTypeBat])
+                        else NSAssert(false, @"Unknown entity type!!!");
+                        break;
+                    case DVEvent_Wound:
+                    case DVEvent_Move:
+                    case DVEvent_Kill:
                     {
-                        DLog(@"[_player.minions count] = %d",[_player.minions count]);
-                        DLog(@"_player's bats");
-                        switch (eventType) {
-                            case DVEvent_Wound:
-                                [((EntityNode*)[_player.minions objectForKey:[NSNumber numberWithInt:uniqueID]]) animateTakeDamage:hpChange];
-                                break;
-                            case DVEvent_Move:
-                            {
-                                DLog(@"_player's Bat is moving");
-                                [((EntityNode*)[_player.minions objectForKey:[NSNumber numberWithInt:uniqueID]]) animateMove:ccp(xCoord, yCoord)];
-                                DLog(@"Bat is done moving");
-                            }
-                                break;
-                            case DVEvent_Kill:
-                            {
-//                            [EntityNode animateDeathForEntityType:entityType at:((Bat*)[_player.minions objectForKey:[NSNumber numberWithInt:uniqueID]]).sprite.position]; // TO DO implement the static call for each entityType
-                                [((EntityNode*)[_player.minions objectForKey:[NSNumber numberWithInt:uniqueID]]) animateKill:ccp(xCoord, yCoord)];
-                            //                    [self.player.minions removeObjectForKey:[NSNumber numberWithInt:uniqueID]];
-                            }
-                                break;
-                            default:
-                                DLog(@"FUCK got a weird eventType in enemyPlaybackLoop's switch");
-                                break;
-                        }
+                        NSDictionary* dictToSearch;
+                        if ([entityType isEqualToString:kEntityTypeBat])
+                            dictToSearch = ownerPlayer.minions;
+                        else if ([entityType isEqualToString:kEntityTypeMissile])
+                            dictToSearch = ownerPlayer.missiles;
+                        else if ([entityType isEqualToString:kEntityTypeShuriken])
+                            dictToSearch = ownerPlayer.shurikens;
+                        NSAssert(dictToSearch != NULL, @"Couldnt find dict to search on ownerPlayer");
+                        
+                        if (eventType == DVEvent_Wound)
+                            [[dictToSearch objectForKey:[NSNumber numberWithInt:uniqueID]] animateTakeDamage:hpChange];
+                        else if (eventType == DVEvent_Move)
+                            [[dictToSearch objectForKey:[NSNumber numberWithInt:uniqueID]] animateMove:location];
+                        else if (eventType == DVEvent_Kill)
+                            [[dictToSearch objectForKey:[NSNumber numberWithInt:uniqueID]] animateKill:location];
+                        else NSAssert(false, @"Whoops forgot add code for this event case");
                     }
-                    else if([entityType isEqualToString:kEntityTypeMissile])
-                    {
-                        DLog(@"[_player.missiles count] = %d",[_player.missiles count]);
-                        DLog(@"_player's missiles");
-                        switch (eventType) {
-                            case DVEvent_Wound:
-                                [((EntityNode*)[_player.missiles objectForKey:[NSNumber numberWithInt:uniqueID]]) animateTakeDamage:hpChange];
-                                break;
-                            case DVEvent_Move:
-                            {
-                                DLog(@"_player's Missile is moving");
-                                [((EntityNode*)[_player.missiles objectForKey:[NSNumber numberWithInt:uniqueID]]) animateMove:ccp(xCoord, yCoord)];
-                                DLog(@"Missile is done moving");
-                            }
-                                break;
-                            case DVEvent_Kill:
-                            {
-                                //                            [EntityNode animateDeathForEntityType:entityType at:((Bat*)[_player.minions objectForKey:[NSNumber numberWithInt:uniqueID]]).sprite.position]; // TO DO implement the static call for each entityType
-                                [((EntityNode*)[_player.missiles objectForKey:[NSNumber numberWithInt:uniqueID]]) animateKill:ccp(xCoord, yCoord)];
-                                //                    [self.player.minions removeObjectForKey:[NSNumber numberWithInt:uniqueID]];
-                               
-                            }
-                                break;
-                            default:
-                                DLog(@"FUCK got a weird eventType in enemyPlaybackLoop's switch");
-                                break;
-                        }
-                    }
-                    else if([entityType isEqualToString:kEntityTypeShuriken])
-                    {
-                        DLog(@"[_player.shurikens count] = %d",[_player.shurikens count]);
-                        DLog(@"_player's shuriken");
-                        switch (eventType) {
-                            case DVEvent_Wound:
-                                [((EntityNode*)[_player.shurikens objectForKey:[NSNumber numberWithInt:uniqueID]]) animateTakeDamage:hpChange];
-                                break;
-                            case DVEvent_Move:
-                            {
-                                DLog(@"_player's Shuriken is moving");
-                                [((EntityNode*)[_player.shurikens objectForKey:[NSNumber numberWithInt:uniqueID]]) animateMove:ccp(xCoord, yCoord)];
-                                DLog(@"Shuriken is done moving");
-                            }
-                                break;
-                            case DVEvent_Kill:
-                            {
-                                //                            [EntityNode animateDeathForEntityType:entityType at:((Bat*)[_player.minions objectForKey:[NSNumber numberWithInt:uniqueID]]).sprite.position]; // TO DO implement the static call for each entityType
-                                [((EntityNode*)[_player.shurikens objectForKey:[NSNumber numberWithInt:uniqueID]]) animateKill:ccp(xCoord, yCoord)];
-                                //                    [self.player.minions removeObjectForKey:[NSNumber numberWithInt:uniqueID]];
-                                
-                            }
-                                break;
-                            default:
-                                DLog(@"FUCK got a weird eventType in enemyPlaybackLoop's switch");
-                                break;
-                        }
-                    }
-                    else
-                        DLog(@"FUCK got a weird entityType in enemyPlaybackLoop's switch");
-
-                }
-                else if(ownerID == _opponent.uniqueID)  // case: _opponent
-                {
-                    if([entityType isEqualToString:kEntityTypeBat])
-                    {
-                        DLog(@"[_opponent.minions count] = %d",[_opponent.minions count]);
-                        DLog(@"_opponent's bats");
-                        switch (eventType) {
-                            case DVEvent_Wound:
-                                [((EntityNode*)[_opponent.minions objectForKey:[NSNumber numberWithInt:uniqueID]]) animateTakeDamage:hpChange];
-                                break;
-                            case DVEvent_Move:
-                            {
-                                DLog(@"_opponent's Bat is moving");
-                                [((EntityNode*)[_opponent.minions objectForKey:[NSNumber numberWithInt:uniqueID]]) animateMove:ccp(xCoord, yCoord)];
-                                DLog(@"Bat is done moving");
-                            }
-                                break;
-                            case DVEvent_Kill:
-                            {
-                                //                            [EntityNode animateDeathForEntityType:entityType at:((Bat*)[_opponent.minions objectForKey:[NSNumber numberWithInt:uniqueID]]).sprite.position]; // TO DO implement the static call for each entityType
-                                [((EntityNode*)[_opponent.minions objectForKey:[NSNumber numberWithInt:uniqueID]]) animateKill:ccp(xCoord, yCoord)];
-                                //                    [self.player.minions removeObjectForKey:[NSNumber numberWithInt:uniqueID]];
-                            }
-                                break;
-                            default:
-                                DLog(@"FUCK got a weird eventType in enemyPlaybackLoop's switch");
-                                break;
-                        }
-                    }
-                    else if([entityType isEqualToString:kEntityTypeMissile])
-                    {
-                        DLog(@"[_opponent.missiles count] = %d",[_opponent.missiles count]);
-                        DLog(@"_opponent's missiles");
-                        switch (eventType) {
-                            case DVEvent_Wound:
-                                [((EntityNode*)[_opponent.missiles objectForKey:[NSNumber numberWithInt:uniqueID]]) animateTakeDamage:hpChange];
-                                break;
-                            case DVEvent_Move:
-                            {
-                                DLog(@"_opponent's Bat is moving");
-                                [((EntityNode*)[_opponent.missiles objectForKey:[NSNumber numberWithInt:uniqueID]]) animateMove:ccp(xCoord, yCoord)];
-                                DLog(@"Bat is done moving");
-                            }
-                                break;
-                            case DVEvent_Kill:
-                            {
-                                //                            [EntityNode animateDeathForEntityType:entityType at:((Bat*)[_opponent.minions objectForKey:[NSNumber numberWithInt:uniqueID]]).sprite.position]; // TO DO implement the static call for each entityType
-                                [((EntityNode*)[_opponent.missiles objectForKey:[NSNumber numberWithInt:uniqueID]]) animateKill:ccp(xCoord, yCoord)];
-                                //                    [self.player.minions removeObjectForKey:[NSNumber numberWithInt:uniqueID]];
-                            }
-                                break;
-                            default:
-                                DLog(@"FUCK got a weird eventType in enemyPlaybackLoop's switch");
-                                break;
-                        }
-                    }
-                    else if([entityType isEqualToString:kEntityTypeShuriken])
-                    {
-                        DLog(@"[_opponent.shurikens count] = %d",[_opponent.shurikens count]);
-                        DLog(@"_opponent's shuriken");
-                        switch (eventType) {
-                            case DVEvent_Wound:
-                                [((EntityNode*)[_opponent.shurikens objectForKey:[NSNumber numberWithInt:uniqueID]]) animateTakeDamage:hpChange];
-                                break;
-                            case DVEvent_Move:
-                            {
-                                DLog(@"_opponent's Shuriken is moving");
-                                [((EntityNode*)[_opponent.shurikens objectForKey:[NSNumber numberWithInt:uniqueID]]) animateMove:ccp(xCoord, yCoord)];
-                                DLog(@"Shuriken is done moving");
-                            }
-                                break;
-                            case DVEvent_Kill:
-                            {
-                                //                            [EntityNode animateDeathForEntityType:entityType at:((Bat*)[_player.minions objectForKey:[NSNumber numberWithInt:uniqueID]]).sprite.position]; // TO DO implement the static call for each entityType
-                                [((EntityNode*)[_opponent.shurikens objectForKey:[NSNumber numberWithInt:uniqueID]]) animateKill:ccp(xCoord, yCoord)];
-                                //                    [self.player.minions removeObjectForKey:[NSNumber numberWithInt:uniqueID]];
-                                
-                            }
-                                break;
-                            default:
-                                DLog(@"FUCK got a weird eventType in enemyPlaybackLoop's switch");
-                                break;
-                        }
-                    }
-                }
-                else
-                    DLog(@"BALLS!");
-                
-            }
-
-            /////  OLD SHIT STOPS HERE
-            
-            
-        }
+                        break;
+                    case DVEvent_InitStats:
+                    case DVEvent_Respawn:
+                        ULog(@"Sorry not yet implemented");
+                        break;
+                    default:
+                        NSAssert(false, @"Unknown event going into switch on playback");
+                } //switch (eventType)
+            } // else non-player entity
+        }  // timeStep for loop
     }
     
     // playback all the events here
