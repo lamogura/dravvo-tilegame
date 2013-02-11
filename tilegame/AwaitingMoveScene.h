@@ -8,7 +8,7 @@
 
 #import "cocos2d.h"
 
-@interface AwaitingOpponentMoveLayer : CCLayerColor
+@interface AwaitingMoveLayer : CCLayerColor
 
 +(CCScene *) scene;
 

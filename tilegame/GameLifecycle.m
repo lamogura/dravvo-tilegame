@@ -14,7 +14,7 @@
 #import "NewGameLayer.h"
 #import "CoreGameLayer.h"
 #import "CountdownLayer.h"
-#import "AwaitingOpponentMoveScene.h"
+#import "AwaitingMoveScene.h"
 
 @implementation GameLifecycle
 
@@ -61,7 +61,7 @@
                     }];
                     [gameScene addChild:cdlayer];
                 }
-                else [director pushScene:[AwaitingOpponentMoveLayer scene]];
+                else [director pushScene:[AwaitingMoveLayer scene]];
             }
         }];
     }

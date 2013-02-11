@@ -6,11 +6,11 @@
 //
 //
 
-#import "AwaitingOpponentMoveScene.h"
+#import "AwaitingMoveScene.h"
 #import "DVMacros.h"
 #import "DVConstants.h"
 
-@implementation AwaitingOpponentMoveLayer
+@implementation AwaitingMoveLayer
 
 -(id)init
 {
@@ -34,7 +34,7 @@
 +(CCScene *) scene
 {
 	CCScene *scene = [CCScene node];
-	[scene addChild: [[AwaitingOpponentMoveLayer alloc] init]];
+	[scene addChild: [[AwaitingMoveLayer alloc] init]];
 	return scene;
 }
 

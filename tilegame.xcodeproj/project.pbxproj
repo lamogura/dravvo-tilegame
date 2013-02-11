@@ -341,7 +341,7 @@
 		CE892A5B16B4185300BE6DAB /* CreatureNode.m in Sources */ = {isa = PBXBuildFile; fileRef = CE892A5A16B4185300BE6DAB /* CreatureNode.m */; };
 		CEC591A816B3E3C900323F57 /* CoreGameLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = CEC591A716B3E3C900323F57 /* CoreGameLayer.m */; };
 		CED1D86016B2F97C00E87653 /* new_game_button.png in Resources */ = {isa = PBXBuildFile; fileRef = CED1D85F16B2F97C00E87653 /* new_game_button.png */; };
-		CEF138A816C7C901004CF9A9 /* AwaitingOpponentMoveScene.m in Sources */ = {isa = PBXBuildFile; fileRef = CEF138A716C7C901004CF9A9 /* AwaitingOpponentMoveScene.m */; };
+		CEF138A816C7C901004CF9A9 /* AwaitingMoveScene.m in Sources */ = {isa = PBXBuildFile; fileRef = CEF138A716C7C901004CF9A9 /* AwaitingMoveScene.m */; };
 		CEF138AA16C7F93F004CF9A9 /* TileMap.caf in Resources */ = {isa = PBXBuildFile; fileRef = CEF138A916C7F93F004CF9A9 /* TileMap.caf */; };
 		DC0C49F6154AB4DD00B4B727 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DC0C49F5154AB4DD00B4B727 /* QuartzCore.framework */; };
 		DC0C49F8154AB4DD00B4B727 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DC0C49F7154AB4DD00B4B727 /* OpenGLES.framework */; };
@@ -723,8 +723,8 @@
 		CE892A5A16B4185300BE6DAB /* CreatureNode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CreatureNode.m; path = tilegame/CreatureNode.m; sourceTree = "<group>"; };
 		CEC591A716B3E3C900323F57 /* CoreGameLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CoreGameLayer.m; path = tilegame/CoreGameLayer.m; sourceTree = "<group>"; };
 		CED1D85F16B2F97C00E87653 /* new_game_button.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = new_game_button.png; sourceTree = "<group>"; };
-		CEF138A616C7C901004CF9A9 /* AwaitingOpponentMoveScene.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AwaitingOpponentMoveScene.h; path = tilegame/AwaitingOpponentMoveScene.h; sourceTree = "<group>"; };
-		CEF138A716C7C901004CF9A9 /* AwaitingOpponentMoveScene.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AwaitingOpponentMoveScene.m; path = tilegame/AwaitingOpponentMoveScene.m; sourceTree = "<group>"; };
+		CEF138A616C7C901004CF9A9 /* AwaitingMoveScene.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AwaitingMoveScene.h; path = tilegame/AwaitingMoveScene.h; sourceTree = "<group>"; };
+		CEF138A716C7C901004CF9A9 /* AwaitingMoveScene.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AwaitingMoveScene.m; path = tilegame/AwaitingMoveScene.m; sourceTree = "<group>"; };
 		CEF138A916C7F93F004CF9A9 /* TileMap.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = TileMap.caf; sourceTree = "<group>"; };
 		DC0C49F1154AB4DD00B4B727 /* tilegame.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = tilegame.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DC0C49F5154AB4DD00B4B727 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
@@ -905,8 +905,8 @@
 				CE857D6716B01D5C00947B06 /* DVServerGameData.m */,
 				CE857D3F16B01D5C00947B06 /* AppDelegate.h */,
 				CE857D4016B01D5C00947B06 /* AppDelegate.m */,
-				CEF138A616C7C901004CF9A9 /* AwaitingOpponentMoveScene.h */,
-				CEF138A716C7C901004CF9A9 /* AwaitingOpponentMoveScene.m */,
+				CEF138A616C7C901004CF9A9 /* AwaitingMoveScene.h */,
+				CEF138A716C7C901004CF9A9 /* AwaitingMoveScene.m */,
 				CE857D6D16B01D5C00947B06 /* CoreGameLayer.h */,
 				CEC591A716B3E3C900323F57 /* CoreGameLayer.m */,
 				CE499F9E16B3D2CE000D9EA0 /* CoreGameHudLayer.h */,
@@ -1661,7 +1661,7 @@
 				CE892A5B16B4185300BE6DAB /* CreatureNode.m in Sources */,
 				3F0BD55D16BA6141005C7A54 /* CCSequenceHelper.m in Sources */,
 				3F62AA3E16C2704500BA4EFC /* WeaponNode.m in Sources */,
-				CEF138A816C7C901004CF9A9 /* AwaitingOpponentMoveScene.m in Sources */,
+				CEF138A816C7C901004CF9A9 /* AwaitingMoveScene.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
