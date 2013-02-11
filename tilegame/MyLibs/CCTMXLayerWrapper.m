@@ -6,46 +6,50 @@
 //
 //
 
-#import "CCCacheableTMXLayer.h"
+#import "CCTMXLayerWrapper.h"
 #import "cocos2d.h"
 #import "CoreGameLayer.h"
 #import "DVMacros.h"
 #import "CCSequenceHelper.h"
 
-@implementation CCCacheableTMXLayer
+@implementation CCTMXLayerWrapper
 
 @synthesize gameLayer = _gameLayer;
 @synthesize layerType = _layerType;
 @synthesize actionsToBePlayed = _actionsToBePlayed;
+@synthesize tmxLayer = _tmxLayer;
 
-+(CCCacheableTMXLayer *) layerFromCCTMXLayer:(CCTMXLayer *)layer InCoreGameLayer:(CoreGameLayer *)gameLayer OfType:(LayerType)layerType
+-(id) initWithlayerFromTileMap:(CCTMXTiledMap*)tileMap InCoreGameLayer:(CoreGameLayer *)gameLayer OfType:(LayerType)layerType
 {
-    CCCacheableTMXLayer* cachableLayer = (CCCacheableTMXLayer *)layer;
-    cachableLayer.gameLayer = gameLayer;
-    switch (layerType) {
-        case LayerType_Background:
-            cachableLayer.layerType = kLayerTypeBackground;
+    if (self=[super init])
+    {
+        self.gameLayer = gameLayer;
+        self.tmxLayer = [tileMap layerNamed:@"Background"];
+        switch (layerType) {
+            case LayerType_Background:
+                self.layerType = kLayerTypeBackground;
             break;
-        case LayerType_Foreground:
-            cachableLayer.layerType = kLayerTypeForeground;
+            case LayerType_Foreground:
+                self.layerType = kLayerTypeForeground;
             break;
-        case LayerType_Destruction:
-            cachableLayer.layerType = kLayerTypeDestruction;
+            case LayerType_Destruction:
+                self.layerType = kLayerTypeDestruction;
             break;
-        case LayerType_Meta:
-            cachableLayer.layerType = kLayerTypeMeta;
+            case LayerType_Meta:
+                self.layerType = kLayerTypeMeta;
             break;
-            
-        default:
-            NSAssert(false, @"somehow bad layerType passed into switch");
+            default:
+                NSAssert(false, @"somehow bad layerType passed into switch");
             break;
+        }
     }
-    return cachableLayer;
+    return self;
 }
+
 
 -(void) removeTileAt:(CGPoint)tileCoordinate
 {
-    [super removeTileAt: tileCoordinate];
+    [self.tmxLayer removeTileAt: tileCoordinate];
     [self cacheStateForEvent:DVEvent_RemoveTile atTileCoordinate:tileCoordinate];
 }
 

@@ -17,7 +17,7 @@
 #import "Player.h"
 //#import "Opponent.h"
 #import "CoreGameHudLayer.h"
-#import "CCCacheableTMXLayer.h"
+#import "CCTMXLayerWrapper.h"
 
 // possible initialization methods of CoreGameLayer
 typedef enum {
@@ -53,10 +53,10 @@ typedef enum {
     CCTMXTiledMap* _tileMap;
     // these layers are part of the _tileMap
     
-    CCCacheableTMXLayer* _background;  // background layer is the constant background layer (walls, roads, bushes, etc)
-    CCCacheableTMXLayer* _meta;  // meta layer is NOT seen by player, just used to specify collidable, collectible tiles
-    CCCacheableTMXLayer* _foreground;  // foreground layer is seen by player but is modifiable, like collectible items
-    CCCacheableTMXLayer* _destruction;  // destruction under-layer, for when terrain is devastated
+    CCTMXLayerWrapper* _background;  // background layer is the constant background layer (walls, roads, bushes, etc)
+    CCTMXLayerWrapper* _meta;  // meta layer is NOT seen by player, just used to specify collidable, collectible tiles
+    CCTMXLayerWrapper* _foreground;  // foreground layer is seen by player but is modifiable, like collectible items
+    CCTMXLayerWrapper* _destruction;  // destruction under-layer, for when terrain is devastated
     
     BOOL _roundHasStarted; // NO touches processed until startRound()
     

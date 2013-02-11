@@ -20,17 +20,17 @@ typedef enum {
 #define kLayerTypeDestruction @"destruction"
 #define kLayerTypeMeta @"meta"
 
-@interface CCCacheableTMXLayer : CCTMXLayer
+@interface CCTMXLayerWrapper : CCNode
 
-@property (nonatomic, strong) CCNode* gameLayer;
+@property (nonatomic, strong) CoreGameLayer* gameLayer;
 @property (nonatomic, assign) NSString* layerType;
+@property (nonatomic, strong) CCTMXLayer* tmxLayer;
 @property (nonatomic, strong) NSMutableArray* actionsToBePlayed;
 
+-(id) initWithlayerFromTileMap:(CCTMXTiledMap*)tileMap InCoreGameLayer:(CoreGameLayer *)gameLayer OfType:(LayerType)layerType;
 -(void)cacheStateForEvent:(DVEventType)event atTileCoordinate:(CGPoint)tileCoordinate;
 -(void)removeTileAt:(CGPoint)tileCoordinate;
 -(void)animateRemoveTileAtTileCoordinate:(CGPoint)tileCoordinate afterDelay:(ccTime) delay;
 -(void)playActionsInSequence;  // plays all the actions in sequence FOR EACH entity object
-
-+(CCCacheableTMXLayer *) layerFromCCTMXLayer:(CCTMXLayer *)layer InCoreGameLayer:(CoreGameLayer *)gameLayer OfType:(LayerType)layerType;
 
 @end

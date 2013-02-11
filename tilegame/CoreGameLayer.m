@@ -283,18 +283,18 @@ static DVServerGameData* _serverGameData;
 
 - (void)encodeWithCoder:(NSCoder *)coder
 {
-    NSUInteger length = _background.layerSize.width * _background.layerSize.height * sizeof(uint32_t);
+    NSUInteger length = _background.tmxLayer.layerSize.width * _background.tmxLayer.layerSize.height * sizeof(uint32_t);
     
-    NSData* data = [NSData dataWithBytes:_background.tiles length:length];
+    NSData* data = [NSData dataWithBytes:_background.tmxLayer.tiles length:length];
     [coder encodeObject:data forKey:kCoreGameNSCodingKey_Background];
 
-    data = [NSData dataWithBytes:_destruction.tiles length:length];
+    data = [NSData dataWithBytes:_destruction.tmxLayer.tiles length:length];
     [coder encodeObject:data forKey:kCoreGameNSCodingKey_Destruction];
 
-    data = [NSData dataWithBytes:_foreground.tiles length:length];
+    data = [NSData dataWithBytes:_foreground.tmxLayer.tiles length:length];
     [coder encodeObject:data forKey:kCoreGameNSCodingKey_Foreground];
 
-    data = [NSData dataWithBytes:_meta.tiles length:length];
+    data = [NSData dataWithBytes:_meta.tmxLayer.tiles length:length];
     [coder encodeObject:data forKey:kCoreGameNSCodingKey_Meta];
     
     [coder encodeObject:self.player forKey:kCoreGameNSCodingKey_Player];
@@ -308,20 +308,20 @@ static DVServerGameData* _serverGameData;
         [self initTilemap];
         
         // CHECK assume all layers are same size
-        NSInteger length = _background.layerSize.width * _background.layerSize.height;
+        NSInteger length = _background.tmxLayer.layerSize.width * _background.tmxLayer.layerSize.height;
         uint32_t data[length];
         
         [[coder decodeObjectForKey:kCoreGameNSCodingKey_Background] getBytes:data];
-        [CoreGameLayer setTileArray:data ForLayer:_background];
+        [CoreGameLayer setTileArray:data ForLayer:_background.tmxLayer];
         
         [[coder decodeObjectForKey:kCoreGameNSCodingKey_Foreground] getBytes:data];
-        [CoreGameLayer setTileArray:data ForLayer:_foreground];
+        [CoreGameLayer setTileArray:data ForLayer:_foreground.tmxLayer];
         
         [[coder decodeObjectForKey:kCoreGameNSCodingKey_Destruction] getBytes:data];
-        [CoreGameLayer setTileArray:data ForLayer:_destruction];
+        [CoreGameLayer setTileArray:data ForLayer:_destruction.tmxLayer];
         
         [[coder decodeObjectForKey:kCoreGameNSCodingKey_Meta] getBytes:data];
-        [CoreGameLayer setTileArray:data ForLayer:_meta];
+        [CoreGameLayer setTileArray:data ForLayer:_meta.tmxLayer];
         
         // alloc ivars and set inital vars
         [self initSettings];
@@ -383,20 +383,12 @@ static DVServerGameData* _serverGameData;
 {
     // load the TileMap and the tile layers
     _tileMap = [CCTMXTiledMap tiledMapWithTMXFile:@"TileMap.tmx"];
-    
-    _background = [CCCacheableTMXLayer layerFromCCTMXLayer:[_tileMap layerNamed:@"Background"]
-                                           InCoreGameLayer:self
-                                                    OfType:LayerType_Background];
 
-    _foreground = [CCCacheableTMXLayer layerFromCCTMXLayer:[_tileMap layerNamed:@"Foreground"]
-                                     InCoreGameLayer:self
-                                              OfType:LayerType_Foreground];
-    _destruction = [CCCacheableTMXLayer layerFromCCTMXLayer:[_tileMap layerNamed:@"Destruction"]
-                                           InCoreGameLayer:self
-                                                    OfType:LayerType_Destruction];
-    _meta = [CCCacheableTMXLayer layerFromCCTMXLayer:[_tileMap layerNamed:@"Meta"]
-                                            InCoreGameLayer:self
-                                                     OfType:LayerType_Meta];
+    _background = [[CCTMXLayerWrapper alloc] initWithlayerFromTileMap:_tileMap InCoreGameLayer:self OfType:LayerType_Background];
+    _foreground = [[CCTMXLayerWrapper alloc] initWithlayerFromTileMap:_tileMap InCoreGameLayer:self OfType:LayerType_Foreground];
+    _destruction = [[CCTMXLayerWrapper alloc] initWithlayerFromTileMap:_tileMap InCoreGameLayer:self OfType:LayerType_Destruction];
+    _meta = [[CCTMXLayerWrapper alloc] initWithlayerFromTileMap:_tileMap InCoreGameLayer:self OfType:LayerType_Meta];
+
     _meta.visible = NO;
 }
 
@@ -933,7 +925,7 @@ static DVServerGameData* _serverGameData;
 -(void) setPlayerPosition:(CGPoint) position
 {
     CGPoint tileCoord = [self tileCoordForPosition:position];
-    int tileGid = [_meta tileGIDAt:tileCoord];  // GID is the ID for this kind of tile
+    int tileGid = [_meta.tmxLayer tileGIDAt:tileCoord];  // GID is the ID for this kind of tile
     if(tileGid)
     {
         NSDictionary* properties = [_tileMap propertiesForGID:tileGid];

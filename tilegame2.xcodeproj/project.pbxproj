@@ -30,7 +30,7 @@
 		3F881E3416B6F24600C11D1B /* PlayerRed.png in Resources */ = {isa = PBXBuildFile; fileRef = 3F881E3216B6F24500C11D1B /* PlayerRed.png */; };
 		3F881E3616B6F25300C11D1B /* PlayerGreen-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = 3F881E3516B6F25300C11D1B /* PlayerGreen-hd.png */; };
 		3F881E3816B6F25E00C11D1B /* PlayerRed-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = 3F881E3716B6F25E00C11D1B /* PlayerRed-hd.png */; };
-		3FBFF4B216C9676000A3C7CE /* CCCacheableTMXLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 3FBFF4B116C9676000A3C7CE /* CCCacheableTMXLayer.m */; };
+		3FBFF4B216C9676000A3C7CE /* CCTMXLayerWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = 3FBFF4B116C9676000A3C7CE /* CCTMXLayerWrapper.m */; };
 		CE499FA016B3D2CE000D9EA0 /* CoreGameHudLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = CE499F9F16B3D2CE000D9EA0 /* CoreGameHudLayer.m */; };
 		CE54127F16B36FEA00A3F494 /* LoadingLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = CE54127E16B36FEA00A3F494 /* LoadingLayer.m */; };
 		CE54128116B370ED00A3F494 /* loading.png in Resources */ = {isa = PBXBuildFile; fileRef = CE54128016B370ED00A3F494 /* loading.png */; };
@@ -387,8 +387,8 @@
 		3F881E3216B6F24500C11D1B /* PlayerRed.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = PlayerRed.png; sourceTree = "<group>"; };
 		3F881E3516B6F25300C11D1B /* PlayerGreen-hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "PlayerGreen-hd.png"; sourceTree = "<group>"; };
 		3F881E3716B6F25E00C11D1B /* PlayerRed-hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "PlayerRed-hd.png"; sourceTree = "<group>"; };
-		3FBFF4B016C9676000A3C7CE /* CCCacheableTMXLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CCCacheableTMXLayer.h; sourceTree = "<group>"; };
-		3FBFF4B116C9676000A3C7CE /* CCCacheableTMXLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CCCacheableTMXLayer.m; sourceTree = "<group>"; };
+		3FBFF4B016C9676000A3C7CE /* CCTMXLayerWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CCTMXLayerWrapper.h; sourceTree = "<group>"; };
+		3FBFF4B116C9676000A3C7CE /* CCTMXLayerWrapper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CCTMXLayerWrapper.m; sourceTree = "<group>"; };
 		CE499F9E16B3D2CE000D9EA0 /* CoreGameHudLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CoreGameHudLayer.h; path = tilegame/CoreGameHudLayer.h; sourceTree = "<group>"; };
 		CE499F9F16B3D2CE000D9EA0 /* CoreGameHudLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CoreGameHudLayer.m; path = tilegame/CoreGameHudLayer.m; sourceTree = "<group>"; };
 		CE54127D16B36FE900A3F494 /* LoadingLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LoadingLayer.h; path = tilegame/LoadingLayer.h; sourceTree = "<group>"; };
@@ -870,8 +870,8 @@
 				CE857D7A16B01D5C00947B06 /* DVMacros.h */,
 				CE857D7B16B01D5C00947B06 /* DVUtils.h */,
 				CE857D7C16B01D5C00947B06 /* DVUtils.m */,
-				3FBFF4B016C9676000A3C7CE /* CCCacheableTMXLayer.h */,
-				3FBFF4B116C9676000A3C7CE /* CCCacheableTMXLayer.m */,
+				3FBFF4B016C9676000A3C7CE /* CCTMXLayerWrapper.h */,
+				3FBFF4B116C9676000A3C7CE /* CCTMXLayerWrapper.m */,
 			);
 			name = MyLibs;
 			path = tilegame/MyLibs;
@@ -1667,7 +1667,7 @@
 				3F0BD55D16BA6141005C7A54 /* CCSequenceHelper.m in Sources */,
 				3F62AA3E16C2704500BA4EFC /* WeaponNode.m in Sources */,
 				CEF138A816C7C901004CF9A9 /* AwaitingMoveScene.m in Sources */,
-				3FBFF4B216C9676000A3C7CE /* CCCacheableTMXLayer.m in Sources */,
+				3FBFF4B216C9676000A3C7CE /* CCTMXLayerWrapper.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
