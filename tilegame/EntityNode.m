@@ -39,7 +39,12 @@ static NSMutableArray* _eventHistory;  // the entire event history of all Entiti
         _eventHistory = [[NSMutableArray alloc] init];
     return _eventHistory;
 }
- 
+
++(void) ResetEventHistory
+{
+    _eventHistory = [[NSMutableArray alloc] init];
+}
+
 +(void) animateDeathForEntityType:(NSString*) theEntityType at:(CGPoint) deathPoint  // TO DO Takes a position and an EntityType
 {
     // TO DO
@@ -167,7 +172,7 @@ static NSMutableArray* _eventHistory;  // the entire event history of all Entiti
     {
         // the action is to pause the sprite for kReplayTickLengthSeconds time
         id actionStall = [CCActionInterval actionWithDuration:kReplayTickLengthSeconds];  // DEBUG does this work??
-        [_actionsToBePlayed addObject:actionStall];  // change to this for multiplay
+        [self.actionsToBePlayed addObject:actionStall];  // change to this for multiplay
         return;
     }
     
@@ -187,11 +192,12 @@ static NSMutableArray* _eventHistory;  // the entire event history of all Entiti
     }];
 
     id actionMove = [CCMoveTo actionWithDuration:(kReplayTickLengthSeconds) position:targetPoint]; // kReplayTickLengthSeconds
+    self.lastPoint = targetPoint;
     
     DLog(@"BEFORE push [_actionsToBePlayed count] = %d",[_actionsToBePlayed count]);
     
-    [_actionsToBePlayed addObject:actionRotate];  // change to this for multiplay
-    [_actionsToBePlayed addObject:actionMove];  // change to this for multiplay
+    [self.actionsToBePlayed addObject:actionRotate];  // change to this for multiplay
+    [self.actionsToBePlayed addObject:actionMove];  // change to this for multiplay
 
     DLog(@"AFTER push [_actionsToBePlayed count] = %d",[_actionsToBePlayed count]);
     
@@ -233,8 +239,8 @@ static NSMutableArray* _eventHistory;  // the entire event history of all Entiti
         _isDead = YES;
     }];
     
-    [_actionsToBePlayed addObject:actionMove];
-    [_actionsToBePlayed addObject:actionKill];
+    [self.actionsToBePlayed addObject:actionMove];
+    [self.actionsToBePlayed addObject:actionKill];
 }
 
 -(void)animateExplode  // animate it exploding TODO this should move to weapon
@@ -274,7 +280,7 @@ static NSMutableArray* _eventHistory;  // the entire event history of all Entiti
 
 -(void)playActionsInSequence  // Adds all the actions in the NSMutableArray to a CCSequence and plays them
 {
-     if([_actionsToBePlayed count] == 0)
+     if([self.actionsToBePlayed count] == 0)
      {
          DLog(@"No actions to be played. Returning...");
          return;

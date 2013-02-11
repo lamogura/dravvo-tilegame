@@ -141,7 +141,7 @@
                 }
 
                 _gameLayer = (CoreGameLayer *)[gameScene getChildByTag:kCoreGameLayerTag];
-                [[CCDirector sharedDirector] pushScene:gameScene];
+                [[CCDirector sharedDirector] replaceScene:gameScene];
 
                 // setup callback for our turn async
                 [[NSNotificationCenter defaultCenter] addObserverForName:kCoreGamePlaybackFinishedNotification
@@ -150,14 +150,13 @@
                                                               usingBlock:
                                                              ^(NSNotification *note)
                                                               {
+                                                                  [_gameLayer setViewpointCenter:_gameLayer.player.lastPoint];
                                                                   CountdownLayer* cdlayer = [[CountdownLayer alloc]
                                                                                              initWithCountdownFrom:kCountDownFrom
                                                                                              AndCallBlockWhenCountdownFinished:
                                                                      ^(id status) {
-                                                                         [_gameLayer setViewpointCenter:_gameLayer.player.lastPoint];
                                                                          [_gameLayer startRound];
                                                                      }];
-
                                                                   [gameScene addChild:cdlayer];
                                                               }];
                 // playback opponents turn
@@ -198,6 +197,7 @@
         }
         else
         {
+            [EntityNode ResetEventHistory];
             [[CCDirector sharedDirector] replaceScene:[AwaitingMoveLayer scene]];
         }
     }];

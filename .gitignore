@@ -1,5 +1,6 @@
 # Xcode
 .DS_Store
+tilegame2.xcodeproj
 build/
 *.pbxuser
 !default.pbxuser

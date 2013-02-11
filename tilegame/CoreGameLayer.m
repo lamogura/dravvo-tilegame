@@ -517,14 +517,16 @@ static DVServerGameData* _serverGameData;
 
 -(void) playbackEvents:(NSArray *)events
 {
-    for (int timeStep = 0; timeStep * kReplayTickLengthSeconds < kTurnLengthSeconds; timeStep++)
+    int count = 0, beforeCount = 0, others = 0, players = 0;
+    for (int timeStep = 0; (float)(timeStep * kReplayTickLengthSeconds) < (float)kTurnLengthSeconds; timeStep++)
     {
         //  DLog(@"MADE IT 1");
         for (NSDictionary* eventInfo in events)
         {
+            ++beforeCount;
             if ([[eventInfo objectForKey:kDVEventKey_TimeStepIndex] intValue] != timeStep)
                 continue;
-            
+            ++count;
             //////  OLD SHIT FROM HERE  ///////
             DLog(@"MADE IT 3");
             
@@ -536,7 +538,9 @@ static DVServerGameData* _serverGameData;
             
             int hpChange = 0;
             CGPoint location;
-            
+//            if (count == 10) {
+//                int asdfasdf = 0;
+//            }
             // sanity check DEBUG test
             switch (eventType)
             {
@@ -560,6 +564,7 @@ static DVServerGameData* _serverGameData;
             
             if ([entityType isEqualToString:kEntityTypePlayer]) // case 1: action to be performed on the thePlayer (_opponent or _player)
             {
+                ++players;
                 Player* replayPlayer = _opponent; // guess first
                 if (uniqueID != replayPlayer.uniqueID)
                     replayPlayer = _player;
@@ -585,6 +590,7 @@ static DVServerGameData* _serverGameData;
             }
             else // non-player entity
             {
+                ++others;
                 Player* ownerPlayer = _player; // guess first
                 if (ownerID != ownerPlayer.uniqueID)
                     ownerPlayer = _opponent;
@@ -676,60 +682,16 @@ static DVServerGameData* _serverGameData;
     }
     
     // playback all the events here
-//    int counter = 0
-//    NSMutableArray* allEntities = [NSMutableArray arrayWithObjects: _player, _opponent, nil];
-//    [allEntities addObjectsFromArray:[_player.minions allValues]];
-//    [allEntities addObjectsFromArray:[_player.missiles allValues]];
-//    [allEntities addObjectsFromArray:[_player.shurikens allValues]];
-//    [allEntities addObjectsFromArray:[_opponent.minions allValues]];
-//    [allEntities addObjectsFromArray:[_opponent.missiles allValues]];
-//    [allEntities addObjectsFromArray:[_opponent.shurikens allValues]];
-//    for (EntityNode* entity in allEntities) {
-//        [entity playActionsInSequence];
-//    }
+    NSMutableArray* allEntities = [NSMutableArray arrayWithObjects: _player, _opponent, nil];
+    [allEntities addObjectsFromArray:[_player.minions allValues]];
+    [allEntities addObjectsFromArray:[_player.missiles allValues]];
+    [allEntities addObjectsFromArray:[_player.shurikens allValues]];
+    [allEntities addObjectsFromArray:[_opponent.minions allValues]];
+    [allEntities addObjectsFromArray:[_opponent.missiles allValues]];
+    [allEntities addObjectsFromArray:[_opponent.shurikens allValues]];
     
-    int counter = 0;
-    for (EntityNode* minion in [_player.minions allValues])  // EntityNode
-    {
-        counter++;
-        DLog(@"_player.minion[%d] playActionsInSequence",counter);
-        [minion playActionsInSequence];
-    }
-    counter = 0;
-    for (EntityNode* missile in [_player.missiles allValues])  // EntityNode
-    {
-        counter++;
-        DLog(@"_player.missile[%d] playActionsInSequence",counter);
-        [missile playActionsInSequence];
-    }
-    counter = 0;
-    for (EntityNode* shuriken in [_player.shurikens allValues])  // EntityNode
-    {
-        counter++;
-        DLog(@"_player.shuriken[%d] playActionsInSequence",counter);
-        [shuriken playActionsInSequence];
-    }
-
-    counter = 0;
-    for (EntityNode* minion in [_opponent.minions allValues])
-    {
-        counter++;
-        DLog(@"_opponent.minion[%d] playActionsInSequence",counter);
-        [minion playActionsInSequence];
-    }
-    counter = 0;
-    for (EntityNode* missile in [_opponent.missiles allValues])
-    {
-        counter++;
-        DLog(@"_opponent.missiles[%d] playActionsInSequence",counter);
-        [missile playActionsInSequence];
-    }
-    counter = 0;
-    for (EntityNode* shuriken in [_opponent.shurikens allValues])  // EntityNode
-    {
-        counter++;
-        DLog(@"_opponent.shuriken[%d] playActionsInSequence",counter);
-        [shuriken playActionsInSequence];
+    for (EntityNode* entity in allEntities) {
+        [entity playActionsInSequence];
     }
 
     [self setViewpointCenter:_opponent.lastPoint];

@@ -14,11 +14,11 @@
 
 #define kReplayTickLengthSeconds 0.50  // sampling rate and playback rate 0.50
 #define kTickLengthSeconds 0.10  // length of a single tick in seconds (time between mainGameLoop callbacks)
-#define kTurnLengthSeconds 5  // length of a players entire turn in seconds, before passing to next player's turn
+#define kTurnLengthSeconds 5.0  // length of a players entire turn in seconds, before passing to next player's turn
 #define kPlayerOne 1  // for the static Historical Dictionaries indicies contained in the minions / bats class
 #define kPlayerTwo 2
 
-#define kCountDownFrom 3
+#define kCountDownFrom 1
 
 #define kNumMelons 5
 #define kInitShurikens 10
