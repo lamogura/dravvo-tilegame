@@ -27,9 +27,33 @@
 
 @implementation GameLifecycle
 
-+(GameLifecycle *) start
++(GameLifecycle *) startWithOptions:(NSDictionary *)launchOptions;
 {
-    return [[GameLifecycle alloc] init];
+    GameLifecycle* lifecycle = [[GameLifecycle alloc] init];
+    
+    NSString* gameid;
+    if ((gameid = [launchOptions valueForKey:@"gameid"]))
+    {
+        [lifecycle processNotification:launchOptions];
+    }
+    else
+    {
+        // TODO: check for other launch options?
+        
+        // load new game scene if there isnt one currently going
+        [[NSUserDefaults standardUserDefaults] removeObjectForKey:kCurrentGameIDKey];
+        NSString* gameID = [[NSUserDefaults standardUserDefaults] valueForKey:kCurrentGameIDKey];
+
+        if (gameID == nil) // do new game if no existing game
+        {
+            [lifecycle playNewGame]; // will set the gameID from there
+        }
+        else // lets load the game and play it
+        {
+            [lifecycle playNextRoundInGameWithID:gameID];
+        }
+    }
+    return lifecycle;
 }
 
 +(void) deleteGameStateSave
@@ -48,19 +72,6 @@
     if (self=[super init])
     {
         _serverApi = [DVAPIWrapper wrapper];
-        
-        // load new game scene if there isnt one currently going
-        [[NSUserDefaults standardUserDefaults] removeObjectForKey:kCurrentGameIDKey];
-        NSString* gameID = [[NSUserDefaults standardUserDefaults] valueForKey:kCurrentGameIDKey];
-        
-        if (gameID == nil) // do new game if no existing game
-        {
-            [self playNewGame]; // will set the gameID from there
-        }
-        else // lets load the game and play it
-        {
-            [self playNextRoundInGameWithID:gameID];
-        }
     }
     return self;
 }

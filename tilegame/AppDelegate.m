@@ -91,7 +91,7 @@
 	[CCTexture2D PVRImagesHavePremultipliedAlpha:YES];
 
     // start the game
-    self->_gameLifecycle = [GameLifecycle start];
+    self->_gameLifecycle = [GameLifecycle startWithOptions:launchOptions];
     
 	return YES;
 }
