@@ -150,7 +150,7 @@
                                                               usingBlock:
                                                              ^(NSNotification *note)
                                                               {
-                                                                  [_gameLayer setViewpointCenter:_gameLayer.player.lastPoint];
+                                                                  [_gameLayer setViewpointCenter:_gameLayer.player.sprite.position];
                                                                   CountdownLayer* cdlayer = [[CountdownLayer alloc]
                                                                                              initWithCountdownFrom:kCountDownFrom
                                                                                              AndCallBlockWhenCountdownFinished:

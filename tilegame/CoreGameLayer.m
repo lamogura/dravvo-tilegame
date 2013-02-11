@@ -710,12 +710,13 @@ static DVServerGameData* _serverGameData;
     // pause 2 seconds to allow for explosions and other animations to play before clearing the dead from the dicts
     [self scheduleOnce:@selector(playbackFinished) delay:kTurnLengthSeconds]; // call notification
 
-    float refreshInterval = 0.5;
+    // try to track the opponent replay as best we can
+    [self setViewpointCenter:_opponent.sprite.position];
+    float refreshInterval = kTurnLengthSeconds/5;
     [self schedule:@selector(putViewportOnOpponent)
           interval:refreshInterval
-            repeat:(kTurnLengthSeconds/refreshInterval)
-             delay:0];
-    
+            repeat:(kTurnLengthSeconds/refreshInterval)-2
+             delay:refreshInterval];
 }
 
 -(void) putViewportOnOpponent
