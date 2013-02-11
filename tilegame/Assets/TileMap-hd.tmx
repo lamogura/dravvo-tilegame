@@ -16,6 +16,19 @@
    </properties>
   </tile>
  </tileset>
+ <tileset firstgid="51" name="meta_tiles_control-hd" tilewidth="64" tileheight="64" spacing="2" margin="2">
+  <image source="meta_tiles-hd.png" width="134" height="68"/>
+  <tile id="0">
+   <properties>
+    <property name="Owner" value="2"/>
+   </properties>
+  </tile>
+  <tile id="1">
+   <properties>
+    <property name="Owner" value="1"/>
+   </properties>
+  </tile>
+ </tileset>
  <layer name="Destruction" width="50" height="50">
   <data encoding="base64" compression="zlib">
    eJztwwEJAAAMBKFr8P3bLsdAwVVTVVVVVVVVVVXV5w/5mpJ9
@@ -23,7 +36,7 @@
  </layer>
  <layer name="Background" width="50" height="50">
   <data encoding="base64" compression="zlib">
-   eJztl70OgzAMhNN2qpj6t7UIMbRb3//xmg6RoghDHDtxkG74hADJ8fkMTkbn3Aiy+XSQgxUzA4v83gwdrXslN7e1OGmMJR177E9NP0rrrFE3q76v5cfd86hQ/ynif3/wHAs5Zeh4el6K9Qkap+QqYcjQoZHzli81dIS4rb+PM/H821AHZ2ZSM5TSwYUzpyXzKtRqEuhY82iO1tDsF0qzRMeWH1s6pD5Qa0p1DETMWh6k71Id3LlRW0euptI1L55rxG0lpnYPaepoHTNA7W0k/2uL85D23mYvtOhpCb2cw7h5WOa95Km1z9br9+ZRq5x6rLtV/Xr0GwAAAAAAAAAAAGCv/ADNwiMZ
+   eJztl8GOwjAMRLPLqepp2eUGqOoBbvv/n0crNZKxbCdpEhLEHJ4KJI09nia4V+fcFTxx3zlWKkavzAm08OaWoIN+/1s4KpTKNTY3ax2+BtcxspitnrHUuDO7d9w+fy18M7Q4Wo1i8ytRK8mP9ToIc6mmQyOfQjrWfXEiv0s6uG9S/XltJ4LmcyxW7byO88IlUseK3/snZdxrnNg1h9EY085TTQev96D4wqmlw69r7Q/uq+RByLfY+vwX0nE35kq5pPx/zi6sIxUthtdxJFr48+J9id1H08ZeHZZHM4mhzTk7+bygc7xun5e2R3J0hPwI6bD2Lc0/tl8ppWNU1tRy1KDeXAJ6b0pM6fwIkaojB0vT3pg/7rlP/TXW3NN75vRwpaj5HsF7GxqzBrV08N7mU4jpM1vSSy6pedTMO7S25GnOe3OJ3F4VvxePesmpx7q3ql+PfgMAAAAAAAAAAAC8Kw+D+h8e
   </data>
  </layer>
  <objectgroup name="MinionSpawnPoints" width="50" height="50">
@@ -95,19 +108,36 @@
  </layer>
  <layer name="Meta" width="50" height="50">
   <data encoding="base64" compression="zlib">
-   eJzt1t0OgCAIgFFfid7/4bptpgsUlOV3trZuAvEnKQUWsnsA6Mq2NtJ5H42jiZFtDlYbrf/0eWuRYp8X7R59xpbJR5vPS30ePWJH7z/Pf8dljLHrbH3lPaGOqJya7+sY3nV4r0cv3s46IvecR0/ibWQuZu6MFWc6IoflHqS3efPuCXb5Sx1W2WvOMr6I/j1Kpp4rS/6WE8aUscZI3N8AAAAAAABr3Jj8E1s=
+   eJztllEOxCAIRHsl9/6H629j0GFAqunOS0xstMgIitclelpwbNUaYkxFbNqkZWiDftQOstH7vCvHslpb1x/Fw9LqWduaU7FXM59W5lkVTD7NtFhxQ3Fm2kodSMvzfybnEBEbyL/nd/RcWPxIG5599MSX3SM0P6sje+d4yehg7Pdnsp8TuQ+sdUawOrz3EaofKI67daCxaB2pzEnvPOY+n8UnWjPeqL1Vb4vsviH7X+bkdxfDV3SwMO+MHZziy5s1IWt7Z0y9tf8E/sGnEzVWsrp+CyGEEEIIIYQQQgibG+3WItw=
   </data>
  </layer>
  <objectgroup name="PlayerSpawnPoints" width="50" height="50">
-  <object name="SpawnPoint0" x="300" y="764" width="39" height="45">
+  <object name="SpawnPoint0" x="242" y="764" width="39" height="45">
    <properties>
     <property name="Owner" value="1"/>
    </properties>
   </object>
-  <object name="SpawnPoint1" x="2953" y="379" width="52" height="61">
+  <object name="SpawnPoint1" x="2798" y="494" width="52" height="61">
    <properties>
     <property name="Owner" value="2"/>
    </properties>
   </object>
  </objectgroup>
+ <objectgroup name="ChickenSpawnPoints" width="50" height="50">
+  <object name="SpawnPoint0" x="18" y="767" width="39" height="42">
+   <properties>
+    <property name="Owner" value="1"/>
+   </properties>
+  </object>
+  <object name="SpawnPoint1" x="3135" y="500" width="39" height="42">
+   <properties>
+    <property name="Owner" value="2"/>
+   </properties>
+  </object>
+ </objectgroup>
+ <layer name="MetaCastle" width="50" height="50">
+  <data encoding="base64" compression="zlib">
+   eJztz7ERACAIADF30v1ns7WAHjC5+wF+LWCKndSNj1qyj/PUwU8fHX581DPlIzLxAwAAAAAAAIhda8oReA==
+  </data>
+ </layer>
 </map>

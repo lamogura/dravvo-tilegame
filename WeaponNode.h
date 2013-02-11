@@ -19,7 +19,6 @@
 @property (nonatomic, assign) int damage;
 
 -(id)initInLayer:(CoreGameLayer *)layer atSpawnPoint:(CGPoint)spawnPoint;
--(id)initInLayerWithoutCache:(CoreGameLayer *)layer atSpawnPoint:(CGPoint)spawnPoint;
 -(void)collidedWith:(EntityNode*)entityType;
 -(NSMutableDictionary *)cacheStateForEvent:(DVEventType)event;
 

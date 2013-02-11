@@ -22,6 +22,7 @@
 
 #import "Libs/SBJSON/SBJson.h"
 
+#import "Chicken.h"
 #import "Bat.h"
 #import "Player.h"
 //#import "Opponent.h"
@@ -35,8 +36,6 @@
 
 #pragma mark - CoreGameLayer
 
-static BOOL _isEnemyPlaybackRound = NO;
-static int _playerID;
 static int _numPlaybacksRunning;
 static int numPlaybacksMethodsRunning;
 static DVServerGameData* _serverGameData;
@@ -61,6 +60,7 @@ static DVServerGameData* _serverGameData;
     _serverGameData = gameData;
 }
 
+/*
 +(void) setPlayerID:(int)setID
 {
     _playerID = setID;
@@ -71,6 +71,7 @@ static DVServerGameData* _serverGameData;
     return _playerID;
 
 }
+*/
 
 +(void) changeNumPlaybacksRunningBy:(int)change
 {
@@ -140,11 +141,13 @@ static DVServerGameData* _serverGameData;
 -(id) init
 {
 	if(self=[super init]) {
+        
         numPlaybacksMethodsRunning = 0;
         // init the wrapper class for the api
         self->_apiWrapper = [[DVAPIWrapper alloc] init];
         // This code isn't reached unless we are the HOST, and therefore HOST playerID = 1, GUEST = 2
-        _playerID = 1;  // public static variable of the layer class, only set once when a new game has been started
+        int playerID = 1;  // DEBUG - IF we are the host, set playerID = 1, otherwise, set to 2
+        int opponent_ID = playerID == 1 ? 2 : 1;  // don't need to save this as member var - only for opponent instantiation for enemy target
         
         _timeStepIndex = 0; // step index for caching events
         _numPlaybacksRunning = 0;
@@ -163,29 +166,31 @@ static DVServerGameData* _serverGameData;
         // load the TileMap and the tile layers
         _tileMap = [CCTMXTiledMap tiledMapWithTMXFile:@"TileMap.tmx"];
         _background = [_tileMap layerNamed:@"Background"];
-        _meta = [_tileMap layerNamed:@"Meta"];
+        _metaCastle = [_tileMap layerNamed:@"MetaCastle"];
         _foreground = [_tileMap layerNamed:@"Foreground"];
         _destruction = [_tileMap layerNamed:@"Destruction"];
         _meta.visible = NO;
+        _metaCastle.visible = NO;
 
         // set playerID inside the NewGameLayer class, HOST = 1, GUEST = 2, etc
+        
+        // Chicken spawning
+        NSDictionary* spawnPointsDict = [[NSDictionary alloc] init];
         
         CCTMXObjectGroup* playerSpawnObjects = [_tileMap objectGroupNamed:@"PlayerSpawnPoints"];
         NSAssert(playerSpawnObjects != nil, @"'PlayerSpawnPoints' object group not found");
 
-        NSDictionary* spawnPointsDict = [[NSDictionary alloc] init];
         for(spawnPointsDict in [playerSpawnObjects objects])
         {   // _player has not been instantiated yet, so check [Player nextUniqueID]
-            if([[spawnPointsDict valueForKey:@"Owner"] intValue] == _playerID)
+            if([[spawnPointsDict valueForKey:@"Owner"] intValue] == playerID)
             {
                 CGPoint playerSpawnPoint = [self pixelToPoint: ccp([[spawnPointsDict valueForKey:@"x"] intValue],[[spawnPointsDict valueForKey:@"y"] intValue])];
                 DLog(@"CGPoint:%f,%f",playerSpawnPoint.x,playerSpawnPoint.y);
                 
-                _player = [[Player alloc] initInLayer:self atSpawnPoint:playerSpawnPoint withUniqueIntID:_playerID withShurikens:kInitShurikens withMissles:kInitMissiles];
+                _player = [[Player alloc] initInLayer:self atSpawnPoint:playerSpawnPoint withUniqueIntID:playerID withShurikens:kInitShurikens withMissles:kInitMissiles];
             }
         }
 
-        int opponent_ID = _playerID == 1 ? 2 : 1;  // don't need to save this as member var - only for opponent instantiation for enemy target
         // DEBUG for now, spawn opponent as Player 2 (assuming we are host not guest
         for(spawnPointsDict in [playerSpawnObjects objects])
         {   // _player has not been instantiated yet, so check [Player nextUniqueID]
@@ -235,7 +240,82 @@ static DVServerGameData* _serverGameData;
                 //[self.player.minions addObject:bat]; // just in case KVO is used in future
             }
         }
+        
+        CCTMXObjectGroup* chickenSpawnObjects = [_tileMap objectGroupNamed:@"ChickenSpawnPoints"];
+        NSAssert(chickenSpawnObjects != nil, @"'chickenSpawnObjects' object group not found");
+        CGPoint chickenSpawnPoint;
+        Chicken *chicken;
+        // objects method returns an array of objects (in this case dictionaries) from the ObjectGroup
+        for(spawnPointsDict in [chickenSpawnObjects objects])
+        {
+            if([[spawnPointsDict valueForKey:@"Owner"] intValue] == playerID)
+            {
+                chickenSpawnPoint = [self pixelToPoint:
+                                     ccp([[spawnPointsDict valueForKey:@"x"] intValue],
+                                         [[spawnPointsDict valueForKey:@"y"] intValue])];
+                chicken = [[Chicken alloc] initInLayer:self
+                                          atSpawnPoint:chickenSpawnPoint
+                                          withBehavior:DVCreatureBehaviorDefault
+                                               ownedBy:_player];
+                _player.ownedChicken = chicken;
+            }
+            else if ([[spawnPointsDict valueForKey:@"Owner"] intValue] == _opponent.uniqueID)
+            {
+                chickenSpawnPoint = [self pixelToPoint:
+                                     ccp([[spawnPointsDict valueForKey:@"x"] intValue],
+                                         [[spawnPointsDict valueForKey:@"y"] intValue])];
+                chicken = [[Chicken alloc] initInLayer:self
+                                          atSpawnPoint:chickenSpawnPoint
+                                          withBehavior:DVCreatureBehaviorDefault
+                                               ownedBy:_opponent];
+                _opponent.ownedChicken = chicken;
+            }
+        }
+        
+        // set these chicken's owners
+
+        
 //        DLog(@"Number of bats = %@", [_player.minions ])
+//        [self addChild:self.sprite];
+//        [self.gameLayer addChild:self];
+        
+
+        // make node1, add a sprite (_player)
+
+        // make node2, add a sprite
+////        CCNode* aNode = [[CCNode alloc] init];
+////        CCSprite* aSprite = [CCSprite spriteWithFile:@"chickenRed.png"];
+////        [aNode addChild:aSprite];
+////        [_player addChild:aNode];
+
+        
+        // add node2 to node1
+        
+
+
+//        [self setViewpointCenter:[self convertToNodeSpace:aSprite.position]];
+//        [aNode addChild:aSprite z:11];
+
+//        [self setViewpointCenter:aSprite.position];
+        
+//        CGRect bb = _player.sprite.boundingBox;
+//        CGPoint vertices[4] = {
+//            [self convertToNodeSpace:ccp(bb.origin.x, bb.origin.y)],
+//            [self convertToNodeSpace:ccp(bb.origin.x + bb.size.width, bb.origin.y)],
+//            [self convertToNodeSpace:ccp(bb.origin.x + bb.size.width, bb.origin.y + bb.size.height)],
+//            [self convertToNodeSpace:ccp(bb.origin.x, bb.origin.y + bb.size.height)],
+//        };
+//        ccDrawPoly(vertices, 4, YES);
+        
+        // draw 4 chickens at each bounding box corner
+        
+
+        //[self setViewpointCenter:[self convertToNodeSpace:ccp(bb.origin.x, bb.origin.y)]];
+
+//        _player.anchorPoint = ccp(0, 0);
+//        ccDrawCircle(_player.anchorPoint, 20, 0, 8, YES);
+//        [self setViewpointCenter:_player.anchorPoint];
+        
         
         // set the view position focused on player
         [self setViewpointCenter:_player.sprite.position];
@@ -262,7 +342,7 @@ static DVServerGameData* _serverGameData;
             {
                 // Playback enemy turn first
                 // Initialize this player's state and begin the usual action
-                _playerID = 2;
+                int playerID = 2;
                 // must create the opponent before playback of enemy turn as this is automatic on HOST and GUEST
                 // load the TileMap and the tile layers
 
@@ -281,16 +361,16 @@ static DVServerGameData* _serverGameData;
                 NSDictionary* spawnPointsDict = [[NSDictionary alloc] init];
                 for(spawnPointsDict in [playerSpawnObjects objects])
                 {   // _player has not been instantiated yet, so check [Player nextUniqueID]
-                    if([[spawnPointsDict valueForKey:@"Owner"] intValue] == _playerID)
+                    if([[spawnPointsDict valueForKey:@"Owner"] intValue] == playerID)
                     {
                         CGPoint playerSpawnPoint = [self pixelToPoint: ccp([[spawnPointsDict valueForKey:@"x"] intValue],[[spawnPointsDict valueForKey:@"y"] intValue])];
                         DLog(@"CGPoint:%f,%f",playerSpawnPoint.x,playerSpawnPoint.y);
                         
-                        _player = [[Player alloc] initInLayer:self atSpawnPoint:playerSpawnPoint withUniqueIntID:_playerID withShurikens:kInitShurikens withMissles:kInitMissiles];
+                        _player = [[Player alloc] initInLayer:self atSpawnPoint:playerSpawnPoint withUniqueIntID:playerID withShurikens:kInitShurikens withMissles:kInitMissiles];
                     }
                 }
                 
-                int opponent_ID = _playerID == 1 ? 2 : 1;  // don't need to save this as member var - only for opponent instantiation for enemy target
+                int opponent_ID = playerID == 1 ? 2 : 1;  // don't need to save this as member var - only for opponent instantiation for enemy target
                 // DEBUG for now, spawn opponent as Player 2 (assuming we are host not guest
                 for(spawnPointsDict in [playerSpawnObjects objects])
                 {   // _player has not been instantiated yet, so check [Player nextUniqueID]
@@ -405,6 +485,8 @@ static DVServerGameData* _serverGameData;
     [self schedule:@selector(testCollisions:)];
     [self schedule:@selector(mainGameLoop:) interval:kTickLengthSeconds];
     [self schedule:@selector(sampleCurrentPositions:) interval:kReplayTickLengthSeconds];
+    [self schedule:@selector(updateScore:) interval:1];  // update score every second
+
 //    [self schedule:@selector(roundFinished) interval:0 repeat:0 delay:12];
 }
 
@@ -415,6 +497,8 @@ static DVServerGameData* _serverGameData;
     // temp only - replace with server game data object
     eventsArray = [NSMutableArray arrayWithArray:[EntityNode eventHistory]]; // NSMutableArray*
     DLog(@"eventsArray count = %d",[eventsArray count]);
+    
+    [self setViewpointCenter:_player.carryingChicken.sprite.position];
 
     [self enemyPlaybackLoop];
     /*
@@ -446,6 +530,42 @@ static DVServerGameData* _serverGameData;
 }
 
 #pragma mark - Callbacks
+
+-(void) updateScore:(ccTime)deltaTime
+{
+    // opponent's chicken
+    CGPoint tileCoord = [self tileCoordForPosition:_opponent.carryingChicken.sprite.position];
+    int tileGid = [_meta tileGIDAt:tileCoord];  // GID is the ID for this kind of tile
+    if(tileGid)
+    {
+        NSDictionary* properties = [_tileMap propertiesForGID:tileGid];
+        if(properties)
+        {
+            // if the enemy chicken is sitting in our control area, increment score
+            if([[properties valueForKey:@"Owner"] intValue] == _player.uniqueID)
+            {
+                _player.score += 10;  // 10 points per second for chicken control
+            }
+        }
+    }
+    // player's chicken
+    tileCoord = [self tileCoordForPosition:_player.carryingChicken.sprite.position];
+    tileGid = [_meta tileGIDAt:tileCoord];  // GID is the ID for this kind of tile
+    if(tileGid)
+    {
+        NSDictionary* properties = [_tileMap propertiesForGID:tileGid];
+        if(properties)
+        {
+            // if the enemy chicken is sitting in our control area, increment score
+            if([[properties valueForKey:@"Owner"] intValue] == _player.uniqueID)
+            {
+                _opponent.score += 10;  // 10 points per second for chicken control
+            }
+        }
+    }
+        
+}
+
 -(void) mainGameLoop:(ccTime)deltaTime
 {
     // update the minions
@@ -503,7 +623,7 @@ static DVServerGameData* _serverGameData;
     }
 }
 
- 
+
 -(void) enemyPlaybackLoop
 {
     // cycle over timeIndex
@@ -526,17 +646,17 @@ static DVServerGameData* _serverGameData;
             DVEventType eventType = [(NSNumber*) [event objectForKey:kDVEventKey_EventType] intValue];  // DVEventType
             NSString* entityType = (NSString*) [event objectForKey:kDVEventKey_EntityType];  // FIX: need to change this to an enum of entityType
             int uniqueID = [(NSNumber*) [event objectForKey:kDVEventKey_EntityID] intValue]; // int
-            Player *thePlayer;
+            Player *thisPlayer;
             if([entityType isEqualToString:kEntityTypePlayer])
             {
                 DLog(@"thePlayer being assigned now");
                 if(uniqueID == _player.uniqueID)
                 {
-                    thePlayer = _player;
+                    thisPlayer = _player;
                     DLog(@"thePlayer = _player");
-                    DLog(@"thePlayer.uniqueID = %d", thePlayer.uniqueID);
+                    DLog(@"thePlayer.uniqueID = %d", thisPlayer.uniqueID);
                     DLog(@"_player.uniqueID = %d", _player.uniqueID);
-                    if([thePlayer isEqual:_player])
+                    if([thisPlayer isEqual:_player])
                     {
                         DLog(@"[thePlayer isEqual:_player] = TRUE");
                     }
@@ -548,16 +668,16 @@ static DVServerGameData* _serverGameData;
                 }
                 else
                 {
-                    thePlayer = _opponent;
+                    thisPlayer = _opponent;
                     DLog(@"thePlayer = _opponent");
-                    DLog(@"thePlayer.uniqueID = %d", thePlayer.uniqueID);
+                    DLog(@"thePlayer.uniqueID = %d", thisPlayer.uniqueID);
                     DLog(@"_opponent.uniqueID = %d", _opponent.uniqueID);
                 }
             }
             int xCoord, yCoord, hpChange;
             
             // sanity check DEBUG test
-            
+            /*
             switch (eventType) {
                 case DVEvent_Spawn: // spawn
                 {
@@ -583,6 +703,7 @@ static DVServerGameData* _serverGameData;
                     DLog(@"default!");
                     break;
             }
+             */
             // finish sanity check
             
             if(eventType == DVEvent_Wound)
@@ -602,16 +723,16 @@ static DVServerGameData* _serverGameData;
                 
                 switch (eventType) {
                     case DVEvent_Wound:
-                        [thePlayer animateTakeDamage:hpChange];
+                        [thisPlayer animateTakeDamage:hpChange];
                         break;
                     case DVEvent_Move:
                     {
                         DLog("cacheing move for _player to point: %d, %d",xCoord, yCoord);
-                        [thePlayer animateMove:ccp(xCoord, yCoord)];
+                        [thisPlayer animateMove:ccp(xCoord, yCoord)];
                         break;
                     }
                     case DVEvent_Kill:  // This is NOT a real kill as it would be for minions; the Player remains instantiated, just respawns, re-inits, etc
-                        [thePlayer animateKill:ccp(xCoord, yCoord)];  // this call takes care of everything, sounds, respawn, re-init
+                        [thisPlayer animateKill:ccp(xCoord, yCoord)];  // this call takes care of everything, sounds, respawn, re-init
                         // for now, animateKill also takes care of DVEvent_InitStats and DVEvent_Respawn, which are no longer cached anyway
                         break;
                     default:
@@ -1114,20 +1235,27 @@ static DVServerGameData* _serverGameData;
 
 }
 
--(void) testCollisions:(ccTime) dt
+-(void) testCollisions:(ccTime) deltaTime
 {
+//    ULog(@"testCollisions");
     // First, see if lose condition is met locally
     // itterate over the enemies to see if any of them are in contact with player (dead)
     for (Bat *target in [_player.minions allValues]) {
         CGRect targetRect = target.sprite.boundingBox; //CGRectMake(
-        //           target.position.x - (target.contentSize.width/2),
-        //           target.position.y - (target.contentSize.height/2),
+        //           target.sprite.position.x - (target.contentSize.width/2),
+        //           target.sprite.position.y - (target.contentSize.height/2),
         //           target.contentSize.width,
         //           target.contentSize.height );
-        
-        if (CGRectContainsPoint(targetRect, _player.sprite.position)) {
+  
+//        if (CGRectContainsPoint(targetRect, _player.sprite.position)) {
+////        if (CGRectContainsPoint(targetRect, [target convertToNodeSpace:_player.sprite.position])) {
+//            ULog(@"Was true!");
+////            [self lose];
+        if(CGRectIntersectsRect(targetRect, _player.sprite.boundingBox))
+        {
             [self lose];
         }
+
     }
     // DEBUG!! Change _player to _opponent
     // shurikens hitting enemies?
@@ -1171,6 +1299,29 @@ static DVServerGameData* _serverGameData;
     // remove all the projectiles that hit.
     for (WeaponNode* weapon in weaponsToDelete)
         [self.collidableProjectiles removeObjectForKey:[NSNumber numberWithInt:weapon.uniqueID]];
+
+    // if you step on a chicken, pick it up (make it a child of the _player node)
+    if(_player.isCarryingChicken == FALSE)
+    {
+        // this should return nil (false) if opponent's chicken is set to nil
+        if(CGRectIntersectsRect(_player.sprite.boundingBox,_opponent.ownedChicken.sprite.boundingBox))
+        {
+//            ULog(@"pickupchicken calling");
+//            [self removeChildByTag:_opponent.uniqueID cleanup:NO];
+//            [_player pickupChicken:_opponent.chicken withTag:_opponent.uniqueID];
+            [_player pickupChicken:_opponent.ownedChicken];
+            [self setViewpointCenter:_player.carryingChicken.sprite.position];
+        }
+        else if(CGRectIntersectsRect(_player.sprite.boundingBox,_player.ownedChicken.sprite.boundingBox))
+        {
+//            ULog(@"pickupchicken calling");
+//            [self removeChildByTag:_player.uniqueID cleanup:NO];
+//            [_player pickupChicken:_player.chicken withTag:_player.uniqueID];
+            [_player pickupChicken:_player.ownedChicken];
+            [self setViewpointCenter:_player.carryingChicken.sprite.position];
+        }
+    }
+
 }
 
 #pragma mark - Helpers

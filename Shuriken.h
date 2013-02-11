@@ -15,9 +15,9 @@
 #import "WeaponNode.h"
 
 #define kEntityShurikenHitPoints 1
-#define kEntityShurikenSpeedPPS 300
+#define kEntityShurikenSpeedPPS 100
 #define kShurikenDamage 2
-#define kShurikenRangeInPixels 300  // in pixels
+#define kShurikenRangeInPixels 100  // in pixels
 
 //@class EntityNode;
 

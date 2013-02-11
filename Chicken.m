@@ -1,12 +1,13 @@
 //
-//  Bat.m
-//  dravvo-tilegame_master
+//  Chicken.m
+//  tilegame2
 //
-//  Created by Jeremiah Anderson on 1/22/13.
+//  Created by Jeremiah Anderson on 2/8/13.
 //
 //
 
-#import "Bat.h"
+
+#import "Chicken.h"
 #import "GameConstants.h"
 #import <GameKit/GameKit.h>
 #import "cocos2d.h"
@@ -16,7 +17,7 @@
 
 static int _uniqueIDCounter = 0;
 
-@implementation Bat
+@implementation Chicken
 
 #pragma mark - Entity overrides
 
@@ -29,44 +30,45 @@ static int _uniqueIDCounter = 0;
 {
     if(self = [super initInLayer:layer atSpawnPoint:spawnPoint withBehavior:behavior ownedBy:(EntityNode *)owner])
     {
-        self.entityType = kEntityTypeBat;
-        self.uniqueID = [Bat nextUniqueID];
+        self.entityType = kEntityTypeChicken;
+        self.uniqueID = [Chicken nextUniqueID];
         
-        // set bat's stats
-        self.hitPoints = kEntityBatHitPoints;
-        self.speedInPixelsPerSec = kEntityBatSpeedPPS;
+        // set chicken stats
+        self.hitPoints = kEntityChickenHitPoints;
+        self.speedInPixelsPerSec = kEntityChickenSpeedPPS;
         
         if(self.owner.uniqueID == 2)
-            self.sprite = [CCSprite spriteWithFile:@"batRed.png"];
+            self.sprite = [CCSprite spriteWithFile:@"chickenRed.png"];
         else
-            self.sprite = [CCSprite spriteWithFile:@"batGreen.png"];
-
+            self.sprite = [CCSprite spriteWithFile:@"chickenGreen.png"];
+        
 //        [self setContentSize:self.sprite.boundingBox.size];
         self.lastPoint = spawnPoint;
         self.sprite.position = self.lastPoint;
-        [self addChild:self.sprite];
         
+        [self addChild:self.sprite];
         [self.gameLayer addChild:self];
     }
     return self;
-   
+    
 }
 
 -(id)initInLayerWithoutCache_AndAnimate:(CoreGameLayer *)layer atSpawnPoint:(CGPoint)spawnPoint withBehavior:(DVCreatureBehavior)behavior ownedBy:(EntityNode *)owner withUniqueID:(int)uniqueID afterDelay:(ccTime) delay
 {
     if(self = [super initInLayer:layer atSpawnPoint:spawnPoint withBehavior:behavior ownedBy:(EntityNode *)owner])
     {
-        self.entityType = kEntityTypeBat;
+        self.entityType = kEntityTypeChicken;
         self.uniqueID = uniqueID;
         
-        // set bat's stats
-        self.hitPoints = kEntityBatHitPoints;
-        self.speedInPixelsPerSec = kEntityBatSpeedPPS;
+        // set chicken stats
+        self.hitPoints = kEntityChickenHitPoints;
+        self.speedInPixelsPerSec = kEntityChickenSpeedPPS;
         
         if(self.owner.uniqueID == 2)
-            self.sprite = [CCSprite spriteWithFile:@"batRed.png"];
+            self.sprite = [CCSprite spriteWithFile:@"chickenRed.png"];
         else
-            self.sprite = [CCSprite spriteWithFile:@"batGreen.png"];
+            self.sprite = [CCSprite spriteWithFile:@"chickenGreen.png"];
+        
 //        [self setContentSize:self.sprite.boundingBox.size];
         self.lastPoint = spawnPoint;
         self.sprite.position = self.lastPoint;
@@ -84,8 +86,8 @@ static int _uniqueIDCounter = 0;
         [self.actionsToBePlayed addObject:actionAppear];
         
         [self addChild:self.sprite];
-        
         [self.gameLayer addChild:self];
+
     }
     return self;
 }
@@ -95,35 +97,26 @@ static int _uniqueIDCounter = 0;
 {
     if(self = [super initInLayer:layer atSpawnPoint:spawnPoint withBehavior:behavior ownedBy:(EntityNode *)owner])
     {
-        self.entityType = kEntityTypeBat;
-        self.uniqueID = [Bat nextUniqueID];
-
-        // set bat's stats
-        self.hitPoints = kEntityBatHitPoints;
-        self.speedInPixelsPerSec = kEntityBatSpeedPPS;
-    
+        self.entityType = kEntityTypeChicken;
+        self.uniqueID = [Chicken nextUniqueID];
+        
+        // set Chicken's stats
+        self.hitPoints = kEntityChickenHitPoints;
+        self.speedInPixelsPerSec = kEntityChickenSpeedPPS;
+        
         if(self.owner.uniqueID == 2)
-            self.sprite = [CCSprite spriteWithFile:@"batRed.png"];
+            self.sprite = [CCSprite spriteWithFile:@"chickenRed.png"];
         else
-            self.sprite = [CCSprite spriteWithFile:@"batGreen.png"];
+            self.sprite = [CCSprite spriteWithFile:@"chickenGreen.png"];
+        self.lastPoint = spawnPoint;
         
 //        [self setContentSize:self.sprite.boundingBox.size];
-        self.lastPoint = spawnPoint;
         self.sprite.position = self.lastPoint;
         [self addChild:self.sprite];
-        /*
-        CGRect bb = self.sprite.boundingBox;
-        CGPoint vertices[4] = {
-            [self convertToNodeSpace:ccp(bb.origin.x, bb.origin.y)],
-            [self convertToNodeSpace:ccp(bb.origin.x + bb.size.width, bb.origin.y)],
-            [self convertToNodeSpace:ccp(bb.origin.x + bb.size.width, bb.origin.y + bb.size.height)],
-            [self convertToNodeSpace:ccp(bb.origin.x, bb.origin.y + bb.size.height)],
-        };
-        ccDrawPoly(vertices, 4, YES);
-*/
         
         [self cacheStateForEvent:DVEvent_Spawn];
         
+//        [self.gameLayer addChild:self z:4 tag:self.owner.uniqueID];
         [self.gameLayer addChild:self];
     }
     return self;
@@ -132,30 +125,30 @@ static int _uniqueIDCounter = 0;
 -(void)kill // possibly animate a death then remove this minion
 {
     // since we instantly erase and remove this bat here, audio won't have a chance to play. we have to do it in HelloWorldLayer logic
-//    [[SimpleAudioEngine sharedEngine] playEffect:@"juliaRoar.m4a"];
-//    [[SimpleAudioEngine sharedEngine] playEffect:@"DMZombie.m4ra"];
-
+    //    [[SimpleAudioEngine sharedEngine] playEffect:@"juliaRoar.m4a"];
+    //    [[SimpleAudioEngine sharedEngine] playEffect:@"DMZombie.m4ra"];
+    
     //myLayer.numKills += 1;
     //[myLayer.hud numKillsChanged:myLayer.numKills];
-
+    
     // remove the sprite as a CCNode and cleanup
-  
+    
     [self cacheStateForEvent:DVEvent_Kill];
     [self removeChild:self.sprite cleanup:YES];
-/*
-    NSString* activityEntry = [NSString stringWithFormat:@"%d kill %@ %d -1 -1",
-                               myLayer.timeStepIndex, ownerAndEntityID, uniqueIntID];
-    //[Bat uniqueIntIDCounter]
+    /*
+     NSString* activityEntry = [NSString stringWithFormat:@"%d kill %@ %d -1 -1",
+     myLayer.timeStepIndex, ownerAndEntityID, uniqueIntID];
+     //[Bat uniqueIntIDCounter]
+     
+     [self.historicalEventsList_local addObject:activityEntry];
+     DLog(@"kill...%@",activityEntry);
+     */
     
-    [self.historicalEventsList_local addObject:activityEntry];
-    DLog(@"kill...%@",activityEntry);
-*/
-
     // remove this bat from the layer's list
     // THIS MIGHT BE FUCKED FIX // not sure if it's OK to remove ourselves from the layer's array
     // this won't work because an element of the array will be deleted while the array is being run through
-//    [myLayer.bats removeObject:self];
-//    [myLayer removeChild:self cleanup:YES];
+    //    [myLayer.bats removeObject:self];
+    //    [myLayer removeChild:self cleanup:YES];
 }
 
 -(void)realUpdate
@@ -175,7 +168,7 @@ static int _uniqueIDCounter = 0;
         {
             //rotate to face the opponent
             CoreGameLayer* layer = (CoreGameLayer *)self.gameLayer;
-
+            
             CGPoint diff = ccpSub(layer.opponent.sprite.position, self.lastPoint);
             
             // Determine angle for the missile to face
@@ -188,14 +181,14 @@ static int _uniqueIDCounter = 0;
             //        [missile setRotation:cocosAngle];
             self.sprite.rotation = cocosAngle;
             
-//            CGFloat angle = ccpAngle(layer.opponent.sprite.position, self.sprite.position);
-//            //self.lastPoint = targetPoint;
-//            self.sprite.rotation = angle+90;
+            //            CGFloat angle = ccpAngle(layer.opponent.sprite.position, self.sprite.position);
+            //            //self.lastPoint = targetPoint;
+            //            self.sprite.rotation = angle+90;
             
             // 10 pixels per 0.3 seconds -> speed = 33 pixels / second
             int distancePixels = (int) (self.speedInPixelsPerSec * kTickLengthSeconds);
-//            ccTime actualDuration = (float) distancePixels / speedInPixelsPerSec; //  0.3; //  v = d / t; t = d / v
-
+            //            ccTime actualDuration = (float) distancePixels / speedInPixelsPerSec; //  0.3; //  v = d / t; t = d / v
+            
             //            actualDuration = 0.3;
             // create the actions
             // ccpMult, ccpSub multiplies, subtracts two point coordinates (vectors) to give one resulting point
@@ -204,8 +197,8 @@ static int _uniqueIDCounter = 0;
             //            id actionMove = [CCMoveBy actionWithDuration:actualDuration position:ccpMult(ccpNormalize(ccpSub(myLayer.player.sprite.position,position)), 10)];
             id actionMove = [CCMoveBy actionWithDuration:kTickLengthSeconds position:ccpMult(ccpNormalize(ccpSub(layer.opponent.sprite.position,self.sprite.position)), distancePixels)];
             // callback to this method again! If the entity has changed it's behavior, then a different case will be implemented
-//            id actionMoveDone = [CCCallFuncN actionWithTarget:self selector:@selector(takeActions)];
-//            [sprite runAction:[CCSequence actions:actionMove, nil]];
+            //            id actionMoveDone = [CCCallFuncN actionWithTarget:self selector:@selector(takeActions)];
+            //            [sprite runAction:[CCSequence actions:actionMove, nil]];
             
             [self.sprite runAction:actionMove];
             
@@ -230,24 +223,30 @@ static int _uniqueIDCounter = 0;
 
 -(void)realExplode:(CGPoint) targetPoint
 {
-
+    
 }
 
 /*  // calls made in EntityNode class
--(void)animateTakeDamage:(int)damagePoints
-{
-}
-
--(void)animateKill
-{
-}
-*/
+ -(void)animateTakeDamage:(int)damagePoints
+ {
+ }
+ 
+ -(void)animateKill
+ {
+ }
+ */
 
 -(void)animateExplode:(CGPoint) targetPoint  // animate it exploding
 {
-
+    
 }
-
-
+/*
+-(Chicken*) removeFromParentAndAddToParentNode:(CCNode*)newParentNode
+{
+//    [self removeChild:self.sprite cleanup:YES];
+//    [self.sprite removeFromParentAndCleanup:YES];
+    [self removeFromParentAndCleanup:YES];
+    return self.sprite;
+}
+*/
 @end
-

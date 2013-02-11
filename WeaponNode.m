@@ -26,15 +26,6 @@
     return self;
 }
 
--(id)initInLayerWithoutCache:(CoreGameLayer *)layer atSpawnPoint:(CGPoint)spawnPoint
-{
-    if (self = [super initInLayerWithoutCache:layer atSpawnPoint:spawnPoint])
-    {
-        // nothin
-    }
-    return self;
-}
-
 -(void)collidedWith:(EntityNode*)entityType
 {
     

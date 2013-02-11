@@ -28,7 +28,7 @@ static int _uniqueIDCounter = 0;
 
 -(id)initInLayerWithoutCache_AndAnimate:(CoreGameLayer *)layer atSpawnPoint:(CGPoint)spawnPoint ownedBy:(EntityNode *)owner withUniqueID:(int)uniqueID afterDelay:(ccTime) delay
 {
-    if (self = [super initInLayerWithoutCache:layer atSpawnPoint:spawnPoint]) {
+    if (self = [super initInLayer:layer atSpawnPoint:spawnPoint]) {
         
         self.entityType = kEntityTypeMissile;
         self.uniqueID = uniqueID;
@@ -39,6 +39,8 @@ static int _uniqueIDCounter = 0;
         self.speedInPixelsPerSec = kEntityMissileSpeedPPS;
         self.damage = kMissileDamage;
         self.sprite = [CCSprite spriteWithFile:@"missile.png"];
+        
+//        [self setContentSize:self.sprite.boundingBox.size];
         self.lastPoint = spawnPoint;
         self.sprite.position = self.lastPoint;
                 
@@ -79,6 +81,8 @@ static int _uniqueIDCounter = 0;
         self.speedInPixelsPerSec = kEntityMissileSpeedPPS;
         self.damage = kMissileDamage;
         self.sprite = [CCSprite spriteWithFile:@"missile.png"];
+
+//        [self setContentSize:self.sprite.boundingBox.size];
         self.lastPoint = spawnPoint;
         self.sprite.position = self.lastPoint;
         

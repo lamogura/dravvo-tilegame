@@ -58,29 +58,6 @@ static NSMutableArray* _eventHistory;  // the entire event history of all Entiti
     return self;
 }
 
--(id)initInLayerWithoutCache:(CCNode *)layer atSpawnPoint:(CGPoint)spawnPoint
-{
-    if (self = [super init]) {
-        self->_gameLayer = layer;
-        self->_spawnPoint = spawnPoint;
-        _actionsToBePlayed = [[NSMutableArray alloc] init];
-        _lastPoint = spawnPoint;
-    }
-    return self;
-}
-
-//-(id)initInLayerWithoutCache_AndAnimate:(CCNode *)layer atSpawnPoint:(CGPoint)spawnPoint afterDelay:(ccTime) delay
-//{
-//    if (self = [super init]) {
-//        self->_gameLayer = layer;
-//        self->_spawnPoint = spawnPoint;
-//        _actionsToBePlayed = [[NSMutableArray alloc] init];
-//        _lastPoint = spawnPoint;
-//    }
-//    return self;
-//}
-
-
 // All event types but wounded:
 //  kDVEventKey_TimeStepIndex, kDVEventKey_EventType, kDVEventKey_OwnerID, kDVEventKey_EntityType, kDVEventKey_EntityID, kDVEventKey_CoordX, kDVEventKey_CoordY
 // "wounded" event type only:
@@ -136,7 +113,7 @@ static NSMutableArray* _eventHistory;  // the entire event history of all Entiti
     /*
      // generate a "move" event string entry from last point to current point with a time differential of kPlaybackTickLengthSeconds
      NSString* activityEntry = [NSString stringWithFormat:@"%d aniMove %@ %d %d %d",
-     myLayer.timeStepIndex, ownerAndEntityID, uniqueIntID, (int)sprite.position.x, (int)sprite.position.y];
+     myLayer.timeStepIndex, ownerAndEntityID, uniqueIntID, (int)position.x, (int)position.y];
      
      [self.historicalEventsList_local addObject:activityEntry];
      DLog(@"sample...%@",activityEntry);

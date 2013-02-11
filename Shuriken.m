@@ -28,7 +28,7 @@ static int _uniqueIDCounter = 0;
 
 -(id)initInLayerWithoutCache_AndAnimate:(CoreGameLayer *)layer atSpawnPoint:(CGPoint)spawnPoint ownedBy:(EntityNode *)owner withUniqueID:(int)uniqueID afterDelay:(ccTime) delay
 {
-    if (self = [super initInLayerWithoutCache:layer atSpawnPoint:spawnPoint]) {
+    if (self = [super initInLayer:layer atSpawnPoint:spawnPoint]) {
         
         self.entityType = kEntityTypeShuriken;
         self.uniqueID = uniqueID;
@@ -39,6 +39,8 @@ static int _uniqueIDCounter = 0;
         self.speedInPixelsPerSec = kEntityShurikenSpeedPPS;
         self.damage = kShurikenDamage;
         self.sprite = [CCSprite spriteWithFile:@"Projectile.png"];
+        
+//        [self setContentSize:self.sprite.boundingBox.size];
         self.lastPoint = spawnPoint;
         self.sprite.position = self.lastPoint;
         
@@ -78,12 +80,19 @@ static int _uniqueIDCounter = 0;
         self.speedInPixelsPerSec = kEntityShurikenSpeedPPS;
         self.damage = kShurikenDamage;
         self.sprite = [CCSprite spriteWithFile:@"Projectile.png"];
+        
+//        [self setContentSize:self.sprite.boundingBox.size];
         self.lastPoint = spawnPoint;
         self.sprite.position = self.lastPoint;
         
         // determine the actual targetPoint based on the range of the shuriken
-        CGPoint theVector = ccpMult(ccpNormalize(ccpSub(targetPoint,self.sprite.position)), ((float)kShurikenRangeInPixels));
-        self.targetPoint = ccpAdd(targetPoint, theVector);
+        CGPoint normalizedVector = ccpNormalize(ccpSub(targetPoint,self.sprite.position));
+        double angleRads = (double) ccpToAngle(normalizedVector);
+        int x = (int) (cos(angleRads) * (double)kShurikenRangeInPixels);
+        int y = (int) (sin(angleRads) * (double)kShurikenRangeInPixels);
+        self.targetPoint = ccpAdd(spawnPoint, ccp(x,y));
+//        CGPoint theVector = ccpMult(ccpNormalize(ccpSub(targetPoint,self.sprite.position)), ((float)kShurikenRangeInPixels));
+//        self.targetPoint = ccpAdd(targetPoint, theVector);
 
         self.strikingRange = self.speedInPixelsPerSec * kTickLengthSeconds; // distance the weapon can travel in 1 update tick length
         

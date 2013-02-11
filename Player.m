@@ -26,6 +26,11 @@
 @synthesize enemyPlayer = _enemyPlayer;
 @synthesize missiles = _missiles;
 @synthesize shurikens = _shurikens;
+@synthesize carryingChicken = _carryingChicken;
+@synthesize ownedChicken = _ownedChicken;
+@synthesize score = _score;
+@synthesize isCarryingChicken = _isCarryingChicken;
+//@synthesize chickenSprite = _chickenSprite;
 
 /*
 +(int)nextUniqueID {
@@ -48,6 +53,7 @@
         self->_missiles = [[NSMutableDictionary alloc] init];
         self->_shurikens = [[NSMutableDictionary alloc] init];
         self.mode = DVPlayerMode_Moving;
+        self.isCarryingChicken = NO;
         
         // set Player's initial stats
         [self initStats];
@@ -56,6 +62,8 @@
             self.sprite = [CCSprite spriteWithFile:@"PlayerGreen.png"];
         else
             self.sprite = [CCSprite spriteWithFile:@"PlayerRed.png"];
+
+//        [self setContentSize:self.sprite.boundingBox.size];
         self.sprite.position = spawnPoint;
 
         // Player spawning is not initially reported (spawning is automatic on both sides on game initialization) - FIX later
@@ -145,7 +153,7 @@
     // need to report on re-appearance
     // record an event entry for spawning
     NSString* activityEntry = [NSString stringWithFormat:@"%d regenerate %@ -1 %d %d",
-                               myLayer.timeStepIndex, playerID, (int)sprite.position.x, (int)sprite.position.y];
+                               myLayer.timeStepIndex, playerID, (int)position.x, (int)position.y];
     [self.historicalEventsList_local addObject:activityEntry];
     DLog(@"spawn...%@",activityEntry);
 */
@@ -240,6 +248,61 @@
     self.isDead = NO;
     self.hitPoints = 1;
 
+}
+
+-(void) draw
+{
+    [super draw];
+    [_carryingChicken draw];
+}
+
+-(void) pickupChicken:(Chicken*)chicken  // DEBUG - change this to pass a tag ID for the chicken which is same as ownerID for the Chicken?
+{
+    self.carryingChicken = chicken;
+    self.isCarryingChicken = TRUE;
+    //[chicken removeFromParentAndCleanup:YES];
+//    [chicken nodeToWorldTransform];
+    [self.gameLayer removeChild:self.carryingChicken cleanup:YES];
+//    [chicken removeChild:chicken.sprite cleanup:YES];
+//    [self setAnchorPoint:self.sprite.position];
+//    self.sprite.position = self.sprite.position;
+    // first remove chicken's sprite as a child of chicken class (this could seriously fuck shit up)
+/*  // THIS WORKS
+    CCNode* aNode = [[CCNode alloc] init];
+    CCSprite* aSprite = [CCSprite spriteWithFile:@"chickenRed.png"];
+    [aNode addChild:aSprite];
+    [self.sprite addChild:aNode];
+*/
+    
+//    [chicken removeFromParentAndCleanup:YES];
+    // chicken sprite down to chicken node
+//    [chicken removeFromParentAndCleanup:YES];
+//    chicken.position = [self convertToNodeSpace:chicken.sprite.position];
+
+//    ULog(@"chicken.owner.uniqueID = %d",chicken.owner.uniqueID);
+
+    [self.sprite addChild:self.carryingChicken];
+   
+    
+    //    self->_carryingChicken.sprite.position = [self.gameLayer convertToNodeSpace:self->_carryingChicken.sprite.position];
+
+    
+    
+/*
+    self->_carryingChicken = chicken;
+    [_carryingChicken.sprite removeFromParentAndCleanup:YES];
+    self->_carryingChicken.sprite.position = [self.gameLayer convertToNodeSpace:self->_carryingChicken.sprite.position];
+    [self.sprite addChild:self->_carryingChicken.sprite z:10];
+//    [self->_carryingChicken.sprite setPosition:[self.gameLayer convertToNodeSpace:self->_carryingChicken.sprite.position]];
+    self->_carryingChicken.sprite.position = self.sprite.position;
+*/
+}
+
+-(void) dropChicken
+{
+    // DEBUG - change this to make a tag ID for the chicken which is same as ownerID for the Chicken?
+    // this won't work, we'll kill our own sprite. fix by keeping the tag of our picked up chicken
+//    [self removeChildByTag:self.carryingChickenTag cleanup:YES];
 }
 
 

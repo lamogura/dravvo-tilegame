@@ -27,6 +27,7 @@
 // entityTypes defined in the respective sub-class's constructors
 #define kEntityTypePlayer @"player"
 #define kEntityTypeBat @"bat"
+#define kEntityTypeChicken @"chicken"
 #define kEntityTypeMissile @"missile"
 #define kEntityTypeShuriken @"shuriken"
 
@@ -62,8 +63,6 @@ typedef enum {
 +(void) animateDeathForEntityType:(NSString*) theEntityType at:(CGPoint) deathPoint;  // TO DO Takes a position and an EntityType
 // optional
 -(id)initInLayer:(CoreGameLayer *)layer atSpawnPoint:(CGPoint)spawnPoint;
--(id)initInLayerWithoutCache:(CoreGameLayer *)layer atSpawnPoint:(CGPoint)spawnPoint;
-//-(id)initInLayerWithoutCache_AndAnimate:(CCNode *)layer atSpawnPoint:(CGPoint)spawnPoint afterDelay:(ccTime) delay;
 
 //-(void)replayEventsAtTimeIndex:(int)index;
 -(NSMutableDictionary *)cacheStateForEvent:(DVEventType)event;

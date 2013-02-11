@@ -35,6 +35,7 @@ typedef enum {
     CCTMXTiledMap* _tileMap;
     // these layers are part of the _tileMap
     CCTMXLayer* _background;  // background layer is the constant background layer (walls, roads, bushes, etc)
+    CCTMXLayer* _metaCastle;
     CCTMXLayer* _meta;  // meta layer is NOT seen by player, just used to specify collidable, collectible tiles
     CCTMXLayer* _foreground;  // foreground layer is seen by player but is modifiable, like collectible items
     CCTMXLayer* _destruction;  // destruction under-layer, for when terrain is devastated
@@ -57,8 +58,8 @@ typedef enum {
 }
 
 +(void) setServerGameData:(DVServerGameData*) gameData; // static storing last gameData update
-+(void) setPlayerID:(int)setID;
-+(int) playerID; // returns the unique player ID - set on game startup depending on host or guest
+////+(void) setPlayerID:(int)setID;
+////+(int) playerID; // returns the unique player ID - set on game startup depending on host or guest
 +(void) changeNumPlaybacksRunningBy:(int)change;
 // returns a CCScene that contains the HelloWorldLayer as the only child
 +(CCScene *) scene:(DVCoreLayerInitType) initType;
@@ -80,6 +81,8 @@ typedef enum {
 // call back functions
 -(void) mainGameLoop:(ccTime)deltaTime;
 -(void) sampleCurrentPositions:(ccTime)deltaTime; // scheduled callback
+-(void) testCollisions:(ccTime)deltaTime;
+-(void) updateScore:(ccTime)deltaTime;
 
 // helpers
 -(void) setViewpointCenter:(CGPoint) position;

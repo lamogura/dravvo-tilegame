@@ -20,9 +20,12 @@
 		3F3F40F616B2BF980080C341 /* DMZombie.m4r in Resources */ = {isa = PBXBuildFile; fileRef = 3F3F40F516B2BF980080C341 /* DMZombie.m4r */; };
 		3F3F40F816B2C2490080C341 /* DMLifePack.m4r in Resources */ = {isa = PBXBuildFile; fileRef = 3F3F40F716B2C2490080C341 /* DMLifePack.m4r */; };
 		3F3F40FA16B2C3820080C341 /* DMZombiePain.m4r in Resources */ = {isa = PBXBuildFile; fileRef = 3F3F40F916B2C3820080C341 /* DMZombiePain.m4r */; };
+		3F5DEAF416C4B1940051B6BF /* chickenRed-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = 3F5DEAF316C4B1940051B6BF /* chickenRed-hd.png */; };
+		3F5DEAF616C4B19D0051B6BF /* chickenGreen-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = 3F5DEAF516C4B19D0051B6BF /* chickenGreen-hd.png */; };
+		3F5DEAF916C4BA500051B6BF /* Chicken.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F5DEAF816C4BA500051B6BF /* Chicken.m */; };
+		3F5DEB0316C5004F0051B6BF /* TileMap-hd.tmx in Resources */ = {isa = PBXBuildFile; fileRef = 3F5DEB0216C5004F0051B6BF /* TileMap-hd.tmx */; };
 		3F62AA3E16C2704500BA4EFC /* WeaponNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F62AA3D16C2704500BA4EFC /* WeaponNode.m */; };
 		3F881E2016B66FA300C11D1B /* TileMap.caf in Resources */ = {isa = PBXBuildFile; fileRef = 3F881E1F16B66FA300C11D1B /* TileMap.caf */; };
-		3F881E2816B6A9EB00C11D1B /* TileMap-hd.tmx in Resources */ = {isa = PBXBuildFile; fileRef = 3F881E2716B6A9EB00C11D1B /* TileMap-hd.tmx */; };
 		3F881E2A16B6F0C500C11D1B /* batGreen-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = 3F881E2916B6F0C500C11D1B /* batGreen-hd.png */; };
 		3F881E2C16B6F0CD00C11D1B /* batGreen.png in Resources */ = {isa = PBXBuildFile; fileRef = 3F881E2B16B6F0CD00C11D1B /* batGreen.png */; };
 		3F881E2F16B6F15C00C11D1B /* batRed-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = 3F881E2D16B6F15A00C11D1B /* batRed-hd.png */; };
@@ -76,7 +79,6 @@
 		CE857DB816B01D5C00947B06 /* DVAPIWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = CE857D7616B01D5C00947B06 /* DVAPIWrapper.m */; };
 		CE857DB916B01D5C00947B06 /* DVDownloader.m in Sources */ = {isa = PBXBuildFile; fileRef = CE857D7916B01D5C00947B06 /* DVDownloader.m */; };
 		CE857DBA16B01D5C00947B06 /* DVUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = CE857D7C16B01D5C00947B06 /* DVUtils.m */; };
-		CE857DBB16B01D5C00947B06 /* Opponent.m in Sources */ = {isa = PBXBuildFile; fileRef = CE857D7E16B01D5C00947B06 /* Opponent.m */; };
 		CE857DBC16B01D5C00947B06 /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CE857D8116B01D5C00947B06 /* Default-568h@2x.png */; };
 		CE857DBD16B01D5C00947B06 /* Default.png in Resources */ = {isa = PBXBuildFile; fileRef = CE857D8216B01D5C00947B06 /* Default.png */; };
 		CE857DBE16B01D5C00947B06 /* fps_images-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = CE857D8316B01D5C00947B06 /* fps_images-hd.png */; };
@@ -376,10 +378,14 @@
 		3F3F40F516B2BF980080C341 /* DMZombie.m4r */ = {isa = PBXFileReference; lastKnownFileType = file; path = DMZombie.m4r; sourceTree = "<group>"; };
 		3F3F40F716B2C2490080C341 /* DMLifePack.m4r */ = {isa = PBXFileReference; lastKnownFileType = file; path = DMLifePack.m4r; sourceTree = "<group>"; };
 		3F3F40F916B2C3820080C341 /* DMZombiePain.m4r */ = {isa = PBXFileReference; lastKnownFileType = file; path = DMZombiePain.m4r; sourceTree = "<group>"; };
+		3F5DEAF316C4B1940051B6BF /* chickenRed-hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "chickenRed-hd.png"; sourceTree = "<group>"; };
+		3F5DEAF516C4B19D0051B6BF /* chickenGreen-hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "chickenGreen-hd.png"; sourceTree = "<group>"; };
+		3F5DEAF716C4BA4F0051B6BF /* Chicken.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Chicken.h; sourceTree = "<group>"; };
+		3F5DEAF816C4BA500051B6BF /* Chicken.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Chicken.m; sourceTree = "<group>"; };
+		3F5DEB0216C5004F0051B6BF /* TileMap-hd.tmx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = "TileMap-hd.tmx"; sourceTree = "<group>"; };
 		3F62AA3C16C2704500BA4EFC /* WeaponNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WeaponNode.h; sourceTree = "<group>"; };
 		3F62AA3D16C2704500BA4EFC /* WeaponNode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WeaponNode.m; sourceTree = "<group>"; };
 		3F881E1F16B66FA300C11D1B /* TileMap.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = TileMap.caf; sourceTree = "<group>"; };
-		3F881E2716B6A9EB00C11D1B /* TileMap-hd.tmx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = "TileMap-hd.tmx"; sourceTree = "<group>"; };
 		3F881E2916B6F0C500C11D1B /* batGreen-hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "batGreen-hd.png"; sourceTree = "<group>"; };
 		3F881E2B16B6F0CD00C11D1B /* batGreen.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = batGreen.png; sourceTree = "<group>"; };
 		3F881E2D16B6F15A00C11D1B /* batRed-hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "batRed-hd.png"; sourceTree = "<group>"; };
@@ -450,8 +456,6 @@
 		CE857D7A16B01D5C00947B06 /* DVMacros.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DVMacros.h; sourceTree = "<group>"; };
 		CE857D7B16B01D5C00947B06 /* DVUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DVUtils.h; sourceTree = "<group>"; };
 		CE857D7C16B01D5C00947B06 /* DVUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DVUtils.m; sourceTree = "<group>"; };
-		CE857D7D16B01D5C00947B06 /* Opponent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Opponent.h; path = tilegame/Opponent.h; sourceTree = "<group>"; };
-		CE857D7E16B01D5C00947B06 /* Opponent.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Opponent.m; path = tilegame/Opponent.m; sourceTree = "<group>"; };
 		CE857D7F16B01D5C00947B06 /* Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Prefix.pch; path = tilegame/Prefix.pch; sourceTree = "<group>"; };
 		CE857D8116B01D5C00947B06 /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
 		CE857D8216B01D5C00947B06 /* Default.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Default.png; sourceTree = "<group>"; };
@@ -806,6 +810,8 @@
 				3F3F40E816B273C90080C341 /* bloodSplat-hd.png */,
 				CE857D4416B01D5C00947B06 /* boom-hd.png */,
 				CE857D4516B01D5C00947B06 /* boom.png */,
+				3F5DEAF316C4B1940051B6BF /* chickenRed-hd.png */,
+				3F5DEAF516C4B19D0051B6BF /* chickenGreen-hd.png */,
 				CE857D4616B01D5C00947B06 /* meta_tiles-hd.png */,
 				CE857D4716B01D5C00947B06 /* meta_tiles.png */,
 				CE857D4816B01D5C00947B06 /* missile-hd.png */,
@@ -816,6 +822,7 @@
 				CE857D4D16B01D5C00947B06 /* Player.png */,
 				3F881E3516B6F25300C11D1B /* PlayerGreen-hd.png */,
 				3F881E3116B6F24500C11D1B /* PlayerGreen.png */,
+				3F5DEB0216C5004F0051B6BF /* TileMap-hd.tmx */,
 				3F881E3716B6F25E00C11D1B /* PlayerRed-hd.png */,
 				3F881E3216B6F24500C11D1B /* PlayerRed.png */,
 				CE857D4E16B01D5C00947B06 /* projectile-button-off-hd.png */,
@@ -825,7 +832,6 @@
 				CE857D5216B01D5C00947B06 /* Projectile-hd.png */,
 				CE857D5316B01D5C00947B06 /* Projectile.png */,
 				3F881E1F16B66FA300C11D1B /* TileMap.caf */,
-				3F881E2716B6A9EB00C11D1B /* TileMap-hd.tmx */,
 				CE857D5F16B01D5C00947B06 /* TileMap.tmx */,
 				CE857D6016B01D5C00947B06 /* tmw_desert_spacing-hd.png */,
 				CE857D6116B01D5C00947B06 /* tmw_desert_spacing.png */,
@@ -930,10 +936,10 @@
 			children = (
 				CE857D6216B01D5C00947B06 /* Bat.h */,
 				CE857D6316B01D5C00947B06 /* Bat.m */,
+				3F5DEAF716C4BA4F0051B6BF /* Chicken.h */,
+				3F5DEAF816C4BA500051B6BF /* Chicken.m */,
 				CE857D6416B01D5C00947B06 /* CCSequence+Helper.h */,
 				CE857D6516B01D5C00947B06 /* CCSequence+Helper.m */,
-				CE857D7D16B01D5C00947B06 /* Opponent.h */,
-				CE857D7E16B01D5C00947B06 /* Opponent.m */,
 				3F205FBB16B0EEB0008D9399 /* Missile.h */,
 				3F205FBC16B0EEB0008D9399 /* Missile.m */,
 				3F205FBE16B0EED1008D9399 /* Shuriken.h */,
@@ -1631,7 +1637,6 @@
 				CED1D86016B2F97C00E87653 /* new_game_button.png in Resources */,
 				CE54128116B370ED00A3F494 /* loading.png in Resources */,
 				3F881E2016B66FA300C11D1B /* TileMap.caf in Resources */,
-				3F881E2816B6A9EB00C11D1B /* TileMap-hd.tmx in Resources */,
 				3F881E2A16B6F0C500C11D1B /* batGreen-hd.png in Resources */,
 				3F881E2C16B6F0CD00C11D1B /* batGreen.png in Resources */,
 				3F881E2F16B6F15C00C11D1B /* batRed-hd.png in Resources */,
@@ -1640,6 +1645,9 @@
 				3F881E3416B6F24600C11D1B /* PlayerRed.png in Resources */,
 				3F881E3616B6F25300C11D1B /* PlayerGreen-hd.png in Resources */,
 				3F881E3816B6F25E00C11D1B /* PlayerRed-hd.png in Resources */,
+				3F5DEAF416C4B1940051B6BF /* chickenRed-hd.png in Resources */,
+				3F5DEAF616C4B19D0051B6BF /* chickenGreen-hd.png in Resources */,
+				3F5DEB0316C5004F0051B6BF /* TileMap-hd.tmx in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1660,7 +1668,6 @@
 				CE857DB816B01D5C00947B06 /* DVAPIWrapper.m in Sources */,
 				CE857DB916B01D5C00947B06 /* DVDownloader.m in Sources */,
 				CE857DBA16B01D5C00947B06 /* DVUtils.m in Sources */,
-				CE857DBB16B01D5C00947B06 /* Opponent.m in Sources */,
 				3F205FBD16B0EEB1008D9399 /* Missile.m in Sources */,
 				3F205FC016B0EED1008D9399 /* Shuriken.m in Sources */,
 				3F3F40D916B180E00080C341 /* Player.m in Sources */,
@@ -1674,6 +1681,7 @@
 				CE892A5B16B4185300BE6DAB /* CreatureNode.m in Sources */,
 				3F0BD55D16BA6141005C7A54 /* CCSequenceHelper.m in Sources */,
 				3F62AA3E16C2704500BA4EFC /* WeaponNode.m in Sources */,
+				3F5DEAF916C4BA500051B6BF /* Chicken.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

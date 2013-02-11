@@ -23,11 +23,9 @@ typedef enum {
 
 @property (nonatomic, assign) int speedInPixelsPerSec;
 @property (nonatomic, assign) DVCreatureBehavior behavior;
-//@property (nonatomic, assign) CGPoint previousPosition;
 @property (nonatomic, strong) EntityNode* owner;
 
 -(id)initInLayer:(CoreGameLayer *)layer atSpawnPoint:(CGPoint)spawnPoint withBehavior:(DVCreatureBehavior)behavior ownedBy:(EntityNode *)owner;
--(id)initInLayerWithoutCache:(CoreGameLayer *)layer atSpawnPoint:(CGPoint)spawnPoint withBehavior:(DVCreatureBehavior)behavior ownedBy:(EntityNode *)owner;
 
 @end
 
