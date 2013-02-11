@@ -18,6 +18,8 @@
 #define kPlayerOne 1  // for the static Historical Dictionaries indicies contained in the minions / bats class
 #define kPlayerTwo 2
 
+#define kCountDownFrom 3
+
 #define kNumMelons 5
 #define kInitShurikens 10
 #define kInitMissiles 10

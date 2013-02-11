@@ -732,10 +732,16 @@ static DVServerGameData* _serverGameData;
         [shuriken playActionsInSequence];
     }
 
+    [self setViewpointCenter:_opponent.lastPoint];
+    
     // DEBUG temporary
     // now schedule a callback for Our Turn (Player's Turn) after _timeStepIndex * kReplayTickLengthSeconds period
 //    [self scheduleOnce:@selector(transitionToNextTurn) delay:(_timeStepIndex * kReplayTickLengthSeconds+2)];
     // pause 2 seconds to allow for explosions and other animations to play before clearing the dead from the dicts
+    [self scheduleOnce:@selector(playbackFinished) delay:kTurnLengthSeconds];
+}
+-(void) playbackFinished
+{
     [[NSNotificationCenter defaultCenter] postNotificationName:kCoreGamePlaybackFinishedNotification object:self];
 }
 

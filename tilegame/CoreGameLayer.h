@@ -78,6 +78,7 @@ typedef enum {
 +(CCScene *) sceneWithInitType:(CoreGameInitType) type;
 
 -(id) initFromSavedGame;
+-(void) playbackFinished;
 
 @property (nonatomic, strong) CoreGameHudLayer* hud;
 @property (nonatomic, assign) int timeStepIndex; // should count up to 10 or 20, to get to a 10 second round

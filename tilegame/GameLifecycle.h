@@ -17,6 +17,7 @@
 +(GameLifecycle *) start;
 
 -(void) roundHasFinished:(NSNotification *) notification;
+-(void) playbackHasFinished:(NSNotification *) notification;
 -(void) processNotification:(NSDictionary *) notificationInfo;
 
 -(void) playNewGame;
