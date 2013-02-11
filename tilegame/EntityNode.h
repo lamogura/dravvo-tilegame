@@ -18,8 +18,8 @@
 #define kDVEventKey_TimeStepIndex @"TimeStepIndex"
 #define kDVEventKey_EventType @"EventType"
 #define kDVEventKey_OwnerID @"OwnerID"
-#define kDVEventKey_EntityType @"EntityType"
-#define kDVEventKey_EntityID @"EntityID"
+#define kDVEventKey_EntityOrLayerType @"EntityOrLayerType"
+#define kDVEventKey_UniqueID @"UniqueID"
 #define kDVEventKey_CoordX @"CoordX"
 #define kDVEventKey_CoordY @"CoordY"
 #define kDVEventKey_HPChange @"HPChange"
@@ -38,6 +38,7 @@ typedef enum {
     DVEvent_Kill,
     DVEvent_Respawn,
     DVEvent_InitStats,
+    DVEvent_RemoveTile,
 } DVEventType;
 
 @class CoreGameLayer;

@@ -84,8 +84,8 @@ static NSMutableArray* _eventHistory;  // the entire event history of all Entiti
     CoreGameLayer* layer = (CoreGameLayer *)self.gameLayer;
     NSMutableDictionary* eventData = [NSMutableDictionary dictionaryWithObjectsAndKeys:
                                       [NSNumber numberWithInt:layer.timeStepIndex], kDVEventKey_TimeStepIndex,
-                                      self.entityType, kDVEventKey_EntityType,
-                                      [NSNumber numberWithInt:self.uniqueID], kDVEventKey_EntityID,
+                                      self.entityType, kDVEventKey_EntityOrLayerType,
+                                      [NSNumber numberWithInt:self.uniqueID], kDVEventKey_UniqueID,
                                       [NSNumber numberWithInt:event], kDVEventKey_EventType,
                                       nil];
     switch (event) {

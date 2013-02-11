@@ -383,10 +383,20 @@ static DVServerGameData* _serverGameData;
 {
     // load the TileMap and the tile layers
     _tileMap = [CCTMXTiledMap tiledMapWithTMXFile:@"TileMap.tmx"];
-    _background = [_tileMap layerNamed:@"Background"];
-    _meta = [_tileMap layerNamed:@"Meta"];
-    _foreground = [_tileMap layerNamed:@"Foreground"];
-    _destruction = [_tileMap layerNamed:@"Destruction"];
+    
+    _background = [CCCacheableTMXLayer layerFromCCTMXLayer:[_tileMap layerNamed:@"Background"]
+                                           InCoreGameLayer:self
+                                                    OfType:LayerType_Background];
+
+    _foreground = [CCCacheableTMXLayer layerFromCCTMXLayer:[_tileMap layerNamed:@"Foreground"]
+                                     InCoreGameLayer:self
+                                              OfType:LayerType_Foreground];
+    _destruction = [CCCacheableTMXLayer layerFromCCTMXLayer:[_tileMap layerNamed:@"Destruction"]
+                                           InCoreGameLayer:self
+                                                    OfType:LayerType_Destruction];
+    _meta = [CCCacheableTMXLayer layerFromCCTMXLayer:[_tileMap layerNamed:@"Meta"]
+                                            InCoreGameLayer:self
+                                                     OfType:LayerType_Meta];
     _meta.visible = NO;
 }
 
@@ -543,8 +553,8 @@ static DVServerGameData* _serverGameData;
             // pull out the key values
             int ownerID = [[eventInfo objectForKey:kDVEventKey_OwnerID] intValue];  // int
             DVEventType eventType = [[eventInfo objectForKey:kDVEventKey_EventType] intValue];  // DVEventType
-            NSString* entityType = [eventInfo objectForKey:kDVEventKey_EntityType];  // FIX: need to change this to an enum of entityType
-            int uniqueID = [[eventInfo objectForKey:kDVEventKey_EntityID] intValue]; // int
+            NSString* entityOrLayerType = [eventInfo objectForKey:kDVEventKey_EntityOrLayerType];  // FIX: need to change this to an enum of entityType
+            int uniqueID = [[eventInfo objectForKey:kDVEventKey_UniqueID] intValue]; // int
             
             int hpChange = 0;
             CGPoint location;
@@ -570,9 +580,9 @@ static DVServerGameData* _serverGameData;
                     break;
             }
             
-            DLog(@"ownerID %d, eventType %d, entityType %@, uniqueID %d, xCoord %f, yCoord %f",ownerID, eventType, entityType, uniqueID, location.x, location.y);
+            DLog(@"ownerID %d, eventType %d, entityType %@, uniqueID %d, xCoord %f, yCoord %f",ownerID, eventType, entityOrLayerType, uniqueID, location.x, location.y);
             
-            if ([entityType isEqualToString:kEntityTypePlayer]) // case 1: action to be performed on the thePlayer (_opponent or _player)
+            if ([entityOrLayerType isEqualToString:kEntityTypePlayer]) // case 1: action to be performed on the thePlayer (_opponent or _player)
             {
                 ++players;
                 Player* replayPlayer = _opponent; // guess first
@@ -613,7 +623,7 @@ static DVServerGameData* _serverGameData;
                 switch (eventType)
                 {
                     case DVEvent_Spawn:
-                        if([entityType isEqualToString:kEntityTypeBat])
+                        if([entityOrLayerType isEqualToString:kEntityTypeBat])
                         {
                             DLog(@"Spawning a bat...");
                             // NOTE: using *WithoutCache init method, so this spawn isn't logged again on the other player's device
@@ -630,7 +640,7 @@ static DVServerGameData* _serverGameData;
                              [NSDictionary dictionaryWithObject:bat forKey:[NSNumber numberWithInt:bat.uniqueID]]];
                             NSAssert(ownerPlayer.uniqueID == bat.owner.uniqueID, @"Bat owner ID and player ID not matching");
                         }
-                        else if([entityType isEqualToString:kEntityTypeMissile])
+                        else if([entityOrLayerType isEqualToString:kEntityTypeMissile])
                         {
                             DLog(@"Spawning a missile...");
                             Missile* missile = [[Missile alloc] initInLayerWithoutCache_AndAnimate:self
@@ -643,7 +653,7 @@ static DVServerGameData* _serverGameData;
                              [NSDictionary dictionaryWithObject:missile forKey:[NSNumber numberWithInt:missile.uniqueID]]];
                             DLog(@"missile ownedBy: %d == %d",ownerPlayer.uniqueID, missile.owner.uniqueID);
                         }
-                        else if([entityType isEqualToString:kEntityTypeShuriken])
+                        else if([entityOrLayerType isEqualToString:kEntityTypeShuriken])
                         {
                             DLog(@"Spawning a shuriken...");
                             Shuriken* shuriken = [[Shuriken alloc] initInLayerWithoutCache_AndAnimate:self
@@ -663,11 +673,11 @@ static DVServerGameData* _serverGameData;
                     case DVEvent_Kill:
                     {
                         NSDictionary* dictToSearch;
-                        if ([entityType isEqualToString:kEntityTypeBat])
+                        if ([entityOrLayerType isEqualToString:kEntityTypeBat])
                             dictToSearch = ownerPlayer.minions;
-                        else if ([entityType isEqualToString:kEntityTypeMissile])
+                        else if ([entityOrLayerType isEqualToString:kEntityTypeMissile])
                             dictToSearch = ownerPlayer.missiles;
-                        else if ([entityType isEqualToString:kEntityTypeShuriken])
+                        else if ([entityOrLayerType isEqualToString:kEntityTypeShuriken])
                             dictToSearch = ownerPlayer.shurikens;
                         NSAssert(dictToSearch != NULL, @"Couldnt find dict to search on ownerPlayer");
                         
@@ -684,6 +694,27 @@ static DVServerGameData* _serverGameData;
                     case DVEvent_Respawn:
                         ULog(@"Sorry not yet implemented");
                         break;
+                    case DVEvent_RemoveTile:
+                    {
+                        if([entityOrLayerType isEqualToString:kLayerTypeBackground])
+                        {
+                            [_background animateRemoveTileAtTileCoordinate:location afterDelay:delay];
+                        }
+                        else if([entityOrLayerType isEqualToString:kLayerTypeForeground])
+                        {
+                            [_foreground animateRemoveTileAtTileCoordinate:location afterDelay:delay];
+                        }
+                        else if([entityOrLayerType isEqualToString:kLayerTypeMeta])
+                        {
+                            [_meta animateRemoveTileAtTileCoordinate:location afterDelay:delay];
+                        }
+                        else if([entityOrLayerType isEqualToString:kLayerTypeDestruction])
+                        {
+                            [_destruction animateRemoveTileAtTileCoordinate:location afterDelay:delay];
+                        }
+                        else
+                            NSAssert(false, @"Unknown remove tile going into switch on playback");
+                    }
                     default:
                         NSAssert(false, @"Unknown event going into switch on playback");
                 } //switch (eventType)
@@ -692,7 +723,8 @@ static DVServerGameData* _serverGameData;
     }
     
     // playback all the events here
-    NSMutableArray* allEntities = [NSMutableArray arrayWithObjects: _player, _opponent, nil];
+    NSMutableArray* allEntities = [NSMutableArray arrayWithObjects: _player, _opponent,
+                                   _background, _foreground, _destruction, _meta, nil];
     [allEntities addObjectsFromArray:[_player.minions allValues]];
     [allEntities addObjectsFromArray:[_player.missiles allValues]];
     [allEntities addObjectsFromArray:[_player.shurikens allValues]];
@@ -700,8 +732,8 @@ static DVServerGameData* _serverGameData;
     [allEntities addObjectsFromArray:[_opponent.missiles allValues]];
     [allEntities addObjectsFromArray:[_opponent.shurikens allValues]];
     
-    for (EntityNode* entity in allEntities) {
-        [entity playActionsInSequence];
+    for (id replayableObject in allEntities) {
+        [replayableObject playActionsInSequence];
     }
 
     // DEBUG temporary
