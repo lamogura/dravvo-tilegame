@@ -17,5 +17,6 @@
 #define kCurrentGameIDKey @"gameID" // used to save/fetch from NSUserDefaults
 #define kDeviceToken @"deviceToken" // user to save the device token for APNS
 
-#define kBaseURL @"http://dravvo.ap01.aws.af.cm" // server
-//#define kBaseURL @"http://192.168.20.2:3000" // laptop
+//#define kBaseURL @"http://dravvo.ap01.aws.af.cm" // server
+//#define kBaseURL @"http://192.168.20.2:3000" // laptop through iphone
+#define kBaseURL @"http://192.168.1.116:3000" // server

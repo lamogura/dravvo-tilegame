@@ -169,14 +169,18 @@
     [_gameLayer saveGameState]; // CHECK maybe this should be done after posting was successful ??
     
     // TODO: remove, this is only for debug
-    NSString *urlString = [NSString stringWithFormat:@"%@/game/%@/fakeupdate",
-                           kBaseURL,
-                           [[NSUserDefaults standardUserDefaults] valueForKey:kCurrentGameIDKey]];
+//    NSString *urlString = [NSString stringWithFormat:@"%@/game/%@/fakeupdate",
+//                           kBaseURL,
+//                           [[NSUserDefaults standardUserDefaults] valueForKey:kCurrentGameIDKey]];
     
-    [_serverApi postToURL:urlString
-             UpdateEvents:[EntityNode CompleteEventHistory]
-       WithGameOverStatus:[_gameLayer getGameOverStatus]
-            ThenCallBlock:^(NSError *error)
+//    [_serverApi postToURL:urlString
+//             UpdateEvents:[EntityNode CompleteEventHistory]
+//       WithGameOverStatus:[_gameLayer getGameOverStatus]
+//            ThenCallBlock:^(NSError *error)
+    [_serverApi postUpdateEvents:[EntityNode CompleteEventHistory]
+              WithGameOverStatus:[_gameLayer getGameOverStatus]
+                   ThenCallBlock:
+     ^(NSError *error)
     {
         if (error != nil)
         {
@@ -197,8 +201,8 @@
         DLog(@"Notification received for gameID: %@", gameID);
         
         // fake initial guest turn
-        [[NSUserDefaults standardUserDefaults] removeObjectForKey:kCurrentGameIDKey];
-        [GameLifecycle deleteGameStateSave];
+//        [[NSUserDefaults standardUserDefaults] removeObjectForKey:kCurrentGameIDKey];
+//        [GameLifecycle deleteGameStateSave];
         
         // TODO: check if we are already playing, this should be a different check in the future for multiple games
         if ([[NSUserDefaults standardUserDefaults]valueForKey:kCurrentGameIDKey] == nil)
