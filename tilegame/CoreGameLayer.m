@@ -413,7 +413,7 @@ static DVServerGameData* _serverGameData;
 -(void) roundFinished
 {
     // let the game lifecycle listen and handle what to do
-    [[NSNotificationCenter defaultCenter] postNotificationName:kCoreGameRoundFinishedNotification object:self userInfo:nil];
+    [[NSNotificationCenter defaultCenter] postNotificationName:kCoreGameRoundFinishedNotification object:self];
 
 //    [self saveGameState];
     
@@ -736,7 +736,7 @@ static DVServerGameData* _serverGameData;
     // now schedule a callback for Our Turn (Player's Turn) after _timeStepIndex * kReplayTickLengthSeconds period
 //    [self scheduleOnce:@selector(transitionToNextTurn) delay:(_timeStepIndex * kReplayTickLengthSeconds+2)];
     // pause 2 seconds to allow for explosions and other animations to play before clearing the dead from the dicts
-    
+    [[NSNotificationCenter defaultCenter] postNotificationName:kCoreGamePlaybackFinishedNotification object:self];
 }
 
 -(void) transitionToNextTurn

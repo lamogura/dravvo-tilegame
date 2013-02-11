@@ -32,6 +32,7 @@ typedef enum {
 
 #define kCoreGameLayerTag 13 // for pulling out of scene getChildByTag
 #define kCoreGameRoundFinishedNotification @"coreGameRoundFinished" // used for notifications
+#define kCoreGamePlaybackFinishedNotification @"playbackGameRoundFinished" // used for notifications
 
 // for NSCoding
 #define kCoreGameSavegameKey @"savedGameKey"

@@ -146,12 +146,19 @@
                 [_gameLayer playbackEvents:status.updates];
                 
                 // start our turn
-                CountdownLayer* cdlayer = [[CountdownLayer alloc] initWithCountdownFrom:3
-                                                      AndCallBlockWhenCountdownFinished:
-                                           ^(id status) {
-                                               [_gameLayer startRound];
-                                           }];
-                [gameScene addChild:cdlayer];
+                [[NSNotificationCenter defaultCenter] addObserverForName:kCoreGamePlaybackFinishedNotification
+                                                                  object:_gameLayer
+                                                                   queue:nil
+                                                              usingBlock:
+                 ^(NSNotification *note)
+                {
+                    CountdownLayer* cdlayer = [[CountdownLayer alloc] initWithCountdownFrom:3
+                                                          AndCallBlockWhenCountdownFinished:
+                       ^(id status) {
+                           [_gameLayer startRound];
+                       }];
+                    [gameScene addChild:cdlayer];
+                }];
                 
                 [[NSNotificationCenter defaultCenter] addObserver:self
                                                          selector:@selector(roundHasFinished:)
@@ -162,6 +169,11 @@
                 [[CCDirector sharedDirector] pushScene:[AwaitingMoveLayer scene]];
         }
     }];
+}
+
+-(void) playbackHasFinished:(NSNotification *) notification
+{
+    
 }
 
 -(void) roundHasFinished:(NSNotification *) notification
