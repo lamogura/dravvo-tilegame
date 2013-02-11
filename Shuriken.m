@@ -92,7 +92,7 @@ static int _uniqueIDCounter = 0;
         [self cacheStateForEvent:DVEvent_Spawn];
         
         // add ourself to GameCoreLayer's dict to set up for collision detections
-        [layer.collidableProjectiles addEntriesFromDictionary:[NSDictionary dictionaryWithObject:self forKey:[NSNumber numberWithInt:self.uniqueID]]];
+        [layer.collidableProjectiles addObject:self];
         [self.gameLayer addChild:self];
     }
     return self;
@@ -162,10 +162,38 @@ static int _uniqueIDCounter = 0;
     }
     
     int distancePixels = (int) (self.speedInPixelsPerSec * kTickLengthSeconds);
-    id actionMove = [CCMoveBy actionWithDuration:kTickLengthSeconds position:ccpMult(ccpNormalize(ccpSub(self.targetPoint,self.sprite.position)), distancePixels)];
+    id actionMove = [CCMoveBy actionWithDuration:kTickLengthSeconds
+                                        position:ccpMult(ccpNormalize(ccpSub(self.targetPoint,self.sprite.position)), distancePixels)];
 
     [self.sprite runAction:actionMove];
     
+}
+
+- (void)encodeWithCoder:(NSCoder *)coder
+{
+    [super encodeWithCoder:coder];
+}
+
+- (id)initWithCoder:(NSCoder *)coder
+{
+    if (self = [super initWithCoder:coder])
+    {
+        [[SimpleAudioEngine sharedEngine] playEffect:@"shurikenSound.m4a"];
+        
+        self.entityType = kEntityTypeShuriken;
+        
+        // set Shuriken's stats
+        self.hitPoints = kEntityShurikenHitPoints;
+        self.speedInPixelsPerSec = kEntityShurikenSpeedPPS;
+        self.damage = kShurikenDamage;
+        self.sprite = [CCSprite spriteWithFile:@"Projectile.png"];
+        self.sprite.position = self.lastPoint;
+        
+        self.strikingRange = self.speedInPixelsPerSec * kTickLengthSeconds; // distance the weapon can travel in 1 update tick length
+        
+        [self addChild:self.sprite];
+    }
+    return self;
 }
 
 @end

@@ -85,7 +85,7 @@ typedef enum {
 @property (nonatomic, assign) int eventArrayIndex;
 @property (nonatomic, strong) Player* player; // always the local player
 @property (nonatomic, strong) Player* opponent; // always the local player
-@property (nonatomic, strong) NSMutableDictionary* collidableProjectiles;
+@property (nonatomic, strong) NSMutableArray* collidableProjectiles;
 @property (nonatomic, strong) NSMutableDictionary* historicalEventsDict;
 
 // change related consts if you ever any of these properties used in KVO
@@ -102,7 +102,8 @@ typedef enum {
 -(void) setPlayerPosition:(CGPoint) position; // FIX maybe this shoudl be more flexible
 -(CGPoint) pixelToPoint:(CGPoint) pixelPoint;
 -(CGSize) pixelToPointSize:(CGSize) pixelSize;
-+(void)setTileArray:(uint32_t *)pArray ForLayer:(CCTMXLayer *)pLayer;
++(void) setTileArray:(uint32_t *)pArray ForLayer:(CCTMXLayer *)pLayer;
+-(void) putViewportOnOpponent;
 
 -(void) explosionAt:(CGPoint) hitLocation effectingArea:(CGRect) area infilctingDamage:(int)damage weaponID:(int)weaponID;
 

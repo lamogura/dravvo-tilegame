@@ -103,7 +103,6 @@ static int _uniqueIDCounter = 0;
         [self.gameLayer addChild:self];
         
         self.strikingRange = self.speedInPixelsPerSec * kTickLengthSeconds; // distance the weapon can travel in 1 update tick length
-        
     }
     return self;
 }
@@ -211,5 +210,44 @@ static int _uniqueIDCounter = 0;
     
 }
 
+- (void)encodeWithCoder:(NSCoder *)coder
+{
+    [super encodeWithCoder:coder];
+}
+
+- (id)initWithCoder:(NSCoder *)coder
+{
+    if (self = [super initWithCoder:coder])
+    {
+        [[SimpleAudioEngine sharedEngine] playEffect:@"missileSound.m4a"];
+
+        self.entityType = kEntityTypeMissile;
+        
+        // set Missile's stats
+        self.hitPoints = kEntityMissileHitPoints;
+        self.speedInPixelsPerSec = kEntityMissileSpeedPPS;
+        self.damage = kMissileDamage;
+        
+        self.sprite = [CCSprite spriteWithFile:@"missile.png"];
+        
+        self.sprite.position = self.lastPoint;
+        
+        // set the missiles rotation angle
+        CGPoint diff = ccpSub(self.targetPoint, self.sprite.position);
+        
+        float angleRadians = atanf(diff.y / (float)diff.x);
+        float angleDegrees = CC_RADIANS_TO_DEGREES(angleRadians);
+        float cocosAngle = -1 * angleDegrees - 90;
+        if(self.targetPoint.x > self.sprite.position.x)
+            cocosAngle += 180;
+        
+        self.sprite.rotation = cocosAngle;
+        
+        [self addChild:self.sprite];
+        
+        self.strikingRange = self.speedInPixelsPerSec * kTickLengthSeconds; // distance the weapon can travel in 1 update tick length
+    }
+    return self;
+}
 
 @end

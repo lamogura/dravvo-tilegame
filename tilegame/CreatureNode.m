@@ -46,7 +46,6 @@
 {
     [super encodeWithCoder:coder];
 
-    [coder encodeInt:self.speedInPixelsPerSec forKey:CreatureNodeSpeedInPixelsPerSec];
     [coder encodeInt:(int)self.behavior forKey:CreatureNodeBehavior];
     [coder encodeObject:self.owner forKey:CreatureNodeOwner];
 }

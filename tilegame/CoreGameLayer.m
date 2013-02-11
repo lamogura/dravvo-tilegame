@@ -333,17 +333,27 @@ static DVServerGameData* _serverGameData;
         _player = [coder decodeObjectForKey:kCoreGameNSCodingKey_Player];
         [self addChild:self.player];
         
-        for (Bat* bat in [_player.minions allValues]) {
-            bat.gameLayer = self;
-            [self addChild:bat];
-        }
-        
         _opponent = [coder decodeObjectForKey:kCoreGameNSCodingKey_Opponent];
         [self addChild:self.opponent];
         
-        for (Bat* bat in [_opponent.minions allValues]) {
-            bat.gameLayer = self;
-            [self addChild:bat];
+        NSMutableArray* allNonPlayerEntities = [[NSMutableArray alloc] init];
+        [allNonPlayerEntities addObjectsFromArray:[_player.minions allValues]];
+        [allNonPlayerEntities addObjectsFromArray:[_player.missiles allValues]];
+        [allNonPlayerEntities addObjectsFromArray:[_player.shurikens allValues]];
+        [allNonPlayerEntities addObjectsFromArray:[_opponent.minions allValues]];
+        [allNonPlayerEntities addObjectsFromArray:[_opponent.missiles allValues]];
+        [allNonPlayerEntities addObjectsFromArray:[_opponent.shurikens allValues]];
+
+        for (EntityNode* entity in allNonPlayerEntities) {
+            [self addChild:entity];
+        }
+
+        for (Shuriken* shuriken in _player.shurikens) {
+            [self.collidableProjectiles addObject:shuriken];
+        }
+        
+        for (Shuriken* shuriken in _opponent.shurikens) {
+            [self.collidableProjectiles addObject:shuriken];
         }
         
         [self setViewpointCenter:_player.sprite.position];
@@ -354,7 +364,7 @@ static DVServerGameData* _serverGameData;
 -(void) initSettings
 {
     _apiWrapper = [[DVAPIWrapper alloc] init]; // init the wrapper class for the api
-    _collidableProjectiles = [[NSMutableDictionary alloc] init];
+    _collidableProjectiles = [[NSMutableArray alloc] init];
     
     // touches
     _touches = [[NSMutableArray alloc ] init]; // store the touches for missile launching
@@ -629,7 +639,7 @@ static DVServerGameData* _serverGameData;
                                                                                       withUniqueID:uniqueID
                                                                                         afterDelay:delay];
                             
-                            [_player.missiles addEntriesFromDictionary:
+                            [ownerPlayer.missiles addEntriesFromDictionary:
                              [NSDictionary dictionaryWithObject:missile forKey:[NSNumber numberWithInt:missile.uniqueID]]];
                             DLog(@"missile ownedBy: %d == %d",ownerPlayer.uniqueID, missile.owner.uniqueID);
                         }
@@ -642,7 +652,7 @@ static DVServerGameData* _serverGameData;
                                                                                          withUniqueID:uniqueID
                                                                                            afterDelay:delay];
                             
-                            [_player.shurikens addEntriesFromDictionary:
+                            [ownerPlayer.shurikens addEntriesFromDictionary:
                              [NSDictionary dictionaryWithObject:shuriken forKey:[NSNumber numberWithInt:shuriken.uniqueID]]];
                             DLog(@"shuriken ownedBy: %d == %d",ownerPlayer.uniqueID, shuriken.owner.uniqueID);
                         }
@@ -694,14 +704,25 @@ static DVServerGameData* _serverGameData;
         [entity playActionsInSequence];
     }
 
-    [self setViewpointCenter:_opponent.lastPoint];
-    
     // DEBUG temporary
     // now schedule a callback for Our Turn (Player's Turn) after _timeStepIndex * kReplayTickLengthSeconds period
 //    [self scheduleOnce:@selector(transitionToNextTurn) delay:(_timeStepIndex * kReplayTickLengthSeconds+2)];
     // pause 2 seconds to allow for explosions and other animations to play before clearing the dead from the dicts
-    [self scheduleOnce:@selector(playbackFinished) delay:kTurnLengthSeconds];
+    [self scheduleOnce:@selector(playbackFinished) delay:kTurnLengthSeconds]; // call notification
+
+    float refreshInterval = 0.5;
+    [self schedule:@selector(putViewportOnOpponent)
+          interval:refreshInterval
+            repeat:(kTurnLengthSeconds/refreshInterval)
+             delay:0];
+    
 }
+
+-(void) putViewportOnOpponent
+{
+    [self setViewpointCenter:_opponent.sprite.position];
+}
+
 -(void) playbackFinished
 {
     [[NSNotificationCenter defaultCenter] postNotificationName:kCoreGamePlaybackFinishedNotification object:self];
@@ -819,7 +840,7 @@ static DVServerGameData* _serverGameData;
     NSMutableArray* weaponsToDelete = [[NSMutableArray alloc] init];
     
     // DEBUG: change from EntityNode* to Weapon*
-    for(WeaponNode* weapon in [self.collidableProjectiles allValues])
+    for(WeaponNode* weapon in _collidableProjectiles)
     {
         NSMutableArray *targetsToDelete = [[NSMutableArray alloc] init];
 
@@ -855,7 +876,9 @@ static DVServerGameData* _serverGameData;
     
     // remove all the projectiles that hit.
     for (WeaponNode* weapon in weaponsToDelete)
-        [self.collidableProjectiles removeObjectForKey:[NSNumber numberWithInt:weapon.uniqueID]];
+    {
+        [_collidableProjectiles removeObject:weapon];
+    }
 }
 
 #pragma mark - Helpers
@@ -1057,6 +1080,8 @@ static DVServerGameData* _serverGameData;
     }
 
 }
+
+
 
 // FIX: change EntityNode to being a weapon, in the list of weapons
 -(void) explosionAt:(CGPoint) hitLocation effectingArea:(CGRect) area infilctingDamage:(int)damage weaponID:(int)weaponID

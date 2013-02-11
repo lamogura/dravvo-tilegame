@@ -21,7 +21,7 @@
 
 //@class EntityNode;
 
-@interface Shuriken : WeaponNode
+@interface Shuriken : WeaponNode <NSCoding>
 
 -(id)initInLayer:(CoreGameLayer *)layer atSpawnPoint:(CGPoint)spawnPoint withTargetPoint:(CGPoint)targetPoint ownedBy:(EntityNode *)owner;
 //-(id)initInLayerWithoutCache_AndAnimate:(CoreGameLayer *)layer atSpawnPoint:(CGPoint)spawnPoint withTargetPoint:(CGPoint)targetPoint ownedBy:(EntityNode *)owner afterDelay:(ccTime) delay;

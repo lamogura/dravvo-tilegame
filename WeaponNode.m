@@ -17,19 +17,10 @@
 @synthesize damage = _damage;
 
 
--(id)initInLayer:(CoreGameLayer *)layer atSpawnPoint:(CGPoint)spawnPoint
-{
-    if(self = [super initInLayer:layer atSpawnPoint:spawnPoint])
-    {
-        
-    }
-    return self;
-}
-
 
 -(void)collidedWith:(EntityNode*)entityType
 {
-    
+    // TODO: implement
 }
 
 -(NSMutableDictionary *)cacheStateForEvent:(DVEventType)event {
@@ -40,5 +31,22 @@
     return eventData;
 }
 
+- (void)encodeWithCoder:(NSCoder *)coder
+{
+    [super encodeWithCoder:coder];
+
+    [coder encodeCGPoint:_targetPoint forKey:WeaponNodeTargetPoint];
+    [coder encodeObject:_owner forKey:WeaponNodeOwner];
+}
+
+- (id)initWithCoder:(NSCoder *)coder
+{
+    if (self = [super initWithCoder:coder])
+    {
+        _targetPoint = [coder decodeCGPointForKey:WeaponNodeTargetPoint];
+        _owner = [coder decodeObjectForKey:WeaponNodeOwner];
+    }
+    return self;
+}
 
 @end

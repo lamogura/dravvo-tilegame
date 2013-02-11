@@ -350,7 +350,7 @@ static NSMutableArray* _eventHistory;  // the entire event history of all Entiti
 //        _isAlive = [coder decodeBoolForKey:EntityNodeIsAlive];
 //        _entityType = [coder decodeObjectForKey:EntityNodeEntityType];
         
-        self.sprite.position = _lastPoint = [coder decodeCGPointForKey:EntityNodePosition];
+        _lastPoint = [coder decodeCGPointForKey:EntityNodePosition];
     }
     return self;
 }
