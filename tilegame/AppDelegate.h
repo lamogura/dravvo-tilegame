@@ -8,6 +8,7 @@
 
 #import <UIKit/UIKit.h>
 #import "cocos2d.h"
+#import "GameLifecycle.h"
 
 @interface AppController : NSObject <UIApplicationDelegate, CCDirectorDelegate>
 {
@@ -15,6 +16,7 @@
 	UINavigationController *navController_;
 
 	CCDirectorIOS	*__unsafe_unretained director_;							// weak ref
+    GameLifecycle* _gameLifecycle;
 }
 
 @property (nonatomic) UIWindow *window;

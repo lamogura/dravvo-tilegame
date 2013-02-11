@@ -28,7 +28,6 @@
 	// Create the main window
 	window_ = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
 
-
 	// Create an CCGLView with a RGB565 color buffer, and a depth buffer of 0-bits
 	CCGLView *glView = [CCGLView viewWithFrame:[window_ bounds]
 								   pixelFormat:kEAGLColorFormatRGB565	//kEAGLColorFormatRGBA8
@@ -92,7 +91,7 @@
 	[CCTexture2D PVRImagesHavePremultipliedAlpha:YES];
 
     // start the game
-    [GameLifecycle start];
+    self->_gameLifecycle = [GameLifecycle start];
     
 	return YES;
 }
@@ -117,6 +116,9 @@
 	return UIInterfaceOrientationIsLandscape(interfaceOrientation);
 }
 
+-(void) application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo {
+    [_gameLifecycle processNotification:userInfo];
+}
 
 // getting a call, pause the game
 -(void) applicationWillResignActive:(UIApplication *)application

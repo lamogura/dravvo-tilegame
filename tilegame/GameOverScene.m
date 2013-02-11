@@ -37,7 +37,7 @@
                          [CCCallBlock actionWithBlock:^{
             // FIX should show report of points and stats!
             // try re-starting another new game
-            [[CCDirector sharedDirector] replaceScene:[NewGameLayer scene]];
+//            [[CCDirector sharedDirector] replaceScene:[NewGameLayer scene]];
         }], nil]];
     }
     return self;

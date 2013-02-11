@@ -13,7 +13,13 @@
 
 @interface GameLifecycle : NSObject
 
-+(void) start;
 +(void) deleteGameStateSave;
++(GameLifecycle *) start;
+
+-(void) roundHasFinished:(NSNotification *) notification;
+-(void) processNotification:(NSDictionary *) notificationInfo;
+
+-(void) playNewGame;
+-(void) playNextRoundInGameWithID:(NSString *)gameID;
 
 @end

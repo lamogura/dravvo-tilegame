@@ -17,16 +17,18 @@
 
 @interface DVAPIWrapper : NSObject
 
++ (DVAPIWrapper *) wrapper; // convenience method
+
 - (id) init;
 
 // creates a new game object on the server and returns the inital game status
 - (void) postCreateNewGameThenCallBlock:(void (^)(NSError* error, DVServerGameData* status))block;
 
 // gets the current game status from the server
-- (void) getGameStatusThenCallBlock:(void (^)(NSError* error, DVServerGameData* status))block;
+- (void) getGameStatusForID:(NSString *)gameID ThenCallBlock:(void (^)(NSError* error, DVServerGameData* status))block;
 
-// post a dict of updates ex. {"melonsEaten":5} that needs to be sent to the opponent
-// include {"isGameOver":"true"} in the dict when you have an update that ends the game
-- (void) postUpdateGameWithUpdates:(NSDictionary *)updates ThenCallBlock:(void (^)(NSError* error))block;
+- (void) postUpdateEvents:(NSArray *)events WithGameOverStatus:(GameOverStatus)status ThenCallBlock:(void (^)(NSError* error))block;
 
+// use this to debug different things
+- (void) postToURL:(NSString *)urlString UpdateEvents:(NSArray *)events WithGameOverStatus:(GameOverStatus)status ThenCallBlock:(void (^)(NSError* error))block;
 @end

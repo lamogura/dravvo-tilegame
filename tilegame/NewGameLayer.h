@@ -11,6 +11,7 @@
 
 @interface NewGameLayer : CCLayerColor
 
-+(CCScene *) scene;
++(CCScene *) sceneWithBlockCalledOnNewGameClicked:(void (^)(id sender))block;
+-(id) initWithBlockCalledOnNewGameClicked:(void (^)(id sender))block;
 
 @end

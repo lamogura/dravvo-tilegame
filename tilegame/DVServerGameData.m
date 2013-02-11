@@ -11,25 +11,27 @@
 
 @implementation DVServerGameData
 
-@synthesize gameID;
-@synthesize createdAt;
+@synthesize gameID = _gameID;
+@synthesize createdAt = _createdAt;
 
-@synthesize nextTurn;
-@synthesize lastUpdates;
-@synthesize isGameOver;
+@synthesize nextTurn = _nextTurn;
+@synthesize updates = _updates;
+@synthesize gameOverStatus = _gameOverStatus;
 
-- (id)initWithDictionary:(NSDictionary *) dict {
-    self = [super init];
-    if (self) {
+- (id)initWithDictionary:(NSDictionary *) dict
+{
+    if (self=[super init])
+    {
         self.gameID = [dict objectForKey:@"_id"];
         self.nextTurn = [dict objectForKey:@"nextTurn"];
         
-        if ([dict objectForKey:@"lastUpdate"] != [NSNull null]) {
+        if ([dict objectForKey:@"lastUpdate"] != [NSNull null])
+        {
             NSString* updatesAsJSON = [dict objectForKey:@"lastUpdate"];
-            self.lastUpdates = [updatesAsJSON JSONValue];
+            self.updates = [updatesAsJSON JSONValue];
         }
         
-        self.isGameOver  = [@"true" isEqualToString:[dict objectForKey:@"isGameOver"]] ? YES : NO;
+        self.gameOverStatus = [[dict objectForKey:@"isGameOver"] intValue];
         
         NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
         formatter.dateFormat = @"yyyy-MM-dd'T'HH:mm:ss.SSS";
@@ -40,7 +42,8 @@
     return self;
 }
 
-- (id)initWithJSONString:(NSString *)jsonString {
+- (id)initWithJSONString:(NSString *)jsonString
+{
     return [[DVServerGameData alloc] initWithDictionary:[jsonString JSONValue]];
 }
 

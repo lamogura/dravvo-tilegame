@@ -20,17 +20,18 @@
 
 // possible initialization methods of CoreGameLayer
 typedef enum {
-    NewGameAsHost,  // a new game is started with you as the host
+    NewGameAsHost,
     NewGameAsGuest,  // a new game is started with you as the guest: I. Guest Player's initialization, II. playback, III. Guest player's move
-    ReloadReplay,
+    LoadSavedGame,
 //    BeginNextTurn,  // start with playback, then player's move
 //    Resume,  // Player closed the app before the JSON update could be sent to server - continue from where left off if possible
-} CoreGameRoundType;
+} CoreGameInitType;
 
 @class CoreGameHudLayer;
 @class Player;
 
 #define kCoreGameLayerTag 13 // for pulling out of scene getChildByTag
+#define kCoreGameRoundFinishedNotification @"coreGameRoundFinished" // used for notifications
 
 // for NSCoding
 #define kCoreGameSavegameKey @"savedGameKey"
@@ -71,10 +72,11 @@ typedef enum {
 
 +(void) setServerGameData:(DVServerGameData*) gameData; // static storing last gameData update
 +(void) changeNumPlaybacksRunningBy:(int) change;
-// returns a CCScene that contains the HelloWorldLayer as the only child
-+(CCScene *) scene:(CoreGameRoundType) initType;
 
--(id) initFromSavedGameState;
+// returns a CCScene that contains the HelloWorldLayer as the only child
++(CCScene *) sceneWithInitType:(CoreGameInitType) type;
+
+-(id) initFromSavedGame;
 
 @property (nonatomic, strong) CoreGameHudLayer* hud;
 @property (nonatomic, assign) int timeStepIndex; // should count up to 10 or 20, to get to a 10 second round
@@ -116,6 +118,7 @@ typedef enum {
 -(void) roundFinished;
 -(void) playbackEvents:(NSArray *)events;
 -(void) transitionToNextTurn;
+-(GameOverStatus) getGameOverStatus;
 
 +(NSString*) SavegamePath;
 

@@ -22,10 +22,10 @@ typedef enum {
     DVPlayerMode_Shooting,
 } DVPlayerMode;
 
-typedef enum {
+enum DVPLayerRole {
     DVPlayerHost = 1,
     DVPlayerGuest,
-} DVPLayerRole;
+};
 
 @class CoreGameLayer;
 

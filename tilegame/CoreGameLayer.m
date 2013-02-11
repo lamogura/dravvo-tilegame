@@ -67,20 +67,20 @@ static DVServerGameData* _serverGameData;
 
 // Helper class method that creates a Scene with the HelloWorldLayer as the only child.
 // What calls this class??
-+(CCScene *) scene:(CoreGameRoundType) initType
++(CCScene *) sceneWithInitType:(CoreGameInitType) type;
 {
 	CCScene *scene = [CCScene node];
     CoreGameLayer *gameLayer;
     
-    switch (initType) {
+    switch (type) {
         case NewGameAsHost:
             gameLayer = [[CoreGameLayer alloc] initAsPlayerWithRole:(int)DVPlayerHost];
             break;
         case NewGameAsGuest:
             gameLayer = [[CoreGameLayer alloc] initAsPlayerWithRole:(int)DVPlayerGuest];
             break;
-        case ReloadReplay:
-            gameLayer = [[CoreGameLayer alloc] initFromSavedGameState];
+        case LoadSavedGame:
+            gameLayer = [[CoreGameLayer alloc] initFromSavedGame];
             break;
         default:
             ULog(@"Some unknown initType sent to CoreGameLayer scene()");
@@ -149,12 +149,12 @@ static DVServerGameData* _serverGameData;
                 DLog(@"CGPoint:%f,%f",playerSpawnPoint.x,playerSpawnPoint.y);
                 
                 _player = [[Player alloc] initInLayer:self atSpawnPoint:playerSpawnPoint withUniqueIntID:(int)pRole withShurikens:kInitShurikens withMissles:kInitMissiles];
-                _player.deviceToken = [[NSUserDefaults standardUserDefaults] valueForKey:kDeviceToken];
+                _player.deviceToken = [[NSUserDefaults standardUserDefaults] valueForKey:kDeviceToken]; // TODO: remove this, probably not needed
             }
         }
 
         // don't need to save this as member var - only for opponent instantiation for enemy target
-        DVPLayerRole opponentRole = (pRole == DVPlayerHost) ? DVPlayerGuest : DVPlayerHost;
+        enum DVPLayerRole opponentRole = (pRole == DVPlayerHost) ? DVPlayerGuest : DVPlayerHost;
         
         // DEBUG for now, spawn opponent as Player 2 (assuming we are host not guest
         for(spawnPointsDict in [playerSpawnObjects objects])
@@ -212,9 +212,12 @@ static DVServerGameData* _serverGameData;
         [self addChild:_tileMap z:-1];
 //        [self startRound];
         
-        CountdownLayer* cdlayer = [[CountdownLayer alloc] initWithCountdownFrom:3 AndCallBlockWhenCountdownFinished:^(id status) {
-            [self startRound];
-        }];
+        CountdownLayer* cdlayer = [[CountdownLayer alloc] initWithCountdownFrom:3
+                                              AndCallBlockWhenCountdownFinished:
+                                   ^(id status)
+                                    {
+                                        [self startRound];
+                                    }];
         
         [self.parent addChild:cdlayer];
     }
@@ -255,7 +258,7 @@ static DVServerGameData* _serverGameData;
     [data writeToFile:[CoreGameLayer SavegamePath] atomically:YES];
 }
 
--(id) initFromSavedGameState
+-(id) initFromSavedGame
 {
     // Reload all state variables, including map, player, minion instances and display sprites, etc
     NSString* path = [CoreGameLayer SavegamePath];
@@ -409,21 +412,30 @@ static DVServerGameData* _serverGameData;
 
 -(void) roundFinished
 {
+    // let the game lifecycle listen and handle what to do
+    [[NSNotificationCenter defaultCenter] postNotificationName:kCoreGameRoundFinishedNotification object:self userInfo:nil];
+
 //    [self saveGameState];
     
     self.isTouchEnabled = NO;
     // temp only - replace with server game data object
     
-    NSArray* allEvents = [EntityNode CompleteEventHistory];
-    DLog(@"allEvents count = %d",[allEvents count]);
-
-    [self playbackEvents:allEvents];
+//    NSArray* allEvents = [EntityNode CompleteEventHistory];
+//    DLog(@"allEvents count = %d", [allEvents count]);
+//
+//    [self playbackEvents:allEvents];
     /*
     // transition to a waiting for opponent scene, ideally displaying current stats (maybe keep HUD up)
     GameOverScene *gameOverScene = [GameOverScene node];
     [gameOverScene.layer.label setString:@"Round Finished!"];
     [[CCDirector sharedDirector] replaceScene:gameOverScene];
      */
+}
+
+- (GameOverStatus)getGameOverStatus
+{
+    // TODO: implement, returning fake value now
+    return GameOverStatus_Ongoing;
 }
 
 - (void) win {
@@ -548,17 +560,22 @@ static DVServerGameData* _serverGameData;
             
             if ([entityType isEqualToString:kEntityTypePlayer]) // case 1: action to be performed on the thePlayer (_opponent or _player)
             {
+                Player* replayPlayer = _opponent; // guess first
+                if (uniqueID != replayPlayer.uniqueID)
+                    replayPlayer = _player;
+                NSAssert(uniqueID == replayPlayer.uniqueID, @"Not finding correct player by uniqueID");
+
                 switch (eventType)
                 {
                     case DVEvent_Wound:
-                        [_opponent animateTakeDamage:hpChange];
+                        [replayPlayer animateTakeDamage:hpChange];
                         break;
                     case DVEvent_Move:
                         DLog("cacheing move for _player to point: %f, %f",location.x, location.y);
-                        [_opponent animateMove:location];
+                        [replayPlayer animateMove:location];
                         break;
                     case DVEvent_Kill:  // This is NOT a real kill as it would be for minions; the Player remains instantiated, just respawns, re-inits, etc
-                        [_opponent animateKill:location];  // this call takes care of everything, sounds, respawn, re-init
+                        [replayPlayer animateKill:location];  // this call takes care of everything, sounds, respawn, re-init
                         // for now, animateKill also takes care of DVEvent_InitStats and DVEvent_Respawn, which are no longer cached anyway
                         break;
                     default:
@@ -593,7 +610,7 @@ static DVServerGameData* _serverGameData;
                                                                           withUniqueID:uniqueID
                                                                             afterDelay:delay];  // amount of time that will have passed til this _timeStepIndex
                             
-                            [_player.minions addEntriesFromDictionary:
+                            [ownerPlayer.minions addEntriesFromDictionary:
                              [NSDictionary dictionaryWithObject:bat forKey:[NSNumber numberWithInt:bat.uniqueID]]];
                             NSAssert(ownerPlayer.uniqueID == bat.owner.uniqueID, @"Bat owner ID and player ID not matching");
                         }
@@ -659,10 +676,18 @@ static DVServerGameData* _serverGameData;
     }
     
     // playback all the events here
-    DLog(@"_player playActionsInSequence");
-    [_player playActionsInSequence];
-    DLog(@"_opponent playActionsInSequence");
-    [_opponent playActionsInSequence];
+//    int counter = 0
+//    NSMutableArray* allEntities = [NSMutableArray arrayWithObjects: _player, _opponent, nil];
+//    [allEntities addObjectsFromArray:[_player.minions allValues]];
+//    [allEntities addObjectsFromArray:[_player.missiles allValues]];
+//    [allEntities addObjectsFromArray:[_player.shurikens allValues]];
+//    [allEntities addObjectsFromArray:[_opponent.minions allValues]];
+//    [allEntities addObjectsFromArray:[_opponent.missiles allValues]];
+//    [allEntities addObjectsFromArray:[_opponent.shurikens allValues]];
+//    for (EntityNode* entity in allEntities) {
+//        [entity playActionsInSequence];
+//    }
+    
     int counter = 0;
     for (EntityNode* minion in [_player.minions allValues])  // EntityNode
     {
@@ -709,7 +734,7 @@ static DVServerGameData* _serverGameData;
 
     // DEBUG temporary
     // now schedule a callback for Our Turn (Player's Turn) after _timeStepIndex * kReplayTickLengthSeconds period
-    [self scheduleOnce:@selector(transitionToNextTurn) delay:(_timeStepIndex * kReplayTickLengthSeconds+2)];
+//    [self scheduleOnce:@selector(transitionToNextTurn) delay:(_timeStepIndex * kReplayTickLengthSeconds+2)];
     // pause 2 seconds to allow for explosions and other animations to play before clearing the dead from the dicts
     
 }
