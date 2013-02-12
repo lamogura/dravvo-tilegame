@@ -729,7 +729,7 @@
 		CEF138A616C7C901004CF9A9 /* AwaitingMoveScene.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AwaitingMoveScene.h; path = tilegame/AwaitingMoveScene.h; sourceTree = "<group>"; };
 		CEF138A716C7C901004CF9A9 /* AwaitingMoveScene.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AwaitingMoveScene.m; path = tilegame/AwaitingMoveScene.m; sourceTree = "<group>"; };
 		CEF138A916C7F93F004CF9A9 /* TileMap.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = TileMap.caf; sourceTree = "<group>"; };
-		DC0C49F1154AB4DD00B4B727 /* tilegame2.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = tilegame2.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		DC0C49F1154AB4DD00B4B727 /* tilegame.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = tilegame.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DC0C49F5154AB4DD00B4B727 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		DC0C49F7154AB4DD00B4B727 /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
 		DC0C49F9154AB4DD00B4B727 /* OpenAL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenAL.framework; path = System/Library/Frameworks/OpenAL.framework; sourceTree = SDKROOT; };
@@ -1333,7 +1333,7 @@
 		DC0C49F2154AB4DD00B4B727 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				DC0C49F1154AB4DD00B4B727 /* tilegame2.app */,
+				DC0C49F1154AB4DD00B4B727 /* tilegame.app */,
 				DC0C4B87154AB55A00B4B727 /* libcocos2d-library.a */,
 			);
 			name = Products;
@@ -1507,9 +1507,9 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
-		DC0C49F0154AB4DD00B4B727 /* tilegame2 */ = {
+		DC0C49F0154AB4DD00B4B727 /* tilegame */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = DC0C4B80154AB4DF00B4B727 /* Build configuration list for PBXNativeTarget "tilegame2" */;
+			buildConfigurationList = DC0C4B80154AB4DF00B4B727 /* Build configuration list for PBXNativeTarget "tilegame" */;
 			buildPhases = (
 				DC0C49ED154AB4DD00B4B727 /* Sources */,
 				DC0C49EE154AB4DD00B4B727 /* Frameworks */,
@@ -1519,9 +1519,9 @@
 			);
 			dependencies = (
 			);
-			name = tilegame2;
+			name = tilegame;
 			productName = tilegame;
-			productReference = DC0C49F1154AB4DD00B4B727 /* tilegame2.app */;
+			productReference = DC0C49F1154AB4DD00B4B727 /* tilegame.app */;
 			productType = "com.apple.product-type.application";
 		};
 		DC0C4B86154AB55A00B4B727 /* cocos2d-library */ = {
@@ -1549,7 +1549,7 @@
 			attributes = {
 				LastUpgradeCheck = 0460;
 			};
-			buildConfigurationList = DC0C49EB154AB4DD00B4B727 /* Build configuration list for PBXProject "tilegame2" */;
+			buildConfigurationList = DC0C49EB154AB4DD00B4B727 /* Build configuration list for PBXProject "tilegame" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
@@ -1561,7 +1561,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				DC0C49F0154AB4DD00B4B727 /* tilegame2 */,
+				DC0C49F0154AB4DD00B4B727 /* tilegame */,
 				DC0C4B86154AB55A00B4B727 /* cocos2d-library */,
 			);
 		};
@@ -1859,7 +1859,7 @@
 					"-lz",
 					"-ObjC",
 				);
-				PRODUCT_NAME = tilegame2;
+				PRODUCT_NAME = tilegame;
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
 				WRAPPER_EXTENSION = app;
 			};
@@ -1880,7 +1880,7 @@
 					"-lz",
 					"-ObjC",
 				);
-				PRODUCT_NAME = tilegame2;
+				PRODUCT_NAME = tilegame;
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
 				VALIDATE_PRODUCT = YES;
 				WRAPPER_EXTENSION = app;
@@ -1926,7 +1926,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		DC0C49EB154AB4DD00B4B727 /* Build configuration list for PBXProject "tilegame2" */ = {
+		DC0C49EB154AB4DD00B4B727 /* Build configuration list for PBXProject "tilegame" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				DC0C4B7E154AB4DF00B4B727 /* Debug */,
@@ -1935,7 +1935,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		DC0C4B80154AB4DF00B4B727 /* Build configuration list for PBXNativeTarget "tilegame2" */ = {
+		DC0C4B80154AB4DF00B4B727 /* Build configuration list for PBXNativeTarget "tilegame" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				DC0C4B81154AB4DF00B4B727 /* Debug */,

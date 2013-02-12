@@ -389,7 +389,7 @@ static DVServerGameData* _serverGameData;
     _destruction = [[CCTMXLayerWrapper alloc] initWithlayerFromTileMap:_tileMap InCoreGameLayer:self OfType:LayerType_Destruction];
     _meta = [[CCTMXLayerWrapper alloc] initWithlayerFromTileMap:_tileMap InCoreGameLayer:self OfType:LayerType_Meta];
 
-    _meta.visible = NO;
+    _meta.tmxLayer.visible = NO;
 }
 
 -(void) initAudio
@@ -560,6 +560,7 @@ static DVServerGameData* _serverGameData;
                     DLog(@"DVEvent_Wound found!");
                     hpChange = [[eventInfo objectForKey:kDVEventKey_HPChange] intValue];
                     break;
+                case DVEvent_RemoveTile: // remove tile
                 case DVEvent_Spawn: // spawn
                 case DVEvent_Move:  // move
                 case DVEvent_Kill:  // kill
@@ -606,11 +607,11 @@ static DVServerGameData* _serverGameData;
                 Player* ownerPlayer = _player; // guess first
                 if (ownerID != ownerPlayer.uniqueID)
                     ownerPlayer = _opponent;
-                NSAssert(ownerID == ownerPlayer.uniqueID, @"Not finding correct player by ownerID");
+//                NSAssert(ownerID == ownerPlayer.uniqueID, @"Not finding correct player by ownerID");
                 
                 DLog("A Player's minions case"); // FIX use right vocab!
                 // if this is a minion spawn, must instantiate and add to the minions list with appropriate uniqueID
-                const ccTime delay = _timeStepIndex * kReplayTickLengthSeconds;
+                float delay = timeStep * kReplayTickLengthSeconds;
                 
                 switch (eventType)
                 {
@@ -707,6 +708,7 @@ static DVServerGameData* _serverGameData;
                         else
                             NSAssert(false, @"Unknown remove tile going into switch on playback");
                     }
+                        break;
                     default:
                         NSAssert(false, @"Unknown event going into switch on playback");
                 } //switch (eventType)
