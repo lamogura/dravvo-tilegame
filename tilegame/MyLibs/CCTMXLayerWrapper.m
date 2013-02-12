@@ -9,7 +9,7 @@
 #import "CCTMXLayerWrapper.h"
 #import "cocos2d.h"
 #import "CoreGameLayer.h"
-#import "CCSequenceHelper.h"
+#import "CCSequence+Helper.h"
 
 @implementation CCTMXLayerWrapper
 
@@ -111,7 +111,7 @@
  	// cycyle through actionsto be played array playing actions to be played
  	for(NSMutableArray* actionsToBePlayed in self.actionsToBePlayedArray)
  	{
-        [self runAction:[CCSequenceHelper actionMutableArray:actionsToBePlayed]];
+        [self runAction:[CCSequence actionMutableArray:actionsToBePlayed]];
  	}
  	
  	

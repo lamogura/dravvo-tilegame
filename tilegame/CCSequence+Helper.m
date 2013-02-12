@@ -10,15 +10,15 @@
 
 @implementation CCSequence (Helper)
 
-+(id) actionMutableArray: (NSMutableArray*) _actionList {
++(id) actionMutableArray: (NSMutableArray *)actionList
+{
 	CCFiniteTimeAction *now;
-	CCFiniteTimeAction *prev = [_actionList objectAtIndex:0];
+	CCFiniteTimeAction *prev = [actionList objectAtIndex:0];
     
-	for (int i = 1 ; i < [_actionList count] ; i++) {
-		now = [_actionList objectAtIndex:i];
+	for (int i = 1 ; i < [actionList count] ; i++) {
+		now = [actionList objectAtIndex:i];
 		prev = [CCSequence actionOne: prev two: now];
 	}
-    
 	return prev;
 }
 

@@ -11,5 +11,6 @@
 
 @interface CCSequence (Helper)
 
-    +(id) actionMutableArray: (NSMutableArray*) actionList_;
++(id) actionMutableArray: (NSMutableArray *)actionList;
+
 @end

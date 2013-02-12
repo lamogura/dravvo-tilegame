@@ -16,8 +16,7 @@
 #import "GameOverScene.h"
 #import "DVConstants.h"
 #import "gameConstants.h"
-//#import "CCSequence+Helper.h"
-#import "CCSequenceHelper.h"
+#import "CCSequence+Helper.h"
 
 #import "Libs/SBJSON/SBJson.h"
 

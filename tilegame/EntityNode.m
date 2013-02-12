@@ -13,8 +13,7 @@
 #import "EntityNode.h"
 #import "CoreGameLayer.h"
 #import "GameConstants.h"
-//#import "CCSequence+Helper.h"
-#import "CCSequenceHelper.h"
+#import "CCSequence+Helper.h"
 
 static NSMutableArray* _eventHistory;  // the entire event history of all Entitiy's
 //static int _numAnimationsPlaying;
@@ -270,7 +269,7 @@ static NSMutableArray* _eventHistory;  // the entire event history of all Entiti
 
     [_actionsToBePlayed addObject:actionCallFunc];  // change to this for multiplay
 
-    [self.sprite runAction:[CCSequenceHelper actionMutableArray:self->_actionsToBePlayed]];
+    [self.sprite runAction:[CCSequence actionMutableArray:self->_actionsToBePlayed]];
     
     DLog(@"Finished pushing actions sequence!!!");
     //    [self.sprite runAction:actionMove];
@@ -298,7 +297,7 @@ static NSMutableArray* _eventHistory;  // the entire event history of all Entiti
     
 //    [_actionsToBePlayed addObject:actionCallFunc];  // change to this for multiplay
     
-    [self.sprite runAction:[CCSequenceHelper actionMutableArray:self->_actionsToBePlayed]];
+    [self.sprite runAction:[CCSequence actionMutableArray:self->_actionsToBePlayed]];
     
     DLog(@"Finished pushing actions sequence!!!");
     //    [self.sprite runAction:actionMove];
