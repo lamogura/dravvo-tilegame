@@ -8,11 +8,11 @@
 
 #import <Foundation/Foundation.h>
 
-typedef enum {
+typedef NS_ENUM(NSInteger, GameOverStatus) {
     GameOverStatus_Ongoing = 0,
     GameOverStatus_HostWin,
     GameOverStatus_GuestWin,
-} GameOverStatus;
+};
 
 @interface DVServerGameData : NSObject
 

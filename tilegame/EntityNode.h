@@ -29,7 +29,7 @@
 #define kEntityTypeShuriken @"shuriken"
 
 // possible events
-typedef enum {
+typedef NS_ENUM(NSInteger, DVEventType) {
     DVEvent_Spawn,
     DVEvent_Move,
     DVEvent_Wound,
@@ -37,7 +37,7 @@ typedef enum {
     DVEvent_Respawn,
     DVEvent_InitStats,
     DVEvent_RemoveTile,
-} DVEventType;
+};
 
 @class CoreGameLayer;
 

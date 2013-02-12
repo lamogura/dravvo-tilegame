@@ -24,7 +24,7 @@ static int _uniqueIDCounter = 0;
     return _uniqueIDCounter++;
 }
 
--(id)initInLayerWithoutCache:(CoreGameLayer *)layer atSpawnPoint:(CGPoint)spawnPoint withBehavior:(DVCreatureBehavior)behavior ownedBy:(EntityNode *)owner
+-(id)initInLayerWithoutCache:(CoreGameLayer *)layer atSpawnPoint:(CGPoint)spawnPoint withBehavior:(CreatureBehavior)behavior ownedBy:(EntityNode *)owner
 {
     if(self = [super initInLayer:layer atSpawnPoint:spawnPoint withBehavior:behavior ownedBy:(EntityNode *)owner])
     {
@@ -50,7 +50,7 @@ static int _uniqueIDCounter = 0;
    
 }
 
--(id)initInLayerWithoutCache_AndAnimate:(CoreGameLayer *)layer atSpawnPoint:(CGPoint)spawnPoint withBehavior:(DVCreatureBehavior)behavior ownedBy:(EntityNode *)owner withUniqueID:(int)uniqueID afterDelay:(ccTime) delay
+-(id)initInLayerWithoutCache_AndAnimate:(CoreGameLayer *)layer atSpawnPoint:(CGPoint)spawnPoint withBehavior:(CreatureBehavior)behavior ownedBy:(EntityNode *)owner withUniqueID:(int)uniqueID afterDelay:(ccTime) delay
 {
     if(self = [super initInLayer:layer atSpawnPoint:spawnPoint withBehavior:behavior ownedBy:(EntityNode *)owner])
     {
@@ -88,7 +88,7 @@ static int _uniqueIDCounter = 0;
 }
 
 
--(id)initInLayer:(CoreGameLayer *)layer atSpawnPoint:(CGPoint)spawnPoint withBehavior:(DVCreatureBehavior)behavior ownedBy:(EntityNode *)owner
+-(id)initInLayer:(CoreGameLayer *)layer atSpawnPoint:(CGPoint)spawnPoint withBehavior:(CreatureBehavior)behavior ownedBy:(EntityNode *)owner
 {
     if(self = [super initInLayer:layer atSpawnPoint:spawnPoint withBehavior:behavior ownedBy:(EntityNode *)owner])
     {
@@ -154,10 +154,10 @@ static int _uniqueIDCounter = 0;
     // behavior must = kBehavior_idle in the case of re-playing opponent's last actions
     // begin doing shit with this entity (moving, attacking, etc)
     switch (self.behavior) {
-        case DVCreatureBehaviorIdle:
+        case CreatureBehavior_Idle:
             // do nothing but idle at sprite's location
             break;
-        case DVCreatureBehaviorDefault:
+        case CreatureBehavior_Default:
         {
             //rotate to face the opponent
             CoreGameLayer* layer = (CoreGameLayer *)self.gameLayer;
@@ -248,7 +248,7 @@ static int _uniqueIDCounter = 0;
         // set bat's stats
         self.speedInPixelsPerSec = kEntityBatSpeedPPS;
         
-        if(self.owner.uniqueID == (int)DVPlayerGuest)
+        if(self.owner.uniqueID == (int)PlayerRole_Guest)
             self.sprite = [CCSprite spriteWithFile:@"batRed.png"];
         else
             self.sprite = [CCSprite spriteWithFile:@"batGreen.png"];

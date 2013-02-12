@@ -17,7 +17,7 @@
 @synthesize owner = _owner;
 @synthesize entityType = _entityType;
 
--(id)initInLayer:(CoreGameLayer *)layer atSpawnPoint:(CGPoint)spawnPoint withBehavior:(DVCreatureBehavior)behavior ownedBy:(EntityNode *)owner
+-(id)initInLayer:(CoreGameLayer *)layer atSpawnPoint:(CGPoint)spawnPoint withBehavior:(CreatureBehavior)behavior ownedBy:(EntityNode *)owner
 {
     if (self = [super initInLayer:layer atSpawnPoint:spawnPoint]) {
         self->_behavior = behavior;
@@ -55,7 +55,7 @@
     if (self = [super initWithCoder:coder])
     {
         _speedInPixelsPerSec = [coder decodeIntForKey:CreatureNodeSpeedInPixelsPerSec];
-        _behavior = (DVCreatureBehavior)[coder decodeIntForKey:CreatureNodeBehavior];
+        _behavior = [coder decodeIntForKey:CreatureNodeBehavior];
         _owner = [coder decodeObjectForKey:CreatureNodeOwner];
     }
     return self;

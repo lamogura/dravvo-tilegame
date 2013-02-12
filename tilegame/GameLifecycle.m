@@ -53,14 +53,14 @@
     return lifecycle;
 }
 
-+(void) deleteGameStateSave
++(void) deleteSaveGame:(NSString *)saveGamePath
 {
-    NSString* path = [CoreGameLayer SavegamePath];
-    if ([[NSFileManager defaultManager] fileExistsAtPath:path])
+    if ([[NSFileManager defaultManager] fileExistsAtPath:saveGamePath])
     {
         NSError* error;
-        [[NSFileManager defaultManager] removeItemAtPath:path error:(&error)];
-        if (error != nil) ULog(@"%@", [error localizedDescription]);
+        [[NSFileManager defaultManager] removeItemAtPath:saveGamePath error:(&error)];
+        if (error != nil)
+            ULog(@"%@", [error localizedDescription]);
     }
 }
 
@@ -81,9 +81,9 @@
             {
                 DLog(@"Saving gameID to defaults: %@", status.gameID);
                 [[NSUserDefaults standardUserDefaults] setObject:status.gameID forKey:kUserDefaultsKey_GameID];
-                
+
                 // In this case, we are the HOST of the new game, so we get playerID = 1, GUEST will get 2
-                CCScene* gameScene = [CoreGameLayer sceneWithInitType:NewGameAsHost];
+                CCScene* gameScene = [CoreGameLayer sceneNewGameForPlayerRole:PlayerRole_Host];
                 _gameLayer = (CoreGameLayer *)[gameScene getChildByTag:kCoreGameLayerTag];
                 
                 [[CCDirector sharedDirector] replaceScene:gameScene];
@@ -110,6 +110,55 @@
 
 }
 
+-(void) roundHasFinished:(NSNotification *) notification
+{
+    NSString* gameID = [[NSUserDefaults standardUserDefaults] valueForKey:kUserDefaultsKey_GameID];
+    NSString* deviceToken = [[NSUserDefaults standardUserDefaults] valueForKey:kUserDefaultsKey_DeviceToken];
+
+#if LONELY_DEBUG
+    NSFileManager* fileMgr = [NSFileManager defaultManager];
+    NSString* lastTurnSavePath = [CoreGameLayer saveGamePathOfLastPlayersTurn];
+    NSString* nextTurnSavePath = [CoreGameLayer saveGamePath];
+
+    // swap save games so next time we will be resuming from other players turn
+    if ([fileMgr fileExistsAtPath:lastTurnSavePath]) // every round after 1
+    {
+        [GameLifecycle deleteSaveGame:nextTurnSavePath]; // if exists
+        NSError* error;
+        [fileMgr moveItemAtPath:lastTurnSavePath
+                         toPath:nextTurnSavePath
+                          error:&error];
+        if (error != nil)
+            ULog(@"%@", [error localizedDescription]);
+    }
+    else // first round so also remove gameID since guest player wouldnt have it
+        [[NSUserDefaults standardUserDefaults] removeObjectForKey:kUserDefaultsKey_GameID];
+    
+    [_gameLayer saveGameStateToPath:lastTurnSavePath];
+#else
+    // CHECK maybe this should be done after posting was successful ??
+    [_gameLayer saveGameStateToPath:[CoreGameLayer saveGamePath]];
+#endif
+
+    
+    [[DVAPIWrapper staticWrapper] postGameUpdates:[EntityNode sharedEventHistory]
+                                   gameOverStatus:[_gameLayer getGameOverStatus]
+                                        forGameID:gameID
+                                      deviceToken:deviceToken
+                                    callbackBlock:^(NSError *error)
+     {
+         if (error != nil)
+         {
+             ULog(@"%@", [error localizedDescription]);
+         }
+         else
+         {
+             [EntityNode clearEventHistory];
+             [[CCDirector sharedDirector] replaceScene:[AwaitingMoveLayer scene]];
+         }
+     }];
+}
+
 // TODO: add passed param to play a specific game ID for multiple game handling, now only assuming 1
 -(void) playNextRoundInGameWithID:(NSString *)gameID
 {
@@ -129,18 +178,18 @@
             if ([status.nextTurn isEqualToString:deviceToken]) // my turn
             {
                 // load last scene
-                DLog(@"Loading CoreGame from savegame '%@'", [CoreGameLayer SavegamePath]);
+                DLog(@"Loading CoreGame from savegame '%@'", [CoreGameLayer saveGamePath]);
 
                 CCScene* gameScene;
                 if ([[NSUserDefaults standardUserDefaults] valueForKey:kUserDefaultsKey_GameID])
                 {
-                    gameScene = [CoreGameLayer sceneWithInitType:LoadSavedGame];
+                    gameScene = [CoreGameLayer sceneWithGameFromSavedGame:[CoreGameLayer saveGamePath]];
                 }
                 else // we havent saved the gameID so must be first round of GUEST game
                 {
                     // TODO: make it more transparent why it is we are calling a newGameAsGuest here
                     [[NSUserDefaults standardUserDefaults] setValue:gameID forKey:kUserDefaultsKey_GameID];
-                    gameScene = [CoreGameLayer sceneWithInitType:NewGameAsGuest];
+                    gameScene = [CoreGameLayer sceneNewGameForPlayerRole:PlayerRole_Guest];
                 }
 
                 _gameLayer = (CoreGameLayer *)[gameScene getChildByTag:kCoreGameLayerTag];
@@ -176,40 +225,6 @@
     }];
 }
 
--(void) roundHasFinished:(NSNotification *) notification
-{
-    [_gameLayer saveGameState]; // CHECK maybe this should be done after posting was successful ??
-    
-    // TODO: remove, this is only for debug
-//    NSString *urlString = [NSString stringWithFormat:@"%@/game/%@/fakeupdate",
-//                           kBaseURL,
-//                           [[NSUserDefaults standardUserDefaults] valueForKey:kCurrentGameIDKey]];
-    
-//    [_serverApi postToURL:urlString
-//             UpdateEvents:[EntityNode CompleteEventHistory]
-//       WithGameOverStatus:[_gameLayer getGameOverStatus]
-//            ThenCallBlock:^(NSError *error)
-    NSString* gameID = [[NSUserDefaults standardUserDefaults] valueForKey:kUserDefaultsKey_GameID];
-    NSString* deviceToken = [[NSUserDefaults standardUserDefaults] valueForKey:kUserDefaultsKey_DeviceToken];
-    
-    [[DVAPIWrapper staticWrapper] postGameUpdates:[EntityNode sharedEventHistory]
-                                   gameOverStatus:[_gameLayer getGameOverStatus]
-                                        forGameID:gameID
-                                      deviceToken:deviceToken
-                                    callbackBlock:^(NSError *error)
-    {
-        if (error != nil)
-        {
-            ULog(@"%@", [error localizedDescription]);
-        }
-        else
-        {
-            [EntityNode clearEventHistory];
-            [[CCDirector sharedDirector] replaceScene:[AwaitingMoveLayer scene]];
-        }
-    }];
-}
-
 -(void) processNotification:(NSDictionary *) notificationInfo
 {
     NSString* gameID;
@@ -229,7 +244,7 @@
         [self playNextRoundInGameWithID:gameID];
     }
     else
-        ULog(@"didnt receive gameid in notification payload");
+        ULog(@"didnt receive gameid in notification info");
 }
 
 -(void) dealloc

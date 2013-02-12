@@ -16,20 +16,8 @@
 #define kDVAPIWrapperErrorDomain @"DVAPIWrapperErrorDomain" // used for creating new NSError obj from this class
 
 //#define kDVAPIServerURL @"http://dravvo.ap01.aws.af.cm" // server
-#define kDVAPIServerURL @"http://192.168.20.2:3000" // laptop through iphone
-//#define kDVAPIServerURL @"http://192.168.1.116:3000" // server
-
-
-// string formats for API
-#define kDVAPIGetUpdateURL @"%@/game/%@"
-#define kDVAPINewGameURL @"%@/game/new"
-
-// mock the update back to our own device
-#if LONELY_DEBUG
-#define kDVAPIPostGameUpdateURL @"%@/game/%@/update"
-#else
-#define kDVAPIPostGameUpdateURL @"%@/game/%@/mockupdate"
-#endif
+//#define kDVAPIServerURL @"http://192.168.20.2:3000" // laptop through iphone
+#define kDVAPIServerURL @"http://192.168.1.116:3000" // laptop through router
 
 @interface DVAPIWrapper : NSObject
 

@@ -46,7 +46,7 @@
         self->_minions = [[NSMutableDictionary alloc] init];
         self->_missiles = [[NSMutableDictionary alloc] init];
         self->_shurikens = [[NSMutableDictionary alloc] init];
-        self.mode = DVPlayerMode_Moving;
+        self.mode = PlayerMode_Moving;
         
         // set Player's initial stats
         [self initStats];
@@ -267,7 +267,7 @@
         [[SimpleAudioEngine sharedEngine] playEffect:@"DMRespawn.m4r"];  // preload creature sounds
         self.isDead = NO;
        
-        self.mode = DVPlayerMode_Moving;
+        self.mode = PlayerMode_Moving;
        
         if(self.uniqueID == 1)
             self.sprite = [CCSprite spriteWithFile:@"PlayerGreen.png"];

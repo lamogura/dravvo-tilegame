@@ -80,10 +80,11 @@ typedef enum {
 +(void) setServerGameData:(DVServerGameData*) gameData; // static storing last gameData update
 +(void) changeNumPlaybacksRunningBy:(int) change;
 
-// returns a CCScene that contains the HelloWorldLayer as the only child
-+(CCScene *) sceneWithInitType:(CoreGameInitType) type;
+// returns a scene of the coregamelayer + HUD etc
++(CCScene *) sceneNewGameForPlayerRole:(PlayerRole)playerRole;
++(CCScene *) sceneWithGameFromSavedGame:(NSString *)saveGamePath;
 
--(id) initFromSavedGame;
+-(id) initFromSaveGamePath:(NSString *)path;
 -(void) playbackFinished;
 
 @property (nonatomic, strong) CoreGameHudLayer* hud;
@@ -114,13 +115,13 @@ typedef enum {
 -(void) explosionAt:(CGPoint) hitLocation effectingArea:(CGRect) area infilctingDamage:(int)damage weaponID:(int)weaponID;
 
 // init helpers
--(id) initAsPlayerWithRole:(int)pRole; // FIX it wont take my enum for some reason ??
+-(id) initAsPlayerWithRole:(PlayerRole)pRole; // FIX it wont take my enum for some reason ??
 -(void) initSettings;
 -(void) initTilemap;
 -(void) initAudio;
 
 // lifecycle functions
--(void) saveGameState;
+-(void) saveGameStateToPath:(NSString *)path; //TODO add error handling
 -(void) startRound;
 -(void) win;
 -(void) lose;
@@ -129,6 +130,8 @@ typedef enum {
 //-(void) transitionToNextTurn;
 -(GameOverStatus) getGameOverStatus;
 
-+(NSString*) SavegamePath;
-
++(NSString*) saveGamePath;
+#if LONELY_DEBUG
++(NSString *) saveGamePathOfLastPlayersTurn;
+#endif
 @end

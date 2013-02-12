@@ -62,35 +62,36 @@ static DVServerGameData* _serverGameData;
     NumPlaybacksMethodsRunning += increment;
 }
 
-// Helper class method that creates a Scene with the HelloWorldLayer as the only child.
-// What calls this class??
-+(CCScene *) sceneWithInitType:(CoreGameInitType) type;
++(CCScene *) sceneNewGameForPlayerRole:(PlayerRole)playerRole
 {
 	CCScene *scene = [CCScene node];
-    CoreGameLayer *gameLayer;
+    CoreGameLayer *gameLayer = [[CoreGameLayer alloc] initAsPlayerWithRole:(int)playerRole];
+    //            gameLayer = [[CoreGameLayer alloc] initFromSavedGamePath:[CoreGameLayer SavegamePath]];
     
-    switch (type) {
-        case NewGameAsHost:
-            gameLayer = [[CoreGameLayer alloc] initAsPlayerWithRole:(int)DVPlayerHost];
-            break;
-        case NewGameAsGuest:
-            gameLayer = [[CoreGameLayer alloc] initAsPlayerWithRole:(int)DVPlayerGuest];
-            break;
-        case LoadSavedGame:
-            gameLayer = [[CoreGameLayer alloc] initFromSavedGame];
-            break;
-        default:
-            ULog(@"Some unknown initType sent to CoreGameLayer scene()");
-            break;
-    }
     gameLayer.tag = kCoreGameLayerTag; // FIX this ugliness, its used to get the layer from the scene obj in the lifecycle
-
+    
     // store a member var reference to the hud so we can refer back to it to reset the label strings!
     gameLayer.hud = [[CoreGameHudLayer alloc] initWithCoreGameLayer:gameLayer];
-
+    
  	[scene addChild:gameLayer];
     [scene addChild:gameLayer.hud];
+    
+	return scene;
+}
 
++(CCScene *) sceneWithGameFromSavedGame:(NSString *)saveGamePath
+{
+	CCScene *scene = [CCScene node];
+    CoreGameLayer *gameLayer = [[CoreGameLayer alloc] initFromSaveGamePath:saveGamePath];
+    
+    gameLayer.tag = kCoreGameLayerTag; // FIX this ugliness, its used to get the layer from the scene obj in the lifecycle
+    
+    // store a member var reference to the hud so we can refer back to it to reset the label strings!
+    gameLayer.hud = [[CoreGameHudLayer alloc] initWithCoreGameLayer:gameLayer];
+    
+ 	[scene addChild:gameLayer];
+    [scene addChild:gameLayer.hud];
+    
 	return scene;
 }
 /*
@@ -123,7 +124,7 @@ static DVServerGameData* _serverGameData;
 
 #pragma mark - Game Lifecycle
 
--(id) initAsPlayerWithRole:(int) pRole
+-(id) initAsPlayerWithRole:(PlayerRole) pRole
 {
 	if (self=[super init])
     {
@@ -151,7 +152,7 @@ static DVServerGameData* _serverGameData;
         }
 
         // don't need to save this as member var - only for opponent instantiation for enemy target
-        enum DVPLayerRole opponentRole = (pRole == DVPlayerHost) ? DVPlayerGuest : DVPlayerHost;
+        PlayerRole opponentRole = (pRole == PlayerRole_Host) ? PlayerRole_Guest : PlayerRole_Host;
         
         // DEBUG for now, spawn opponent as Player 2 (assuming we are host not guest
         for(spawnPointsDict in [playerSpawnObjects objects])
@@ -189,7 +190,7 @@ static DVServerGameData* _serverGameData;
 
                 Bat *bat = [[Bat alloc] initInLayer:self
                                        atSpawnPoint:enemySpawnPoint
-                                       withBehavior:DVCreatureBehaviorDefault
+                                       withBehavior:CreatureBehavior_Default
                                             ownedBy:_player];                
                 
 //                [eventData addEntriesFromDictionary:
@@ -238,27 +239,33 @@ static DVServerGameData* _serverGameData;
 //    _touches = [[NSMutableArray alloc ] init]; // store the touches for missile launching
 //}
 
-+(NSString*) SavegamePath
++(NSString*) saveGamePath
 {
     NSString *gameID = [[NSUserDefaults standardUserDefaults] objectForKey:kUserDefaultsKey_GameID];
     NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
     return [NSString stringWithFormat:@"%@/%@.plist", [paths objectAtIndex:0], gameID];
 }
 
--(void) saveGameState //TODO add error handling
+#if LONELY_DEBUG
++(NSString *) saveGamePathOfLastPlayersTurn
+{
+    return [NSString stringWithFormat:@"%@.old", [CoreGameLayer saveGamePath]];
+}
+#endif
+
+-(void) saveGameStateToPath:(NSString *)path //TODO add error handling
 {
     NSMutableData *data = [[NSMutableData alloc] init];
     NSKeyedArchiver *archiver = [[NSKeyedArchiver alloc] initForWritingWithMutableData:data];
     
     [archiver encodeObject:self forKey:kCoreGameSavegameKey];
     [archiver finishEncoding];
-    [data writeToFile:[CoreGameLayer SavegamePath] atomically:YES];
+    [data writeToFile:path atomically:YES];
 }
 
--(id) initFromSavedGame
+-(id) initFromSaveGamePath:(NSString *)path
 {
     // Reload all state variables, including map, player, minion instances and display sprites, etc
-    NSString* path = [CoreGameLayer SavegamePath];
     if ([[NSFileManager defaultManager] fileExistsAtPath:path])
     {
         NSData *codedData = [[NSData alloc] initWithContentsOfFile:path];
@@ -621,7 +628,7 @@ static DVServerGameData* _serverGameData;
                             //                Bat* minion = [[Bat alloc] initInLayer:self atSpawnPoint:ccp((int)xCoord, (int)yCoord)];
                             Bat *bat = [[Bat alloc] initInLayerWithoutCache_AndAnimate:self
                                                                           atSpawnPoint:location
-                                                                          withBehavior:DVCreatureBehaviorDefault
+                                                                          withBehavior:CreatureBehavior_Default
                                                                                ownedBy:ownerPlayer
                                                                           withUniqueID:uniqueID
                                                                             afterDelay:delay];  // amount of time that will have passed til this _timeStepIndex
@@ -1053,7 +1060,7 @@ static DVServerGameData* _serverGameData;
         
     }
     // shuriken throw
-    else if (_player.mode == DVPlayerMode_Shooting && self.player.numShurikens > 0)
+    else if (_player.mode == PlayerMode_Shooting && self.player.numShurikens > 0)
     {
         self.player.numShurikens--;
         
@@ -1067,7 +1074,7 @@ static DVServerGameData* _serverGameData;
         [self.player.shurikens addEntriesFromDictionary:[NSDictionary dictionaryWithObject:shuriken forKey:[NSNumber numberWithInt:shuriken.uniqueID]]];
     }
     // _player move
-    else if(_player.mode == DVPlayerMode_Moving)
+    else if(_player.mode == PlayerMode_Moving)
     {
         CGPoint touchLocation = [touch locationInView: [touch view]];
         touchLocation = [[CCDirector sharedDirector] convertToGL: touchLocation];

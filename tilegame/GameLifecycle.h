@@ -13,7 +13,7 @@
 
 @interface GameLifecycle : NSObject
 
-+(void) deleteGameStateSave;
++(void) deleteSaveGame:(NSString *)saveGamePath;
 +(GameLifecycle *) startWithOptions:(NSDictionary *)launchOptions;
 
 -(void) roundHasFinished:(NSNotification *) notification;

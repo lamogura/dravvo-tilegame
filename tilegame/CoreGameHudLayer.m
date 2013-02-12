@@ -23,10 +23,10 @@
         CCMenuItemToggle* itemToggle = [CCMenuItemToggle
                                         itemWithItems:[NSArray arrayWithObjects:off, on, nil]
                                         block:^(id sender) {
-                                            if (layer.player.mode == DVPlayerMode_Moving)
-                                                layer.player.mode = DVPlayerMode_Shooting;
+                                            if (layer.player.mode == PlayerMode_Moving)
+                                                layer.player.mode = PlayerMode_Shooting;
                                             else
-                                                layer.player.mode = DVPlayerMode_Moving;
+                                                layer.player.mode = PlayerMode_Moving;
                                         }];
         CCMenu *toggleMenu = [CCMenu menuWithItems:itemToggle, nil];
         toggleMenu.position = ccp(100, 32);

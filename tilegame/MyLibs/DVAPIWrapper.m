@@ -36,7 +36,7 @@ static DVAPIWrapper* _wrapper;
 {
     DLog(@"Fetching status for GameID: %@", gameID);
     
-    NSString *urlString = [NSString stringWithFormat:kDVAPIGetUpdateURL, kDVAPIServerURL, gameID];
+    NSString *urlString = [NSString stringWithFormat:@"%@/game/%@", kDVAPIServerURL, gameID];
     NSURL *url = [NSURL URLWithString:urlString];
     NSURLRequest *req = [NSURLRequest requestWithURL:url cachePolicy:NSURLRequestReloadIgnoringLocalCacheData timeoutInterval:30.0];
 
@@ -95,7 +95,7 @@ static DVAPIWrapper* _wrapper;
 {
     DLog(@"Using device token for post to server: %@", deviceToken);
     
-    NSString *urlString = [NSString stringWithFormat:kDVAPINewGameURL, kDVAPIServerURL];
+    NSString *urlString = [NSString stringWithFormat:@"%@/game/new", kDVAPIServerURL];
     NSURL *url = [NSURL URLWithString:urlString];
     
     NSString *dataString = [NSString stringWithFormat:@"deviceToken=%@", deviceToken];
@@ -162,9 +162,13 @@ static DVAPIWrapper* _wrapper;
     NSAssert(updates != nil, @"updates was nil");
     
     DLog(@"Updating game status for GameID: %@", gameID);
-
-    NSString *urlString = [NSString stringWithFormat:kDVAPIPostGameUpdateURL, kDVAPIServerURL, gameID];
-
+    
+#if LONELY_DEBUG
+    NSString *urlString = [NSString stringWithFormat:@"%@/game/%@/mockupdate", kDVAPIServerURL, gameID];
+#else
+    NSString *urlString = [NSString stringWithFormat:@"%@/game/%@/update", kDVAPIServerURL, gameID];
+#endif
+    
     DLog(@"Using device token for post: %@", deviceToken);
    
     SBJsonWriter* jwriter = [[SBJsonWriter alloc] init];
