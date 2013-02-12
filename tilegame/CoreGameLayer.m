@@ -14,7 +14,6 @@
 #import "AppDelegate.h"
 #import "SimpleAudioEngine.h"
 #import "GameOverScene.h"
-#import "DVConstants.h"
 #import "gameConstants.h"
 #import "CCSequence+Helper.h"
 
@@ -147,7 +146,7 @@ static DVServerGameData* _serverGameData;
                 DLog(@"CGPoint:%f,%f",playerSpawnPoint.x,playerSpawnPoint.y);
                 
                 _player = [[Player alloc] initInLayer:self atSpawnPoint:playerSpawnPoint withUniqueIntID:(int)pRole withShurikens:kInitShurikens withMissles:kInitMissiles];
-                _player.deviceToken = [[NSUserDefaults standardUserDefaults] valueForKey:kDeviceToken]; // TODO: remove this, probably not needed
+                _player.deviceToken = [[NSUserDefaults standardUserDefaults] valueForKey:kUserDefaultsKey_DeviceToken]; // TODO: remove this, probably not needed
             }
         }
 
@@ -241,7 +240,7 @@ static DVServerGameData* _serverGameData;
 
 +(NSString*) SavegamePath
 {
-    NSString *gameID = [[NSUserDefaults standardUserDefaults] objectForKey:kCurrentGameIDKey];
+    NSString *gameID = [[NSUserDefaults standardUserDefaults] objectForKey:kUserDefaultsKey_GameID];
     NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
     return [NSString stringWithFormat:@"%@/%@.plist", [paths objectAtIndex:0], gameID];
 }
@@ -382,10 +381,10 @@ static DVServerGameData* _serverGameData;
     // load the TileMap and the tile layers
     _tileMap = [CCTMXTiledMap tiledMapWithTMXFile:@"TileMap.tmx"];
 
-    _background = [[CCTMXLayerWrapper alloc] initWithlayerFromTileMap:_tileMap InCoreGameLayer:self OfType:LayerType_Background];
-    _foreground = [[CCTMXLayerWrapper alloc] initWithlayerFromTileMap:_tileMap InCoreGameLayer:self OfType:LayerType_Foreground];
-    _destruction = [[CCTMXLayerWrapper alloc] initWithlayerFromTileMap:_tileMap InCoreGameLayer:self OfType:LayerType_Destruction];
-    _meta = [[CCTMXLayerWrapper alloc] initWithlayerFromTileMap:_tileMap InCoreGameLayer:self OfType:LayerType_Meta];
+    _background = [[CCTMXLayerWrapper alloc] initFromTileMap:_tileMap inCoreGameLayer:self layerType:LayerType_Background];
+    _foreground = [[CCTMXLayerWrapper alloc] initFromTileMap:_tileMap inCoreGameLayer:self layerType:LayerType_Foreground];
+    _destruction = [[CCTMXLayerWrapper alloc] initFromTileMap:_tileMap inCoreGameLayer:self layerType:LayerType_Destruction];
+    _meta = [[CCTMXLayerWrapper alloc] initFromTileMap:_tileMap inCoreGameLayer:self layerType:LayerType_Meta];
 
     _meta.tmxLayer.visible = NO;
 }
@@ -687,52 +686,53 @@ static DVServerGameData* _serverGameData;
                         break;
                     case DVEvent_RemoveTile:
                     {
-                        if([entityOrLayerType isEqualToString:kLayerTypeBackground])
+                        if([entityOrLayerType isEqualToString:kLayerName_Background])
                         {
                             [_background animateRemoveTileAtTileCoordinate:location afterDelay:delay];
                         }
-                        else if([entityOrLayerType isEqualToString:kLayerTypeForeground])
+                        else if([entityOrLayerType isEqualToString:kLayerName_Foreground])
                         {
                             [_foreground animateRemoveTileAtTileCoordinate:location afterDelay:delay];
                         }
-                        else if([entityOrLayerType isEqualToString:kLayerTypeMeta])
-                        {
-                            [_meta animateRemoveTileAtTileCoordinate:location afterDelay:delay];
-                        }
-                        else if([entityOrLayerType isEqualToString:kLayerTypeDestruction])
+                        else if([entityOrLayerType isEqualToString:kLayerName_Destruction])
                         {
                             [_destruction animateRemoveTileAtTileCoordinate:location afterDelay:delay];
                         }
+                        else if([entityOrLayerType isEqualToString:kLayerName_Meta])
+                        {
+                            [_meta animateRemoveTileAtTileCoordinate:location afterDelay:delay];
+                        }
                         else
-                            NSAssert(false, @"Unknown remove tile going into switch on playback");
+                            ULog(@"Unknown remove tile going into switch on playback");
                     }
                         break;
                     default:
-                        NSAssert(false, @"Unknown event going into switch on playback");
+                        ULog(@"Unknown event going into switch on playback");
                 } //switch (eventType)
             } // else non-player entity
         }  // timeStep for loop
-    }
+    } // full loop
     
     // playback all the events here
-    NSMutableArray* allEntities = [NSMutableArray arrayWithObjects: _player, _opponent,
+    NSMutableArray* allReplayable = [NSMutableArray arrayWithObjects: _player, _opponent,
                                    _background, _foreground, _destruction, _meta, nil];
-    [allEntities addObjectsFromArray:[_player.minions allValues]];
-    [allEntities addObjectsFromArray:[_player.missiles allValues]];
-    [allEntities addObjectsFromArray:[_player.shurikens allValues]];
-    [allEntities addObjectsFromArray:[_opponent.minions allValues]];
-    [allEntities addObjectsFromArray:[_opponent.missiles allValues]];
-    [allEntities addObjectsFromArray:[_opponent.shurikens allValues]];
+    [allReplayable addObjectsFromArray:[_player.minions allValues]];
+    [allReplayable addObjectsFromArray:[_player.missiles allValues]];
+    [allReplayable addObjectsFromArray:[_player.shurikens allValues]];
+    [allReplayable addObjectsFromArray:[_opponent.minions allValues]];
+    [allReplayable addObjectsFromArray:[_opponent.missiles allValues]];
+    [allReplayable addObjectsFromArray:[_opponent.shurikens allValues]];
     
-    for (id replayableObject in allEntities) {
+    for (id replayableObject in allReplayable)
         [replayableObject playActionsInSequence];
-    }
 
     // DEBUG temporary
     // now schedule a callback for Our Turn (Player's Turn) after _timeStepIndex * kReplayTickLengthSeconds period
 //    [self scheduleOnce:@selector(transitionToNextTurn) delay:(_timeStepIndex * kReplayTickLengthSeconds+2)];
     // pause 2 seconds to allow for explosions and other animations to play before clearing the dead from the dicts
-    [self scheduleOnce:@selector(playbackFinished) delay:kTurnLengthSeconds]; // call notification
+
+    // call notification service once over
+    [self scheduleOnce:@selector(playbackFinished) delay:kTurnLengthSeconds];
 
     // try to track the opponent replay as best we can
     [self setViewpointCenter:_opponent.sprite.position];
@@ -753,97 +753,99 @@ static DVServerGameData* _serverGameData;
     [[NSNotificationCenter defaultCenter] postNotificationName:kCoreGamePlaybackFinishedNotification object:self];
 }
 
--(void) transitionToNextTurn
-{
-    // clear the dead things from the dicts
-    DLog(@"_player clearing the dead...");
-    NSMutableArray* toDelete = [[NSMutableArray alloc] init];
-    for (EntityNode* entity in [_player.minions allValues])  // EntityNode
-    {
-        if(entity.isDead)
-        {
-            DLog(@"Removing a dead minion");
-            [toDelete addObject:entity];
-        }
+// TODO: remove transitionToNextTurn if its really not used
 
-    }
-    for (EntityNode* entity in toDelete)
-        [_player.minions removeObjectForKey:[NSNumber numberWithInt:entity.uniqueID]];
-
-    [toDelete removeAllObjects];
-        
-    DLog(@"_player clearing the missiles...");
-    for (EntityNode* entity in [_player.missiles allValues])  // EntityNode
-    {
-        if(entity.isDead)
-        {
-            DLog(@"Removing a dead missile");
-            [toDelete addObject:entity];
-        }
-        
-    }
-    for (EntityNode* entity in toDelete)
-        [_player.missiles removeObjectForKey:[NSNumber numberWithInt:entity.uniqueID]];
-
-    DLog(@"_player clearing the shurikens...");
-    for (EntityNode* entity in [_player.shurikens allValues])  // EntityNode
-    {
-        if(entity.isDead)
-        {
-            DLog(@"Removing a dead shuriken");
-            [toDelete addObject:entity];
-        }
-        
-    }
-    for (EntityNode* entity in toDelete)
-        [_player.shurikens removeObjectForKey:[NSNumber numberWithInt:entity.uniqueID]];
-    
-    
-    [toDelete removeAllObjects];
-
-    DLog(@"_opponent clearing the dead...");
-    for (EntityNode* entity in [_opponent.minions allValues])  // EntityNode
-    {
-        if(entity.isDead)
-        {
-            DLog(@"Removing a dead minion");
-            [toDelete addObject:entity];
-        }
-        
-    }
-    for (EntityNode* entity in toDelete)
-        [_opponent.minions removeObjectForKey:[NSNumber numberWithInt:entity.uniqueID]];
-    
-    [toDelete removeAllObjects];
-    
-    for (EntityNode* entity in [_opponent.missiles allValues])  // EntityNode
-    {
-        if(entity.isDead)
-        {
-            DLog(@"Removing a dead minion");
-            [toDelete addObject:entity];
-        }
-        
-    }
-    for (EntityNode* entity in toDelete)
-        [_opponent.missiles removeObjectForKey:[NSNumber numberWithInt:entity.uniqueID]];
-
-    DLog(@"_opponent clearing the shurikens...");
-    for (EntityNode* entity in [_opponent.shurikens allValues])  // EntityNode
-    {
-        if(entity.isDead)
-        {
-            DLog(@"Removing a dead shuriken");
-            [toDelete addObject:entity];
-        }
-        
-    }
-    for (EntityNode* entity in toDelete)
-        [_opponent.shurikens removeObjectForKey:[NSNumber numberWithInt:entity.uniqueID]];
-
-    [[CCDirector sharedDirector] replaceScene:
-     [GameOverLayer sceneWithLabelText:@"Round Finished!"]];
-}
+//-(void) transitionToNextTurn
+//{
+//    // clear the dead things from the dicts
+//    DLog(@"_player clearing the dead...");
+//    NSMutableArray* toDelete = [[NSMutableArray alloc] init];
+//    for (EntityNode* entity in [_player.minions allValues])  // EntityNode
+//    {
+//        if(entity.isDead)
+//        {
+//            DLog(@"Removing a dead minion");
+//            [toDelete addObject:entity];
+//        }
+//
+//    }
+//    for (EntityNode* entity in toDelete)
+//        [_player.minions removeObjectForKey:[NSNumber numberWithInt:entity.uniqueID]];
+//
+//    [toDelete removeAllObjects];
+//        
+//    DLog(@"_player clearing the missiles...");
+//    for (EntityNode* entity in [_player.missiles allValues])  // EntityNode
+//    {
+//        if(entity.isDead)
+//        {
+//            DLog(@"Removing a dead missile");
+//            [toDelete addObject:entity];
+//        }
+//        
+//    }
+//    for (EntityNode* entity in toDelete)
+//        [_player.missiles removeObjectForKey:[NSNumber numberWithInt:entity.uniqueID]];
+//
+//    DLog(@"_player clearing the shurikens...");
+//    for (EntityNode* entity in [_player.shurikens allValues])  // EntityNode
+//    {
+//        if(entity.isDead)
+//        {
+//            DLog(@"Removing a dead shuriken");
+//            [toDelete addObject:entity];
+//        }
+//        
+//    }
+//    for (EntityNode* entity in toDelete)
+//        [_player.shurikens removeObjectForKey:[NSNumber numberWithInt:entity.uniqueID]];
+//    
+//    
+//    [toDelete removeAllObjects];
+//
+//    DLog(@"_opponent clearing the dead...");
+//    for (EntityNode* entity in [_opponent.minions allValues])  // EntityNode
+//    {
+//        if(entity.isDead)
+//        {
+//            DLog(@"Removing a dead minion");
+//            [toDelete addObject:entity];
+//        }
+//        
+//    }
+//    for (EntityNode* entity in toDelete)
+//        [_opponent.minions removeObjectForKey:[NSNumber numberWithInt:entity.uniqueID]];
+//    
+//    [toDelete removeAllObjects];
+//    
+//    for (EntityNode* entity in [_opponent.missiles allValues])  // EntityNode
+//    {
+//        if(entity.isDead)
+//        {
+//            DLog(@"Removing a dead minion");
+//            [toDelete addObject:entity];
+//        }
+//        
+//    }
+//    for (EntityNode* entity in toDelete)
+//        [_opponent.missiles removeObjectForKey:[NSNumber numberWithInt:entity.uniqueID]];
+//
+//    DLog(@"_opponent clearing the shurikens...");
+//    for (EntityNode* entity in [_opponent.shurikens allValues])  // EntityNode
+//    {
+//        if(entity.isDead)
+//        {
+//            DLog(@"Removing a dead shuriken");
+//            [toDelete addObject:entity];
+//        }
+//        
+//    }
+//    for (EntityNode* entity in toDelete)
+//        [_opponent.shurikens removeObjectForKey:[NSNumber numberWithInt:entity.uniqueID]];
+//
+//    [[CCDirector sharedDirector] replaceScene:
+//     [GameOverLayer sceneWithLabelText:@"Round Finished!"]];
+//}
 
 -(void) testCollisions:(ccTime) dt
 {

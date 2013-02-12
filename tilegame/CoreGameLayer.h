@@ -35,6 +35,10 @@ typedef enum {
 #define kCoreGameRoundFinishedNotification @"coreGameRoundFinished" // used for notifications
 #define kCoreGamePlaybackFinishedNotification @"playbackGameRoundFinished" // used for notifications
 
+// used for saving/loading user defaults
+#define kUserDefaultsKey_GameID @"defaultsGameIDKey"
+#define kUserDefaultsKey_DeviceToken @"defaultsDeviceTokenKey"
+
 // for NSCoding
 #define kCoreGameSavegameKey @"savedGameKey"
 
@@ -122,7 +126,7 @@ typedef enum {
 -(void) lose;
 -(void) roundFinished;
 -(void) playbackEvents:(NSArray *)events;
--(void) transitionToNextTurn;
+//-(void) transitionToNextTurn;
 -(GameOverStatus) getGameOverStatus;
 
 +(NSString*) SavegamePath;

@@ -62,8 +62,8 @@ typedef enum {
 @property (nonatomic, strong) NSMutableArray* actionsToBePlayed;
 //@property (nonatomic, copy) NSMutableArray* eventHistory;
 
-+(NSMutableArray*) CompleteEventHistory;  // returns the entire event history static getter method
-+(void) ResetEventHistory;
++(NSMutableArray*) sharedEventHistory;  // returns the entire event history static getter method
++(void) clearEventHistory;
 +(void) animateDeathForEntityType:(NSString*) theEntityType at:(CGPoint) deathPoint;  // TO DO Takes a position and an EntityType
 // optional
 -(id)initInLayer:(CoreGameLayer *)layer atSpawnPoint:(CGPoint)spawnPoint;

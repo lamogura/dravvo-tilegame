@@ -12,7 +12,6 @@
 #import "CoreGameLayer.h"
 #import "NewGameLayer.h"
 #import "DVUtils.h"
-#import "DVConstants.h"
 #import "GameLifecycle.h"
 
 @implementation AppController
@@ -96,13 +95,10 @@
 }
 
 -(void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
-    NSString* deviceTokenString = [DVUtils hexadecimalStringFromData:deviceToken];
-    DLog("Found deviceToken: %@", deviceTokenString);
+    NSString* token = [DVUtils hexadecimalStringFromData:deviceToken];
+    DLog("Registered for APNS on device with token: %@", token);
     
-    // save device token to defaults
-    if ([[NSUserDefaults standardUserDefaults] stringForKey:kDeviceToken] == nil) {
-        [[NSUserDefaults standardUserDefaults] setValue:deviceTokenString forKey:kDeviceToken];
-    }
+    [[NSUserDefaults standardUserDefaults] setValue:token forKey:kUserDefaultsKey_DeviceToken];
 }
 
 - (void)application:(UIApplication *)app didFailToRegisterForRemoteNotificationsWithError:(NSError *)err {

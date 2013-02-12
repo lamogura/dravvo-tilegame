@@ -8,7 +8,6 @@
 
 #import "cocos2d.h"
 #import "GameLifecycle.h"
-#import "DVConstants.h"
 #import "LoadingLayer.h"
 #import "NewGameLayer.h"
 #import "CoreGameLayer.h"
@@ -20,7 +19,6 @@
 
 @interface GameLifecycle() {
     CoreGameLayer* _gameLayer;
-    DVAPIWrapper* _serverApi;
 }
 @end
 
@@ -40,8 +38,8 @@
         // TODO: check for other launch options?
         
         // load new game scene if there isnt one currently going
-        [[NSUserDefaults standardUserDefaults] removeObjectForKey:kCurrentGameIDKey];
-        NSString* gameID = [[NSUserDefaults standardUserDefaults] valueForKey:kCurrentGameIDKey];
+        [[NSUserDefaults standardUserDefaults] removeObjectForKey:kUserDefaultsKey_GameID];
+        NSString* gameID = [[NSUserDefaults standardUserDefaults] valueForKey:kUserDefaultsKey_GameID];
 
         if (gameID == nil) // do new game if no existing game
         {
@@ -66,19 +64,15 @@
     }
 }
 
--(id) init
-{
-    if (self=[super init])
-    {
-        _serverApi = [DVAPIWrapper wrapper];
-    }
-    return self;
-}
-
 -(void) playNewGame
 {
-    CCScene* newGameScene = [NewGameLayer sceneWithBlockCalledOnNewGameClicked:^(id sender) {
-        [_serverApi postCreateNewGameThenCallBlock:^(NSError *error, DVServerGameData *status) {
+    NSString* deviceToken = [[NSUserDefaults standardUserDefaults] valueForKey:kUserDefaultsKey_DeviceToken];
+    
+    CCScene* newGameScene = [NewGameLayer sceneWithBlockCalledOnNewGameClicked:^(id sender)
+    {
+        [[DVAPIWrapper staticWrapper] createNewGameForDeviceToken:deviceToken
+                                                    callbackBlock:^(NSError *error, DVServerGameData *status)
+        {
             if (error != nil)
             {
                 ULog(@"%@", [error localizedDescription]);
@@ -86,7 +80,7 @@
             else
             {
                 DLog(@"Saving gameID to defaults: %@", status.gameID);
-                [[NSUserDefaults standardUserDefaults] setObject:status.gameID forKey:kCurrentGameIDKey];
+                [[NSUserDefaults standardUserDefaults] setObject:status.gameID forKey:kUserDefaultsKey_GameID];
                 
                 // In this case, we are the HOST of the new game, so we get playerID = 1, GUEST will get 2
                 CCScene* gameScene = [CoreGameLayer sceneWithInitType:NewGameAsHost];
@@ -121,9 +115,8 @@
 {
     [[CCDirector sharedDirector] pushScene:[LoadingLayer scene]];
 
-    [_serverApi getGameStatusForID:gameID
-                     ThenCallBlock:
-     ^(NSError *error, DVServerGameData *status)
+    [[DVAPIWrapper staticWrapper] getGameStatusForID:gameID
+                                       callbackBlock:^(NSError *error, DVServerGameData *status)
     {
         if (error != nil)
         {
@@ -132,21 +125,21 @@
         else
         {
             DLog(@"Sucessfully got status for gameID: %@", status.gameID);
-            NSString* deviceToken = [[NSUserDefaults standardUserDefaults] valueForKey:kDeviceToken];
+            NSString* deviceToken = [[NSUserDefaults standardUserDefaults] valueForKey:kUserDefaultsKey_DeviceToken];
             if ([status.nextTurn isEqualToString:deviceToken]) // my turn
             {
                 // load last scene
                 DLog(@"Loading CoreGame from savegame '%@'", [CoreGameLayer SavegamePath]);
 
                 CCScene* gameScene;
-                if ([[NSUserDefaults standardUserDefaults] valueForKey:kCurrentGameIDKey])
+                if ([[NSUserDefaults standardUserDefaults] valueForKey:kUserDefaultsKey_GameID])
                 {
                     gameScene = [CoreGameLayer sceneWithInitType:LoadSavedGame];
                 }
                 else // we havent saved the gameID so must be first round of GUEST game
                 {
                     // TODO: make it more transparent why it is we are calling a newGameAsGuest here
-                    [[NSUserDefaults standardUserDefaults] setValue:gameID forKey:kCurrentGameIDKey];
+                    [[NSUserDefaults standardUserDefaults] setValue:gameID forKey:kUserDefaultsKey_GameID];
                     gameScene = [CoreGameLayer sceneWithInitType:NewGameAsGuest];
                 }
 
@@ -196,10 +189,14 @@
 //             UpdateEvents:[EntityNode CompleteEventHistory]
 //       WithGameOverStatus:[_gameLayer getGameOverStatus]
 //            ThenCallBlock:^(NSError *error)
-    [_serverApi postUpdateEvents:[EntityNode CompleteEventHistory]
-              WithGameOverStatus:[_gameLayer getGameOverStatus]
-                   ThenCallBlock:
-     ^(NSError *error)
+    NSString* gameID = [[NSUserDefaults standardUserDefaults] valueForKey:kUserDefaultsKey_GameID];
+    NSString* deviceToken = [[NSUserDefaults standardUserDefaults] valueForKey:kUserDefaultsKey_DeviceToken];
+    
+    [[DVAPIWrapper staticWrapper] postGameUpdates:[EntityNode sharedEventHistory]
+                                   gameOverStatus:[_gameLayer getGameOverStatus]
+                                        forGameID:gameID
+                                      deviceToken:deviceToken
+                                    callbackBlock:^(NSError *error)
     {
         if (error != nil)
         {
@@ -207,7 +204,7 @@
         }
         else
         {
-            [EntityNode ResetEventHistory];
+            [EntityNode clearEventHistory];
             [[CCDirector sharedDirector] replaceScene:[AwaitingMoveLayer scene]];
         }
     }];
@@ -225,13 +222,14 @@
 //        [GameLifecycle deleteGameStateSave];
         
         // TODO: check if we are already playing, this should be a different check in the future for multiple games
-        if ([[NSUserDefaults standardUserDefaults]valueForKey:kCurrentGameIDKey] == nil)
+        if ([[NSUserDefaults standardUserDefaults]valueForKey:kUserDefaultsKey_GameID] == nil)
         {
             // TODO: add game acceptance layer
         }
         [self playNextRoundInGameWithID:gameID];
     }
-    else NSAssert(false, @"didnt receive gameid in notification payload");
+    else
+        ULog(@"didnt receive gameid in notification payload");
 }
 
 -(void) dealloc

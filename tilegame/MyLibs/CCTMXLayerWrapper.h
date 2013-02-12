@@ -8,6 +8,7 @@
 
 #import "CCTMXLayer.h"
 #import "EntityNode.h"
+
 typedef enum {
     LayerType_Background,
     LayerType_Foreground,
@@ -15,23 +16,26 @@ typedef enum {
     LayerType_Meta,
 } LayerType;
 
-#define kLayerTypeBackground @"background"
-#define kLayerTypeForeground @"foreground"
-#define kLayerTypeDestruction @"destruction"
-#define kLayerTypeMeta @"meta"
+// used for loading by name from tilemap and for setting layerType
+#define kLayerName_Background @"Background"
+#define kLayerName_Foreground @"Foreground"
+#define kLayerName_Destruction @"Destruction"
+#define kLayerName_Meta @"Meta"
 
 @interface CCTMXLayerWrapper : CCNode
 
 @property (nonatomic, strong) CoreGameLayer* gameLayer;
+// TODO: change this to use the LayerType enum
 @property (nonatomic, assign) NSString* layerType;
 @property (nonatomic, strong) CCTMXLayer* tmxLayer;
-//@property (nonatomic, strong) NSMutableArray* actionsToBePlayed;
 @property (nonatomic, strong) NSMutableArray* actionsToBePlayedArray;
 
--(id) initWithlayerFromTileMap:(CCTMXTiledMap*)tileMap InCoreGameLayer:(CoreGameLayer *)gameLayer OfType:(LayerType)layerType;
--(void)cacheStateForEvent:(DVEventType)event atTileCoordinate:(CGPoint)tileCoordinate;
--(void)removeTileAt:(CGPoint)tileCoordinate;
--(void)animateRemoveTileAtTileCoordinate:(CGPoint)tileCoordinate afterDelay:(ccTime) delay;
--(void)playActionsInSequence;// plays all the actions in sequence FOR EACH entity object
+-(id) initFromTileMap:(CCTMXTiledMap*)tileMap inCoreGameLayer:(CoreGameLayer *)gameLayer layerType:(LayerType)layerType;
+
+-(void) cacheStateForEvent:(DVEventType)event atTileCoordinate:(CGPoint)tileCoordinate;
+-(void) playActionsInSequence;// plays all the actions in sequence FOR EACH entity object
+
+-(void) removeTileAt:(CGPoint)tileCoordinate;
+-(void) animateRemoveTileAtTileCoordinate:(CGPoint)tileCoordinate afterDelay:(ccTime) delay;
 
 @end

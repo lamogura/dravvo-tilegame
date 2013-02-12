@@ -8,7 +8,6 @@
 
 #import "LoadingLayer.h"
 #import "CoreGameLayer.h"
-#import "DVConstants.h"
 
 @implementation LoadingLayer
 

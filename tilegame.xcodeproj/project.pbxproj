@@ -430,8 +430,8 @@
 		CE857D6316B01D5C00947B06 /* Bat.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Bat.m; path = tilegame/Bat.m; sourceTree = "<group>"; };
 		CE857D6416B01D5C00947B06 /* CCSequence+Helper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "CCSequence+Helper.h"; path = "tilegame/CCSequence+Helper.h"; sourceTree = "<group>"; };
 		CE857D6516B01D5C00947B06 /* CCSequence+Helper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "CCSequence+Helper.m"; path = "tilegame/CCSequence+Helper.m"; sourceTree = "<group>"; };
-		CE857D6616B01D5C00947B06 /* DVServerGameData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DVServerGameData.h; path = tilegame/DVServerGameData.h; sourceTree = "<group>"; };
-		CE857D6716B01D5C00947B06 /* DVServerGameData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = DVServerGameData.m; path = tilegame/DVServerGameData.m; sourceTree = "<group>"; };
+		CE857D6616B01D5C00947B06 /* DVServerGameData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DVServerGameData.h; path = ../DVServerGameData.h; sourceTree = "<group>"; };
+		CE857D6716B01D5C00947B06 /* DVServerGameData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = DVServerGameData.m; path = ../DVServerGameData.m; sourceTree = "<group>"; };
 		CE857D6816B01D5C00947B06 /* GameConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GameConstants.h; path = tilegame/GameConstants.h; sourceTree = "<group>"; };
 		CE857D6916B01D5C00947B06 /* GameOverScene.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GameOverScene.h; path = tilegame/GameOverScene.h; sourceTree = "<group>"; };
 		CE857D6A16B01D5C00947B06 /* GameOverScene.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GameOverScene.m; path = tilegame/GameOverScene.m; sourceTree = "<group>"; };
@@ -441,7 +441,6 @@
 		CE857D7116B01D5C00947B06 /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = tilegame/main.m; sourceTree = "<group>"; };
 		CE857D7516B01D5C00947B06 /* DVAPIWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DVAPIWrapper.h; sourceTree = "<group>"; };
 		CE857D7616B01D5C00947B06 /* DVAPIWrapper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DVAPIWrapper.m; sourceTree = "<group>"; };
-		CE857D7716B01D5C00947B06 /* DVConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DVConstants.h; sourceTree = "<group>"; };
 		CE857D7816B01D5C00947B06 /* DVDownloader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DVDownloader.h; sourceTree = "<group>"; };
 		CE857D7916B01D5C00947B06 /* DVDownloader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DVDownloader.m; sourceTree = "<group>"; };
 		CE857D7B16B01D5C00947B06 /* DVUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DVUtils.h; sourceTree = "<group>"; };
@@ -860,9 +859,10 @@
 			children = (
 				CE857D7516B01D5C00947B06 /* DVAPIWrapper.h */,
 				CE857D7616B01D5C00947B06 /* DVAPIWrapper.m */,
-				CE857D7716B01D5C00947B06 /* DVConstants.h */,
 				CE857D7816B01D5C00947B06 /* DVDownloader.h */,
 				CE857D7916B01D5C00947B06 /* DVDownloader.m */,
+				CE857D6616B01D5C00947B06 /* DVServerGameData.h */,
+				CE857D6716B01D5C00947B06 /* DVServerGameData.m */,
 				CE857D7B16B01D5C00947B06 /* DVUtils.h */,
 				CE857D7C16B01D5C00947B06 /* DVUtils.m */,
 				3FBFF4B016C9676000A3C7CE /* CCTMXLayerWrapper.h */,
@@ -901,8 +901,6 @@
 				3F3F40E116B18F770080C341 /* Entities */,
 				CE857DCA16B01D9300947B06 /* Helpers */,
 				CE857D6816B01D5C00947B06 /* GameConstants.h */,
-				CE857D6616B01D5C00947B06 /* DVServerGameData.h */,
-				CE857D6716B01D5C00947B06 /* DVServerGameData.m */,
 				CE857D3F16B01D5C00947B06 /* AppDelegate.h */,
 				CE857D4016B01D5C00947B06 /* AppDelegate.m */,
 				CEF138A616C7C901004CF9A9 /* AwaitingMoveScene.h */,
@@ -1785,6 +1783,75 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
+		CE9147D416CA35AA0047D7E4 /* DebugLonely */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					DEBUG,
+					"COCOS2D_DEBUG=1",
+					"LONELY_DEBUG=1",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 4.0;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = DebugLonely;
+		};
+		CE9147D516CA35AA0047D7E4 /* DebugLonely */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = tilegame/Prefix.pch;
+				HEADER_SEARCH_PATHS = "\"tilegame/libs/kazmath/include\"";
+				INFOPLIST_FILE = "$(SRCROOT)/tilegame/Resources/Info.plist";
+				OTHER_LDFLAGS = (
+					"-lz",
+					"-ObjC",
+				);
+				PRODUCT_NAME = tilegame;
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
+				WRAPPER_EXTENSION = app;
+			};
+			name = DebugLonely;
+		};
+		CE9147D616CA35AA0047D7E4 /* DebugLonely */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				DSTROOT = /tmp/cocos2d_library.dst;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				HEADER_SEARCH_PATHS = "\"tilegame/libs/kazmath/include\"";
+				IPHONEOS_DEPLOYMENT_TARGET = 5.1;
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+			};
+			name = DebugLonely;
+		};
 		DC0C4B7E154AB4DF00B4B727 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1922,6 +1989,7 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				DC0C4B7E154AB4DF00B4B727 /* Debug */,
+				CE9147D416CA35AA0047D7E4 /* DebugLonely */,
 				DC0C4B7F154AB4DF00B4B727 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
@@ -1931,6 +1999,7 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				DC0C4B81154AB4DF00B4B727 /* Debug */,
+				CE9147D516CA35AA0047D7E4 /* DebugLonely */,
 				DC0C4B82154AB4DF00B4B727 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
@@ -1940,6 +2009,7 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				DC0C4B90154AB55A00B4B727 /* Debug */,
+				CE9147D616CA35AA0047D7E4 /* DebugLonely */,
 				DC0C4B91154AB55A00B4B727 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;

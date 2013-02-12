@@ -9,26 +9,41 @@
 #import <Foundation/Foundation.h>
 #import "DVServerGameData.h"
 
-#define kDVAPIGameKey @"game" // name of the JSON key to get the gameStatus object out server's JSON response
-#define kDVAPIErrorKey @"error" // name of the JSON key to get the error object out server's JSON response
-#define kDVAPIErrorMsgKey @"message" // name of the JSON key to get the error message out JSON responses' error object
+#define kDVAPIJSONResponseKey_Game @"game" // name of the JSON key to get the gameStatus object out server's JSON response
+#define kDVAPIJSONResponseKey_ErrorDict @"error" // name of the JSON key to get the error object out server's JSON response
+#define kDVAPIJSONResponseErrorKey_Message @"message" // name of the JSON key to get the error message out JSON responses' error object
 
 #define kDVAPIWrapperErrorDomain @"DVAPIWrapperErrorDomain" // used for creating new NSError obj from this class
 
+//#define kDVAPIServerURL @"http://dravvo.ap01.aws.af.cm" // server
+#define kDVAPIServerURL @"http://192.168.20.2:3000" // laptop through iphone
+//#define kDVAPIServerURL @"http://192.168.1.116:3000" // server
+
+
+// string formats for API
+#define kDVAPIGetUpdateURL @"%@/game/%@"
+#define kDVAPINewGameURL @"%@/game/new"
+
+// mock the update back to our own device
+#if LONELY_DEBUG
+#define kDVAPIPostGameUpdateURL @"%@/game/%@/update"
+#else
+#define kDVAPIPostGameUpdateURL @"%@/game/%@/mockupdate"
+#endif
+
 @interface DVAPIWrapper : NSObject
 
-+ (DVAPIWrapper *) wrapper; // convenience method
++ (DVAPIWrapper *) staticWrapper; // convenience method
 
 - (id) init;
 
 // creates a new game object on the server and returns the inital game status
-- (void) postCreateNewGameThenCallBlock:(void (^)(NSError* error, DVServerGameData* status))block;
+- (void) createNewGameForDeviceToken:(NSString *)deviceToken callbackBlock:(void (^)(NSError* error, DVServerGameData* status))block;
 
 // gets the current game status from the server
-- (void) getGameStatusForID:(NSString *)gameID ThenCallBlock:(void (^)(NSError* error, DVServerGameData* status))block;
+- (void) getGameStatusForID:(NSString *)gameID callbackBlock:(void (^)(NSError* error, DVServerGameData* status))block;
 
-- (void) postUpdateEvents:(NSArray *)events WithGameOverStatus:(GameOverStatus)status ThenCallBlock:(void (^)(NSError* error))block;
+// post gaame updates to server
+- (void) postGameUpdates:(NSArray *)updates gameOverStatus:(GameOverStatus)gameOverStatus forGameID:(NSString *)gameID deviceToken:(NSString *)deviceToken callbackBlock:(void (^)(NSError* error))block;
 
-// use this to debug different things
-- (void) postToURL:(NSString *)urlString UpdateEvents:(NSArray *)events WithGameOverStatus:(GameOverStatus)status ThenCallBlock:(void (^)(NSError* error))block;
 @end

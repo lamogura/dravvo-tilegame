@@ -18,33 +18,39 @@
 @synthesize actionsToBePlayedArray = _actionsToBePlayedArray;
 @synthesize tmxLayer = _tmxLayer;
 
--(id) initWithlayerFromTileMap:(CCTMXTiledMap*)tileMap InCoreGameLayer:(CoreGameLayer *)gameLayer OfType:(LayerType)layerType
+-(id) initFromTileMap:(CCTMXTiledMap*)tileMap inCoreGameLayer:(CoreGameLayer *)gameLayer layerType:(LayerType)layerType
 {
  	if (self=[super init])
  	{
-        [super onEnter];
-        self.actionsToBePlayedArray = [[NSMutableArray alloc] init];
+        [super onEnter]; // enable actions to be played
         
+        _actionsToBePlayedArray = [[NSMutableArray alloc] init];
         self.gameLayer = gameLayer;
-        switch (layerType) {
+        
+        switch (layerType)
+        {
             case LayerType_Background:
-            self.tmxLayer = [tileMap layerNamed:@"Background"];
-            self.layerType = kLayerTypeBackground;
+            self.tmxLayer = [tileMap layerNamed:kLayerName_Background];
+            self.layerType = kLayerName_Background;
             break;
+                
         case LayerType_Foreground:
-            self.tmxLayer = [tileMap layerNamed:@"Foreground"];
-            self.layerType = kLayerTypeForeground;
+            self.tmxLayer = [tileMap layerNamed:kLayerName_Foreground];
+            self.layerType = kLayerName_Foreground;
             break;
+                
         case LayerType_Destruction:
-            self.tmxLayer = [tileMap layerNamed:@"Destruction"];
-            self.layerType = kLayerTypeDestruction;
+            self.tmxLayer = [tileMap layerNamed:kLayerName_Destruction];
+            self.layerType = kLayerName_Destruction;
             break;
+                
         case LayerType_Meta:
-            self.tmxLayer = [tileMap layerNamed:@"Meta"];
-            self.layerType = kLayerTypeMeta;
+            self.tmxLayer = [tileMap layerNamed:kLayerName_Meta];
+            self.layerType = kLayerName_Meta;
             break;
+                
         default:
-            NSAssert(false, @"somehow bad layerType passed into switch");
+            ULog(@"Unknown layerType passed to switch");
             break;
         }
  	}
@@ -54,49 +60,47 @@
 
 -(void) removeTileAt:(CGPoint)tileCoordinate
 {
- 	[self.tmxLayer removeTileAt: tileCoordinate];
  	[self cacheStateForEvent:DVEvent_RemoveTile atTileCoordinate:tileCoordinate];
+
+ 	[self.tmxLayer removeTileAt:tileCoordinate];
 }
 
--(void)cacheStateForEvent:(DVEventType)event atTileCoordinate:(CGPoint)tileCoordinate
+-(void) cacheStateForEvent:(DVEventType)event atTileCoordinate:(CGPoint)tileCoordinate
 {
     // 	{"EntityType":"bat","EntityID":2,"EventType":1,"CoordX":371.06390380859375,"CoordY":1220.031005859375,"TimeStepIndex":14,"OwnerID":1}
  	
- 	DLog(@"cacheStateForEvent...");
- 	
- 	CoreGameLayer* layer = (CoreGameLayer *)self.gameLayer;
+ 	DLog(@"cacheStateForEvent type:%d coordX:%f coordY:%f", event, tileCoordinate.x, tileCoordinate.y);
+    
  	NSMutableDictionary* eventData = [NSMutableDictionary dictionaryWithObjectsAndKeys:
-                                      [NSNumber numberWithInt:layer.timeStepIndex], kDVEventKey_TimeStepIndex,
+                                      [NSNumber numberWithInt:self.gameLayer.timeStepIndex], kDVEventKey_TimeStepIndex,
                                       self.layerType, kDVEventKey_EntityOrLayerType,
                                       [NSNumber numberWithInt:0], kDVEventKey_UniqueID,
                                       [NSNumber numberWithInt:event], kDVEventKey_EventType,
                                       [NSNumber numberWithFloat:tileCoordinate.x], kDVEventKey_CoordX,
                                       [NSNumber numberWithFloat:tileCoordinate.y], kDVEventKey_CoordY,
                                       nil];
- 	switch (event) {
-        case DVEvent_RemoveTile:
-        default:
- 			
- 			break;
- 	}
- 	[[EntityNode CompleteEventHistory] addObject:eventData];
+
+ 	[[EntityNode sharedEventHistory] addObject:eventData];
 }
 
--(void)animateRemoveTileAtTileCoordinate:(CGPoint)tileCoordinate afterDelay:(ccTime) delay 	// will animate a historical move over time interval kTimeStepSeconds
+// will animate a historical move over time interval kTimeStepSeconds
+-(void)animateRemoveTileAtTileCoordinate:(CGPoint)tileCoordinate afterDelay:(ccTime) delay
 {
- 	NSMutableArray* actionsToBePlayed = [[NSMutableArray alloc] init];
  	// the action is to pause the sprite for kReplayTickLengthSeconds time
  	id actionStall = [CCActionInterval actionWithDuration:delay]; // DEBUG does this work??
  	
- 	id actionRemoveTile = [CCCallBlock actionWithBlock:^(void){
+ 	id actionRemoveTile = [CCCallBlock actionWithBlock:^(void)
+    {
         [self.tmxLayer removeTileAt:tileCoordinate];
  	}];
  	
- 	[actionsToBePlayed addObject:actionStall]; // change to this for multiplay
- 	[actionsToBePlayed addObject:actionRemoveTile];
+    // TODO: currently doing array of actions to be played to solve delay issue, fix this
+    NSArray* actionsToBePlayed = [NSArray arrayWithObjects:
+                                  actionStall, // change to this for multiplay
+                                  actionRemoveTile,
+                                  nil];
     
  	[self.actionsToBePlayedArray addObject:actionsToBePlayed];
-    
 }
 
 -(void)playActionsInSequence // Adds all the actions in the NSMutableArray to a CCSequence and plays them

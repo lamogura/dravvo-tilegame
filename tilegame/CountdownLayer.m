@@ -8,7 +8,6 @@
 
 #import "CountdownLayer.h"
 #import "CoreGameLayer.h"
-#import "DVConstants.h"
 
 @implementation CountdownLayer
 @synthesize countdownCount = _countdownCount;

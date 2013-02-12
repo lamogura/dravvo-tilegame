@@ -31,14 +31,14 @@ static NSMutableArray* _eventHistory;  // the entire event history of all Entiti
 @synthesize lastPoint = _lastPoint;
 @synthesize actionsToBePlayed = _actionsToBePlayed;
 
-+(NSMutableArray*) CompleteEventHistory  // the entire event history of all Entitiy's getter method
++(NSMutableArray*) sharedEventHistory  // the entire event history of all Entitiy's getter method
 {
     if(!_eventHistory) // this should only run once
         _eventHistory = [[NSMutableArray alloc] init];
     return _eventHistory;
 }
 
-+(void) ResetEventHistory
++(void) clearEventHistory
 {
     _eventHistory = [[NSMutableArray alloc] init];
 }
@@ -111,9 +111,9 @@ static NSMutableArray* _eventHistory;  // the entire event history of all Entiti
     // Now put this dictionary onto the object's NSMuttableArray
     DLog(@"[eventData count] = %d",[eventData count]);
 
-    [[EntityNode CompleteEventHistory] addObject:eventData];
+    [[EntityNode sharedEventHistory] addObject:eventData];
 //    layer.eventHistory
-    DLog(@"[CompleteEventHistory count] = %d", [[EntityNode CompleteEventHistory] count]);
+    DLog(@"[CompleteEventHistory count] = %d", [[EntityNode sharedEventHistory] count]);
     
     return eventData; // return for further modding
 }

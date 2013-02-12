@@ -18,6 +18,17 @@
 @synthesize updates = _updates;
 @synthesize gameOverStatus = _gameOverStatus;
 
+- (id)initWithGameID:(NSString *)gameID updates:(NSArray *)gameUpdates gameOverStatus:(GameOverStatus)gameOverStatus
+{
+    if (self=[super init])
+    {
+        self.gameID = gameID;
+        self.updates = gameUpdates;
+        self.gameOverStatus = gameOverStatus;
+    }
+    return self;
+}
+
 - (id)initWithDictionary:(NSDictionary *) dict
 {
     if (self=[super init])
