@@ -447,7 +447,6 @@
 		CE857D7716B01D5C00947B06 /* DVConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DVConstants.h; sourceTree = "<group>"; };
 		CE857D7816B01D5C00947B06 /* DVDownloader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DVDownloader.h; sourceTree = "<group>"; };
 		CE857D7916B01D5C00947B06 /* DVDownloader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DVDownloader.m; sourceTree = "<group>"; };
-		CE857D7A16B01D5C00947B06 /* DVMacros.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DVMacros.h; sourceTree = "<group>"; };
 		CE857D7B16B01D5C00947B06 /* DVUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DVUtils.h; sourceTree = "<group>"; };
 		CE857D7C16B01D5C00947B06 /* DVUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DVUtils.m; sourceTree = "<group>"; };
 		CE857D7F16B01D5C00947B06 /* Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Prefix.pch; path = tilegame/Prefix.pch; sourceTree = "<group>"; };
@@ -867,7 +866,6 @@
 				CE857D7716B01D5C00947B06 /* DVConstants.h */,
 				CE857D7816B01D5C00947B06 /* DVDownloader.h */,
 				CE857D7916B01D5C00947B06 /* DVDownloader.m */,
-				CE857D7A16B01D5C00947B06 /* DVMacros.h */,
 				CE857D7B16B01D5C00947B06 /* DVUtils.h */,
 				CE857D7C16B01D5C00947B06 /* DVUtils.m */,
 				3FBFF4B016C9676000A3C7CE /* CCTMXLayerWrapper.h */,

@@ -12,7 +12,6 @@
 #import "cocos2d.h"
 #import "SimpleAudioEngine.h"
 #import "CoreGameLayer.h"
-#import "DVMacros.h"
 #import "WeaponNode.h"
 
 static int _uniqueIDCounter = 0;

@@ -8,7 +8,6 @@
 
 #import "CountdownLayer.h"
 #import "CoreGameLayer.h"
-#import "DVMacros.h"
 #import "DVConstants.h"
 
 @implementation CountdownLayer

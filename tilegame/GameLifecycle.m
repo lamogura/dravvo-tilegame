@@ -9,7 +9,6 @@
 #import "cocos2d.h"
 #import "GameLifecycle.h"
 #import "DVConstants.h"
-#import "DVMacros.h"
 #import "LoadingLayer.h"
 #import "NewGameLayer.h"
 #import "CoreGameLayer.h"

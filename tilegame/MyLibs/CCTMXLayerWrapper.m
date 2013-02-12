@@ -9,7 +9,6 @@
 #import "CCTMXLayerWrapper.h"
 #import "cocos2d.h"
 #import "CoreGameLayer.h"
-#import "DVMacros.h"
 #import "CCSequenceHelper.h"
 
 @implementation CCTMXLayerWrapper

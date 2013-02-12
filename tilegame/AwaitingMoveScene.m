@@ -7,7 +7,6 @@
 //
 
 #import "AwaitingMoveScene.h"
-#import "DVMacros.h"
 #import "DVConstants.h"
 
 @implementation AwaitingMoveLayer
