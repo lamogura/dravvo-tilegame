@@ -15,10 +15,12 @@
 #define kDVPlayerTwo 2
 
 // change properties if you chane this KVO constants
-#define kDVNumMelonsKVO     @"numMelons"
-#define kDVNumKillsKVO      @"numKills"
-#define kDVNumShurikensKVO  @"numShurikens"
-#define kDVNumMisslesKVO    @"numMissiles"
+#define kDVNumMelonsKVO         @"numMelons"
+#define kDVNumKillsKVO          @"numKills"
+#define kDVNumShurikensKVO      @"numShurikens"
+#define kDVNumMisslesKVO        @"numMissiles"
+#define kDVPlayerScoreKVO       @"score"
+#define kDVOpponentScoreKVO     @"score"
 
 // action modes the player can be in
 typedef enum {
@@ -53,6 +55,7 @@ typedef enum {
 -(id)initInLayer:(CoreGameLayer *)layer atSpawnPoint:(CGPoint)spawnPoint withUniqueIntID:(int)intID withShurikens:(int)numShurikens withMissles:(int)numMissles;
 -(id)initInLayer:(CoreGameLayer *)layer atSpawnPoint:(CGPoint)spawnPoint withUniqueIntID:(int)intID withShurikens:(int)numShurikens withMissles:(int)numMissles withKills:(int)numKills withMelons:(int)numMelons;
 -(void) pickupChicken:(Chicken*)chicken;  // DEBUG - change this to pass a tag ID for the chicken which is same as ownerID for the Chicken?
+//-(void) pickupChicken2:(Chicken *)chicken;
 -(void) dropChicken;
 
 @end

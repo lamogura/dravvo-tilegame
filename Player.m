@@ -52,6 +52,7 @@
         self->_minions = [[NSMutableDictionary alloc] init];
         self->_missiles = [[NSMutableDictionary alloc] init];
         self->_shurikens = [[NSMutableDictionary alloc] init];
+        self->_score = 0;
         self.mode = DVPlayerMode_Moving;
         self.isCarryingChicken = NO;
         
@@ -255,6 +256,34 @@
     [super draw];
     [_carryingChicken draw];
 }
+/*
+-(void) pickupChicken2:(Chicken *)chicken
+{
+    self.carryingChicken = chicken;
+    self.isCarryingChicken = TRUE;
+//    [self.gameLayer removeChild:self.carryingChicken cleanup:YES];
+    [self.carryingChicken.sprite removeFromParentAndCleanup:YES];
+//    self.carryingChicken.sprite.position = [self.gameLayer convertToWorldSpace:self.carryingChicken.sprite.position];
+    self.carryingChicken.sprite.position = [self.gameLayer convertToWorldSpace:self.sprite.position];
+//    self.carryingChicken.sprite.position = [self.sprite convertToNodeSpace:self.carryingChicken.sprite.position]; // self.carryingChicken.sprite.position
+    [self.sprite addChild:self.carryingChicken.sprite];
+
+    
+    //    self.carryingChicken.sprite.position = ccp(0, 0);
+//    self.carryingChicken.sprite.anchorPoint = ccp(0.5f, 0.5f);
+    
+    
+//    self.carryingChicken.sprite.position = self.sprite.position;
+//    id scaleDownAction =  [CCEaseIn actionWithAction:[CCScaleTo actionWithDuration:1 scaleX:0.7 scaleY:0.7] rate:1.0];
+//    [self.carryingChicken.sprite runAction:scaleDownAction];
+
+
+
+//    [self.sprite addChild:self.carryingChicken];
+
+    
+}
+*/
 
 -(void) pickupChicken:(Chicken*)chicken  // DEBUG - change this to pass a tag ID for the chicken which is same as ownerID for the Chicken?
 {
@@ -280,8 +309,40 @@
 //    chicken.position = [self convertToNodeSpace:chicken.sprite.position];
 
 //    ULog(@"chicken.owner.uniqueID = %d",chicken.owner.uniqueID);
-
+    // get a chickenSprite from the chicken object, add as our child
+    
+    // WORKS!!!
+    
+//    CCSprite* chickenSprite = [self.carryingChicken getSprite];
+//    [chickenSprite removeFromParentAndCleanup:YES];
+//    chickenSprite.position = [self.gameLayer convertToWorldSpace:chickenSprite.position];
+//    chickenSprite.position = [self.sprite convertToNodeSpace:chickenSprite.position];
+//    [self.sprite addChild:chickenSprite];
+    // END WORKS !!!
+    
+    self.carryingChicken.position = [self.gameLayer convertToWorldSpace:self.carryingChicken.position];
+    self.carryingChicken.position = [self.sprite convertToNodeSpace:self.carryingChicken.position];
+    self.carryingChicken.sprite.position = self.sprite.position;
+    // scale the chicken down while being held
+    id scaleDownAction =  [CCEaseIn actionWithAction:[CCScaleTo actionWithDuration:1 scaleX:0.7 scaleY:0.7] rate:1.0];
+    [self.carryingChicken.sprite runAction:scaleDownAction];
     [self.sprite addChild:self.carryingChicken];
+    self.carryingChicken.sprite.anchorPoint = ccp(0.0, 0.5);
+//    self.carryingChicken.sprite.opacity = 200;
+
+//    ULog(@"Sprite Anchor Point = %f, %f", self.sprite.anchorPoint.x, self.sprite.anchorPoint.y);
+    
+    //    chickenSprite.position = [self convertToNodeSpace:chickenSprite.position];
+
+    // flip about the y-axis
+//    CGSize winSize = [[CCDirector sharedDirector] winSize];
+//    ULog(@"offsetPosition = %f,%f",chickenSprite.offsetPosition.x, chickenSprite.offsetPosition.y);
+    
+//    int y = MAX(position.y, winSize.height/2);
+//    float distFromCenter = chickenSprite.position.y - winSize.height/2;
+//    float newYCoord = winSize.height/2 - distFromCenter;
+//    chickenSprite.position = ccp(chickenSprite.position.x, newYCoord);
+
    
     
     //    self->_carryingChicken.sprite.position = [self.gameLayer convertToNodeSpace:self->_carryingChicken.sprite.position];
@@ -300,6 +361,10 @@
 
 -(void) dropChicken
 {
+    self.isCarryingChicken = FALSE;
+    [self.sprite removeChild:self.carryingChicken cleanup:YES];
+    self.carryingChicken.position = [self.carryingChicken convertToWorldSpace:self.carryingChicken.position];
+    [self.gameLayer addChild:self.carryingChicken];
     // DEBUG - change this to make a tag ID for the chicken which is same as ownerID for the Chicken?
     // this won't work, we'll kill our own sprite. fix by keeping the tag of our picked up chicken
 //    [self removeChildByTag:self.carryingChickenTag cleanup:YES];

@@ -100,6 +100,33 @@
         _labelTimer.position = ccp((_labelTimer.contentSize.width/2) + margin,
                                    winSize.height - _labelTimer.contentSize.height/2 - margin);
         [self addChild:_labelTimer];
+        
+        // opponent score
+        _labelOpponentScore = [CCLabelTTF labelWithString:[NSString stringWithFormat:kHUDStringFormat_OpponentScore, layer.opponent.score]
+                                           dimensions:CGSizeMake(200, 20)
+                                           hAlignment:UITextAlignmentLeft
+                                             fontName:@"Verdana-Bold"
+                                             fontSize:18.0];
+        [layer.opponent addObserver:self forKeyPath:kDVPlayerScoreKVO options:NSKeyValueObservingOptionNew context:nil];
+        _labelOpponentScore.color = ccc3(255, 0, 0);
+        margin = 10;
+        _labelOpponentScore.position = ccp(winSize.width/2,
+                                       winSize.height - _labelOpponentScore.contentSize.height/2 - margin);
+        [self addChild:_labelOpponentScore];
+
+        // player score
+        _labelPlayerScore = [CCLabelTTF labelWithString:[NSString stringWithFormat:kHUDStringFormat_PlayerScore, layer.player.score]
+                                               dimensions:CGSizeMake(200, 20)
+                                               hAlignment:UITextAlignmentLeft
+                                                 fontName:@"Verdana-Bold"
+                                                 fontSize:18.0];
+        [layer.player addObserver:self forKeyPath:kDVOpponentScoreKVO options:NSKeyValueObservingOptionNew context:nil];
+        _labelPlayerScore.color = ccc3(67, 173, 59);
+        margin = 10;
+        _labelPlayerScore.position = ccp(winSize.width/2,
+                                           winSize.height - _labelPlayerScore.contentSize.height/2 - _labelOpponentScore.contentSize.height - margin);
+        [self addChild:_labelPlayerScore];
+        
     }
     return self;
 }
@@ -119,6 +146,12 @@
     }
     else if ([keyPath isEqualToString:kDVNumTimerKVO]) {
         [_labelTimer setString:[NSString stringWithFormat:kHUDStringFormat_Timer, (int)[[change objectForKey:NSKeyValueChangeNewKey] floatValue]]];
+    }
+    else if ([keyPath isEqualToString:kDVOpponentScoreKVO]) {
+        [_labelOpponentScore setString:[NSString stringWithFormat:kHUDStringFormat_OpponentScore, [[change objectForKey:NSKeyValueChangeNewKey] intValue]]];
+    }
+    else if ([keyPath isEqualToString:kHUDStringFormat_PlayerScore]) {
+        [_labelShurikens setString:[NSString stringWithFormat:kHUDStringFormat_PlayerScore, [[change objectForKey:NSKeyValueChangeNewKey] intValue]]];
     }
 }
 

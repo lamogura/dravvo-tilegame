@@ -101,7 +101,7 @@ static DVServerGameData* _serverGameData;
  	[scene addChild:layer];
     [scene addChild:hud];
 
-    CountdownLayer* cdlayer = [[CountdownLayer alloc] initWithCountdownFrom:3 AndCallBlockWhenCountdownFinished:^(id status) {
+    CountdownLayer* cdlayer = [[CountdownLayer alloc] initWithCountdownFrom:0 AndCallBlockWhenCountdownFinished:^(id status) {
         [layer startRound];
     }];
 
@@ -497,8 +497,6 @@ static DVServerGameData* _serverGameData;
     // temp only - replace with server game data object
     eventsArray = [NSMutableArray arrayWithArray:[EntityNode eventHistory]]; // NSMutableArray*
     DLog(@"eventsArray count = %d",[eventsArray count]);
-    
-    [self setViewpointCenter:_player.carryingChicken.sprite.position];
 
     [self enemyPlaybackLoop];
     /*
@@ -533,37 +531,57 @@ static DVServerGameData* _serverGameData;
 
 -(void) updateScore:(ccTime)deltaTime
 {
-    // opponent's chicken
-    CGPoint tileCoord = [self tileCoordForPosition:_opponent.carryingChicken.sprite.position];
-    int tileGid = [_meta tileGIDAt:tileCoord];  // GID is the ID for this kind of tile
+    // opponent's chicken is in our castle
+    
+//    self.carryingChicken.position = [self.gameLayer convertToWorldSpace:self.carryingChicken.position];
+//    self.carryingChicken.position = [self.sprite convertToNodeSpace:self.carryingChicken.position];
+//    self.carryingChicken.sprite.position = self.sprite.position;
+    
+    CGPoint tileCoord = [self tileCoordForPosition:[self convertToWorldSpace:_opponent.ownedChicken.sprite.position]];
+    int tileGid = [_metaCastle tileGIDAt:tileCoord];  // GID is the ID for this kind of tile
     if(tileGid)
     {
         NSDictionary* properties = [_tileMap propertiesForGID:tileGid];
         if(properties)
         {
-            // if the enemy chicken is sitting in our control area, increment score
             if([[properties valueForKey:@"Owner"] intValue] == _player.uniqueID)
             {
-                _player.score += 10;  // 10 points per second for chicken control
+                self.player.score += 10;  // 10 points per second for chicken control
+                //ULog(@"Score = %d", self.player.score);
             }
         }
     }
-    // player's chicken
-    tileCoord = [self tileCoordForPosition:_player.carryingChicken.sprite.position];
-    tileGid = [_meta tileGIDAt:tileCoord];  // GID is the ID for this kind of tile
+    // player's (our) chicken is in our castle
+    // spawn a boom right where the chicken is
+    CCSprite* sprite = [CCSprite spriteWithFile:@"boom.png"];
+    if(_player.carryingChicken != nil)
+        sprite.position = [self convertToWorldSpace:_player.ownedChicken.sprite.position];
+    else
+        sprite.position = _player.ownedChicken.sprite.position;
+    
+/*
+//    sprite.position = [self convertToWorldSpace:_player.ownedChicken.sprite.position];
+    [self addChild:sprite];
+    DLog(@"player's chicken at: %f, %f ", _player.ownedChicken.sprite.position.x, _player.ownedChicken.sprite.position.y);
+    
+
+    tileCoord = [self tileCoordForPosition:[self convertToWorldSpace:_player.ownedChicken.sprite.position]];
+    DLog(@"player's chicken at: %f, %f ", _player.ownedChicken.sprite.position.x, _player.ownedChicken.sprite.position.y);
+    tileGid = [_metaCastle tileGIDAt:tileCoord];  // GID is the ID for this kind of tile
     if(tileGid)
     {
         NSDictionary* properties = [_tileMap propertiesForGID:tileGid];
         if(properties)
         {
-            // if the enemy chicken is sitting in our control area, increment score
             if([[properties valueForKey:@"Owner"] intValue] == _player.uniqueID)
             {
-                _opponent.score += 10;  // 10 points per second for chicken control
+                self.player.score += 1;  // 1 point per second for chicken control
+                //ULog(@"Score = %d", self.player.score);
             }
         }
     }
-        
+     */   
+
 }
 
 -(void) mainGameLoop:(ccTime)deltaTime
@@ -616,6 +634,7 @@ static DVServerGameData* _serverGameData;
         [self unschedule:@selector(sampleCurrentPositions:)];
         [self unschedule:@selector(mainGameLoop:)];
         [self unschedule:@selector(testCollisions:)];
+        [self unschedule:@selector(updateScore:)];
         // wait a couple seconds
 //        sleep(2);
         [self roundFinished];  // try a [self scheduleOnce:@selector(enemyPlaybackLoop)]; instead
@@ -1310,7 +1329,6 @@ static DVServerGameData* _serverGameData;
 //            [self removeChildByTag:_opponent.uniqueID cleanup:NO];
 //            [_player pickupChicken:_opponent.chicken withTag:_opponent.uniqueID];
             [_player pickupChicken:_opponent.ownedChicken];
-            [self setViewpointCenter:_player.carryingChicken.sprite.position];
         }
         else if(CGRectIntersectsRect(_player.sprite.boundingBox,_player.ownedChicken.sprite.boundingBox))
         {
@@ -1318,7 +1336,13 @@ static DVServerGameData* _serverGameData;
 //            [self removeChildByTag:_player.uniqueID cleanup:NO];
 //            [_player pickupChicken:_player.chicken withTag:_player.uniqueID];
             [_player pickupChicken:_player.ownedChicken];
-            [self setViewpointCenter:_player.carryingChicken.sprite.position];
+        }
+    }
+    if(_timeStepIndex == 16)
+    {
+        if(_player.isCarryingChicken)
+        {
+            [_player dropChicken];
         }
     }
 

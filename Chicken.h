@@ -17,9 +17,10 @@
 #define kEntityChickenHitPoints 9999  // can't really kill the chicken
 #define kEntityChickenSpeedPPS 100
 
-@class CreatureNode;
-
 @interface Chicken : CreatureNode
+
+@property (nonatomic, assign) int speedInPixelsPerSec;
+@property (nonatomic, strong) EntityNode* owner;
 
 -(id)initInLayerWithoutCache:(CoreGameLayer *)layer atSpawnPoint:(CGPoint)spawnPoint withBehavior:(DVCreatureBehavior)behavior ownedBy:(EntityNode *)owner;
 -(id)initInLayerWithoutCache_AndAnimate:(CoreGameLayer *)layer atSpawnPoint:(CGPoint)spawnPoint withBehavior:(DVCreatureBehavior)behavior ownedBy:(EntityNode *)owner withUniqueID:(int)uniqueID afterDelay:(ccTime) delay;
